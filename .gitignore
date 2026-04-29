@@ -9,6 +9,13 @@ coverage/
 .vercel
 .tmp.driveupload/
 .tmp.original_levelup.tsx
-.deprecated/test-artifacts/
+.deprecated/
 .claude/sessions/
-web-capture-*.json
+**/web-capture-*.json
+**/* 2.ts
+**/* 2.tsx
+**/* 2.json
+**/*.patch
+**/*.old
+**/.tmp.*
+**/.DS_Store

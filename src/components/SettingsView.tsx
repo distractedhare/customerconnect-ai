@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { 
   Settings, Users, MessageSquare, Rocket, Download, 
   Wifi, ShieldCheck, Loader2, CheckCircle2, AlertCircle,
-  Info
+  Info, RefreshCw
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import TeamConfig from './levelup/TeamConfig';
@@ -181,14 +181,30 @@ export default function SettingsView({ initialTab = 'team' }: SettingsViewProps)
                 <span className={runtimeMeta.environmentClass}>{runtimeMeta.environmentLabel}</span>
               </div>
             </div>
-            <button
-              type="button"
-              onClick={() => setActiveTab('feedback')}
-              className="w-full mt-2 py-2 rounded-lg border border-t-light-gray bg-surface text-[9px] font-black uppercase tracking-widest text-t-dark-gray hover:bg-t-light-gray/30 flex items-center justify-center gap-2"
-            >
-              <MessageSquare className="w-3 h-3" />
-              Send Pilot Feedback
-            </button>
+            
+            <div className="pt-2 flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  if (confirm('Force refresh will reload the application and bypass the cache. Continue?')) {
+                    window.location.reload();
+                  }
+                }}
+                className="w-full py-2 rounded-lg border border-t-light-gray bg-surface text-[9px] font-black uppercase tracking-widest text-t-dark-gray hover:bg-t-light-gray/30 flex items-center justify-center gap-2"
+              >
+                <RefreshCw className="w-3 h-3" />
+                Force App Refresh
+              </button>
+              
+              <button
+                type="button"
+                onClick={() => setActiveTab('feedback')}
+                className="w-full py-2 rounded-lg border border-t-light-gray bg-surface text-[9px] font-black uppercase tracking-widest text-t-dark-gray hover:bg-t-light-gray/30 flex items-center justify-center gap-2"
+              >
+                <MessageSquare className="w-3 h-3" />
+                Send Pilot Feedback
+              </button>
+            </div>
           </div>
         </div>
 

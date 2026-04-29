@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title>Precision Spear</title>
+  <rect x="6" y="6" width="52" height="52" rx="14" fill="#10071C" stroke="#9B5CFF" stroke-width="3"/>
+  <path d="M48 12 20 40l-4 12 12-4 28-28-8-8Z" fill="#D7C2FF" stroke="#9B5CFF" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M23 41 35 29" stroke="#10071C" stroke-width="3" stroke-linecap="round"/>
+</svg>

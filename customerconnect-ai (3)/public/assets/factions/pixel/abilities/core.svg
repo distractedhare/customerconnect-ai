@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title>Adaptive Protocol</title>
+  <rect x="6" y="6" width="52" height="52" rx="14" fill="#07130B" stroke="#9AE94A" stroke-width="3"/>
+  <path d="M32 12 50 22v12c0 11-7 18-18 21-11-3-18-10-18-21V22l18-10Z" fill="#102515" stroke="#E8EDF6" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M22 32h20M22 40h20M32 22v26" stroke="#9AE94A" stroke-width="3" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,628 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "updatedDate": "2026-03-28",
+    "updatedBy": "B. Schulze",
+    "validUntil": "2026-04-30",
+    "notes": "Initial ecosystem matrix — device, IoT, and accessory recommendations by demographic. Generated from 299-source NotebookLM notebook + existing app content.",
+    "updateCadence": "monthly (weekly if major product launches)"
+  },
+
+  "demographics": {
+    "18-24": {
+      "label": "Gen Z",
+      "profile": "Mobile-first digital natives who value authenticity, speed, peer reviews, and visual social media. Budget-conscious but willing to splurge on status, trendiness, or unique experiences.",
+      "trustLanguage": "Social proof, peer validation, FOMO-driven urgency",
+      "avoidLanguage": "Patronizing tech explanations, corporate jargon, anything that sounds like a lecture",
+
+      "smartphones": [
+        {
+          "device": "Apple iPhone 17e",
+          "why": "Hits budget-conscious needs with the C1X 5G modem, 256GB base storage (double space for videos/photos), and MagSafe compatibility. Camera-first device for content creation.",
+          "pitchVariations": [
+            "This is the iPhone that was basically built for TikTok and Instagram — double the storage so you're not constantly deleting stuff to make room for videos.",
+            "256 gigs out of the box. That's a lot of content before you have to worry about space. And the camera on this thing is no joke for the price.",
+            "If you want the iPhone ecosystem without dropping a grand, this is the play. MagSafe, 5G, great camera — just without the Pro price tag."
+          ]
+        },
+        {
+          "device": "Motorola Razr 2025",
+          "why": "Foldable form factor appeals to desire for standout, nostalgic yet trendy devices. Conversation starter, social media content magnet.",
+          "pitchVariations": [
+            "This phone literally stops people in their tracks. The flip factor is huge — everyone wants to see it when you pull it out.",
+            "It's giving retro vibes but with flagship specs. Plus the outer screen means you can take selfies with the main camera — game changer for content.",
+            "If you're tired of every phone looking the same, this is the one that doesn't. It folds, it's different, and it's genuinely fun to use."
+          ]
+        }
+      ],
+
+      "tablets": [
+        {
+          "device": "Apple iPad Air 11-inch (M3/M4)",
+          "why": "Top-tier creative and academic performance at a more accessible price than the Pro lineup.",
+          "pitchVariations": [
+            "If you're in school or doing any kind of creative work, this is the sweet spot — Pro-level performance without the Pro price.",
+            "The M3 chip in this thing handles video editing, graphic design, all of it. And it's light enough to throw in a bag every day.",
+            "You get like 90% of what the Pro does for way less. Unless you're doing professional-level 3D rendering, you won't miss the difference."
+          ]
+        }
+      ],
+
+      "wearables": [
+        {
+          "device": "Apple Watch SE 3",
+          "why": "Budget-friendly entry into the Apple ecosystem with core health and fitness tracking.",
+          "pitchVariations": [
+            "It's the Apple Watch without the Apple Watch price. You get all the basics — notifications, fitness tracking, Apple Pay — for a lot less.",
+            "If you're not sure you want to commit to a smartwatch yet, this is the one to try. Low cost, full ecosystem.",
+            "Pairs with your iPhone instantly. Texts, calls, music control — all from your wrist. And it tracks your workouts automatically."
+          ]
+        },
+        {
+          "device": "Google Pixel Watch 4",
+          "why": "Deep Fitbit integration, health tracking, trendy design for Android users.",
+          "pitchVariations": [
+            "If you're on Android, this is the best smartwatch out there right now. Fitbit built in, Google AI features, clean design.",
+            "The health tracking on this is next level — sleep, heart rate, stress. And it looks good enough to wear out, not just to the gym.",
+            "It's basically a Fitbit that does everything a smartwatch should. Plus you get Google Maps on your wrist — handy when your phone's in your pocket."
+          ]
+        }
+      ],
+
+      "iotProducts": [
+        {
+          "product": "SyncUP TRACKER",
+          "why": "Luggage and valuable item tracking for travel-heavy, experience-driven lifestyle.",
+          "pitchVariations": [
+            "If you travel at all — even weekend trips — this thing tracks your bag across the country. Not Bluetooth range like AirTags, actual cellular GPS.",
+            "It's ten bucks and you never lose your stuff. Luggage, backpack, whatever. The battery lasts days, not hours.",
+            "Way better range than a Bluetooth tracker. This uses its own cellular connection so it works even if your phone isn't nearby."
+          ]
+        },
+        {
+          "product": "T-Mobile Home Internet",
+          "why": "Affordable alternative to cable for apartment/dorm living, no contracts.",
+          "pitchVariations": [
+            "If you're paying for cable internet in your apartment, you're probably overpaying. This is $30 a month bundled with your phone plan, no contract, no installation appointment.",
+            "Set it up in 15 minutes, no drilling holes in the wall. Your landlord will thank you and your wallet will too.",
+            "No data caps, no annual contract. If the speeds aren't good enough in your area, you've got 15 days to return it. Zero risk."
+          ]
+        }
+      ],
+
+      "accessories": [
+        {
+          "category": "Audio",
+          "items": ["AirPods 4", "Galaxy Buds4"],
+          "why": "Essential for content consumption, commuting, and calls. Status symbol.",
+          "pitchVariations": [
+            "These are basically a lifestyle accessory at this point. Everyone needs a solid pair of earbuds.",
+            "The noise cancellation on these is perfect for commuting or studying. And they're wireless charging — just drop them on the pad.",
+            "If you're watching stuff on your phone constantly, decent earbuds make a massive difference. These are the ones to get."
+          ]
+        },
+        {
+          "category": "Gaming",
+          "items": ["Backbone One Controller"],
+          "why": "Mobile gaming is huge with this demo. Turns phone into a handheld console.",
+          "pitchVariations": [
+            "If you game on your phone at all, this turns it into basically a Nintendo Switch. Cloud gaming, emulators, everything.",
+            "Backbone plus a Game Pass subscription and you've got a full console experience in your pocket. Seriously.",
+            "A hundred bucks and your phone becomes a legit gaming device. It's the accessory nobody knows they need until they try it."
+          ]
+        },
+        {
+          "category": "Smart Eyewear",
+          "items": ["Ray-Ban Meta Wayfarer"],
+          "why": "Social media integration, content creation, tech-forward status symbol.",
+          "pitchVariations": [
+            "These are the sunglasses that record video and take calls. If you're into content creation, they're wild.",
+            "They look like regular Ray-Bans but they stream to Instagram, take photos, play music. Tech that doesn't look like tech.",
+            "If someone's into the latest gear, these are the conversation piece. Meta AI built in, hands-free everything."
+          ]
+        },
+        {
+          "category": "Protection",
+          "items": ["ZAGG Glass Elite Privacy 360", "PopSockets PopGrip MagSafe"],
+          "why": "Privacy screen protector resonates with this age group. PopSockets are a self-expression accessory.",
+          "pitchVariations": [
+            "The privacy screen protector is huge for this age group — nobody can see your screen on the bus or in class. And it still protects against drops.",
+            "PopSocket plus MagSafe means you can snap it on and off. Swap colors, match your mood. It's a $30 accessory that makes the phone feel personal.",
+            "Privacy glass plus a PopGrip — that's your screen handled and your grip handled for under sixty bucks with the bundle discount."
+          ]
+        }
+      ]
+    },
+
+    "25-34": {
+      "label": "Millennials",
+      "profile": "Tech-savvy, omnichannel, value convenience, frictionless experiences, and value-alignment. Suffer from subscription fatigue but willing to pay for premium experiences and seamless digital integrations.",
+      "trustLanguage": "Bundled value, ecosystem efficiency, time-saving, ROI-focused",
+      "avoidLanguage": "Pushy upselling, anything that adds complexity or another subscription to manage",
+
+      "smartphones": [
+        {
+          "device": "Apple iPhone 17 Pro/Pro Max",
+          "why": "Peak discretionary spending years. View phones as central hubs for remote work, smart home management, and capturing family memories. Best cameras and longest battery life.",
+          "pitchVariations": [
+            "This is the phone for someone who uses it for everything — work calls, family photos, smart home control, streaming. It does all of it at the highest level.",
+            "The camera system on the Pro is genuinely professional quality. If you're capturing family moments, travel, anything — you'll notice the difference from your current phone immediately.",
+            "Battery life alone might sell you on this. All-day use without thinking about a charger. Plus the USB-C means one cable for everything you own."
+          ]
+        },
+        {
+          "device": "Samsung Galaxy S26 Ultra",
+          "why": "Premium Android ecosystem, S Pen for productivity, best display for media. Currently free with no trade-in on qualifying plans.",
+          "pitchVariations": [
+            "Right now this phone is free with no trade-in. A thousand-dollar phone for zero out of pocket. That deal doesn't come around often.",
+            "If you're in the Samsung ecosystem — Galaxy Watch, Galaxy Buds, SmartThings — this is the hub that ties everything together.",
+            "The S Pen is underrated for people who actually use their phone for work. Quick notes, document markup, signing things on the go."
+          ]
+        }
+      ],
+
+      "tablets": [
+        {
+          "device": "Apple iPad Pro 11-inch/13-inch (M4/M5)",
+          "why": "Hybrid laptop replacement for remote work, creative side-hustles, and media streaming.",
+          "pitchVariations": [
+            "A lot of people are replacing their laptops with these for everyday work. Lighter, better battery, and with the keyboard case it's a full workstation.",
+            "If you work from home even part of the time, this is a second screen, a note-taking device, and a Netflix machine all in one.",
+            "The M4 chip in this handles everything a laptop does. Video editing, big spreadsheets, multitasking — without the bulk."
+          ]
+        },
+        {
+          "device": "Samsung Galaxy Tab S10 Ultra",
+          "why": "Android power users who want a large-screen productivity and entertainment device.",
+          "pitchVariations": [
+            "Biggest screen on any tablet. If you're doing split-screen work or watching stuff, the real estate is unmatched.",
+            "Pairs perfectly with your Galaxy phone — seamless file sharing, calls on the tablet, same Samsung account syncs everything.",
+            "The S Pen comes included. For note-taking, sketching, document markup — it's the productivity tablet for people who actually produce things."
+          ]
+        }
+      ],
+
+      "wearables": [
+        {
+          "device": "Apple Watch Series 11 (42mm/46mm)",
+          "why": "Premium health tracking, family connectivity, smart home control from wrist.",
+          "pitchVariations": [
+            "Advanced health monitoring — heart rate, blood oxygen, sleep tracking. For someone juggling work and family, the health insights are actually useful.",
+            "Control your smart home from your wrist. Lights, thermostat, locks — while you're carrying groceries or a kid. That's real convenience.",
+            "Two watches together are $300 off right now. One for you, one for your partner. Family health tracking without the full phone cost for each."
+          ]
+        },
+        {
+          "device": "SyncUP KIDS Watch 2",
+          "why": "Millennials becoming parents. GPS tracking, virtual boundary alerts, secure video/voice calling without giving kids a full smartphone.",
+          "pitchVariations": [
+            "If your kid isn't ready for a phone but you want to know where they are, this is the answer. Real-time GPS, you can set boundaries, and they can call you.",
+            "Video calling, voice calling, location tracking — everything a parent needs, nothing a kid doesn't. No internet, no social media, no apps.",
+            "It's peace of mind for like ten bucks a month. You can see where they are on your phone anytime. Way better than handing an eight-year-old an iPhone."
+          ]
+        }
+      ],
+
+      "iotProducts": [
+        {
+          "product": "T-Mobile Home Internet All-In Plan",
+          "why": "Cures subscription fatigue. Includes Wi-Fi 7 gateway, Hulu, Paramount+, cybersecurity, and 24/7 video tech support. Over $480/year in bundled value.",
+          "pitchVariations": [
+            "You're probably paying for internet, a streaming service, and maybe some security software separately. This bundles all of that — internet, Hulu, Paramount+, cybersecurity — for $55 a month.",
+            "The All-In plan is basically designed for someone tired of managing six different subscriptions. One bill, everything included, and the Wi-Fi 7 gateway is the fastest we've got.",
+            "If you do the math on internet plus Hulu plus Paramount+ plus cybersecurity separately, you're spending way more than $55 a month. This just consolidates it."
+          ]
+        },
+        {
+          "product": "SyncUP DRIVE",
+          "why": "Family car Wi-Fi hotspot for road trips, disturbance alerts, connects up to 5 devices.",
+          "pitchVariations": [
+            "Turns your car into a Wi-Fi hotspot — connects five devices. Road trips with kids? Everyone's streaming on their own screen. No fighting over hotspot data.",
+            "It also monitors your car — engine diagnostics, trip history, and you get alerts if it's disturbed. For families with a shared car, it's real peace of mind.",
+            "Ten bucks a month and your car has its own internet plus roadside assistance. If you've got a family and a commute, this pays for itself."
+          ]
+        },
+        {
+          "product": "Inseego MiFi X PRO 5G",
+          "why": "Remote work flexibility. Dedicated mobile hotspot for working from anywhere — coffee shops, parks, travel.",
+          "pitchVariations": [
+            "If you work remotely and don't always want to rely on cafe Wi-Fi, this is your own 5G connection you carry with you.",
+            "Dedicated hotspot means your work VPN stays stable. No more dropped video calls because the coffee shop Wi-Fi is struggling.",
+            "It's a portable office. Connects up to 30 devices. If you work from different locations, this is the most reliable connection you can get."
+          ]
+        }
+      ],
+
+      "accessories": [
+        {
+          "category": "Smart Home",
+          "items": ["Nest devices", "Smart locks", "Smart speakers"],
+          "why": "Millennials invest heavily in connected living. Ecosystem integration is key.",
+          "pitchVariations": [
+            "If you're building out a smart home, everything works better when your internet is rock solid. That's where Home Internet fits — dedicated connection, no throttling.",
+            "Smart locks, cameras, lights — they all need reliable Wi-Fi. The Wi-Fi 7 gateway covers the whole house without dead zones.",
+            "The more smart home devices you add, the more important your internet connection gets. Our gateway handles dozens of devices without slowing down."
+          ]
+        },
+        {
+          "category": "Audio",
+          "items": ["AirPods Pro 3", "Galaxy Buds4"],
+          "why": "Premium audio for work calls, commuting, and home use. Noise cancellation is a must for WFH.",
+          "pitchVariations": [
+            "If you work from home, the noise cancellation on these is a game changer for calls. Blocks out the kids, the dog, the construction outside.",
+            "These double as your work headset and your gym earbuds. No more switching between two pairs.",
+            "Transparency mode means you can hear your kid yelling from the other room without taking them out. WFH essential."
+          ]
+        },
+        {
+          "category": "Charging",
+          "items": ["Apple MagSafe Charger", "Samsung Ultimate Charging Bundle"],
+          "why": "Convenience-driven. Nightstand charging, desk charging, car charging — multiple locations.",
+          "pitchVariations": [
+            "MagSafe on the nightstand, a charger at the desk, one in the car — you never think about battery again. That's the setup.",
+            "The Samsung bundle gets you wall charger, car charger, and cables for seventy bucks. That's every charging location covered.",
+            "With the 25% bundle discount, adding a charger to your case and screen protector basically makes the charger free."
+          ]
+        }
+      ]
+    },
+
+    "35-54": {
+      "label": "Gen X",
+      "profile": "The pragmatic sandwich generation — often caring for both children and aging parents. Time-poor, highly research-oriented, skeptical of hype. Value durability, reliability, transparent pricing, and practical ROI.",
+      "trustLanguage": "Data-driven, transparent pricing, long-term value, practical utility",
+      "avoidLanguage": "Flashy jargon, hype, anything that feels like a sales trick",
+
+      "smartphones": [
+        {
+          "device": "Samsung Galaxy S25+",
+          "why": "Durable, high-quality flagship that lasts years. Practical features without Ultra price premium. Gen X skips the most expensive tier if extras don't offer daily value.",
+          "pitchVariations": [
+            "This is the phone for someone who wants it to work perfectly for three-plus years without needing to upgrade. Flagship quality, practical price.",
+            "You get 95% of what the Ultra does without paying for the S Pen and the extra camera zoom most people never use. Smart money move.",
+            "Durable, fast, great camera. No gimmicks. It does what a phone should do, really well, for a long time."
+          ]
+        },
+        {
+          "device": "Apple iPhone 17",
+          "why": "Reliable ecosystem, familiar interface, long software support. Not the Pro Max — the standard flagship hits the value sweet spot for this demo.",
+          "pitchVariations": [
+            "Apple supports their phones with software updates for six-plus years. You buy this now, it's still getting updates in 2032. That's real long-term value.",
+            "If you're already in the Apple ecosystem — Mac, iPad, Watch — this just works with everything. No setup, no hassle.",
+            "The standard iPhone 17 is where the value is. Same chip as the Pro, same core features. The Pro tax is for camera nerds and bragging rights."
+          ]
+        }
+      ],
+
+      "tablets": [
+        {
+          "device": "Apple iPad (A16)",
+          "why": "Practical, cost-effective. Family sharing, household finances, media. Often aggressively promoted ($99 with tablet plan) — appeals to the deal-hunter in Gen X.",
+          "pitchVariations": [
+            "Ninety-nine bucks with a tablet plan. It's a family entertainment device, a recipe book, a second screen for work — for less than a dinner out.",
+            "The kids use it for school, you use it for email and Netflix. It does everything a family needs without breaking the budget.",
+            "At this price point, it's almost an impulse buy. And it holds its value — you can hand it down or resell it in two years and still get something back."
+          ]
+        },
+        {
+          "device": "T-Mobile Revvl Tab 2",
+          "why": "Ultra-affordable option for basic needs. Good enough for streaming, browsing, video calls.",
+          "pitchVariations": [
+            "If you just need a screen for streaming and video calls, this handles it at the lowest price we've got. No frills, does the job.",
+            "It's the tablet for the person who doesn't want to spend iPad money on something they'll mostly use for Netflix and FaceTime.",
+            "Solid for a shared family device. Keep it in the kitchen, the living room — it doesn't need to be precious at this price."
+          ]
+        }
+      ],
+
+      "wearables": [
+        {
+          "device": "Apple Watch Ultra 3",
+          "why": "Rugged durability, serious health/fitness tracking. Appeals to the 'buy it once, buy it right' mentality.",
+          "pitchVariations": [
+            "This is the watch you buy once and don't think about for five years. Titanium case, best battery life of any Apple Watch, serious durability.",
+            "If you're into fitness — running, cycling, hiking — this is the one with the real GPS and the battery to last a full marathon without dying.",
+            "It's the tool watch, not the fashion watch. Built to take a beating. If you work with your hands or are active outdoors, this is the one."
+          ]
+        },
+        {
+          "device": "Fitbit Charge 6",
+          "why": "No-nonsense health tracking without the smartwatch complexity. Simple, affordable, practical.",
+          "pitchVariations": [
+            "If you just want to track your steps, sleep, and heart rate without a whole smartwatch situation, this is the one. Simple and effective.",
+            "Week-long battery life. You charge it on Sunday and forget about it. No daily charging hassle.",
+            "It does health tracking really well and skips everything else. For someone who doesn't want notifications on their wrist, that's a feature, not a limitation."
+          ]
+        }
+      ],
+
+      "iotProducts": [
+        {
+          "product": "SyncUP DRIVE",
+          "why": "Highly practical for the household CFO. Tracks teen drivers (speeding, harsh braking), decodes check engine lights, prevents mechanic scams. Includes 24/7 AAA roadside assistance.",
+          "pitchVariations": [
+            "If you've got a teenager driving, this tracks their speed, braking, and location. You know where they are and how they're driving — without being in the car.",
+            "It reads your check engine light and tells you what it means in plain English. No more getting ripped off at the mechanic because you don't know what's wrong.",
+            "Ten bucks a month gets you car Wi-Fi, driver monitoring, vehicle diagnostics, and roadside assistance. For a family with multiple drivers, it's a no-brainer."
+          ]
+        },
+        {
+          "product": "T-Mobile Home Internet Backup Plan",
+          "why": "Dedicated 5G gateway with 130GB for $10/mo with eligible voice plans. Keeps the home online if primary ISP goes down — crucial for remote workers.",
+          "pitchVariations": [
+            "If you work from home and your cable internet goes down, you're dead in the water. This is a $10/month backup that kicks in automatically. Cheap insurance.",
+            "130 gigs of backup data. That's enough to keep you working through a full outage without skipping a beat. Video calls, VPN, everything.",
+            "It's not a replacement for your main internet — it's the safety net. For ten bucks a month, you never miss a meeting because Comcast is having a bad day."
+          ]
+        },
+        {
+          "product": "T-Mobile Home Internet",
+          "why": "Cable replacement with transparent pricing. No contracts, no hidden fees, 5-year price guarantee.",
+          "pitchVariations": [
+            "If you're paying $80 a month for cable internet and it goes up every year, this is $30 bundled with your phone plan and locked in for five years. Do the math.",
+            "No contract. No installation appointment. No surprise fees. What you see is what you pay. For five years. That's the pitch — it's just honest.",
+            "The 5-year price guarantee is the thing that resonates here. Your cable company raised rates last year and they'll do it again. We won't."
+          ]
+        }
+      ],
+
+      "accessories": [
+        {
+          "category": "Protection",
+          "items": ["UAG cases", "ZAGG Glass Elite"],
+          "why": "Durable, no-nonsense protection. Buy once, don't think about it again.",
+          "pitchVariations": [
+            "UAG cases are the ones military people use. If you want a case that actually protects the phone and not just looks pretty, this is it.",
+            "The ZAGG screen protector has a lifetime replacement warranty. It cracks, they send you a new one free. Buy it once.",
+            "Case plus screen protector plus a charger — three items, 25% off the bundle. Under fifty bucks for real protection."
+          ]
+        },
+        {
+          "category": "Charging",
+          "items": ["Samsung 45W Power Adapter", "Portable power banks"],
+          "why": "Fast charging matters for busy schedules. Reliability over aesthetics.",
+          "pitchVariations": [
+            "The 45-watt charger gets you from zero to fifty percent in about twenty minutes. If you forgot to charge overnight, this saves your morning.",
+            "A portable power bank in your bag means you never worry about battery. For someone running between work, kids, and errands — that matters.",
+            "Fast charger at home, portable bank in the car or bag. You're never caught without power."
+          ]
+        },
+        {
+          "category": "Car",
+          "items": ["iOttie Qi2 Wireless Charging Car Mount"],
+          "why": "Practical daily use. Hands-free navigation, charges while you drive.",
+          "pitchVariations": [
+            "Mounts your phone, charges it wirelessly, keeps your hands free for driving. For someone who commutes, this is a daily essential.",
+            "No more fumbling with cables in the car. Snap it on the mount, it charges. GPS on screen, hands on the wheel.",
+            "Fifty-five bucks and it replaces the janky vent clip you've been using. Wireless charging, solid mount, clean setup."
+          ]
+        }
+      ]
+    },
+
+    "55+": {
+      "label": "Baby Boomers",
+      "profile": "Value human connection, exceptional customer service, and heritage brands. Prioritize ease of use, reliability, and security. Often fearful of digital scams. Appreciate patient, condescension-free instruction.",
+      "trustLanguage": "Security, simplicity, personal service, family connection",
+      "avoidLanguage": "Tech jargon, anything condescending, assumptions about tech illiteracy",
+
+      "smartphones": [
+        {
+          "device": "Apple iPhone 17 Plus / 16 Plus",
+          "why": "Larger screen for readability, FaceTime with grandkids, familiar ecosystem. Plus models hit the sweet spot — bigger screen without Pro complexity.",
+          "pitchVariations": [
+            "The larger screen makes a real difference for reading texts, seeing photos, and FaceTime calls. Everything is just easier to see and tap.",
+            "If you're already used to iPhone, this is the same thing you know — just bigger and better. All your photos, contacts, everything transfers over automatically.",
+            "The best part is T-Mobile's Scam Shield is built right in. It blocks billions of scam calls automatically so you don't have to worry about answering the phone."
+          ]
+        },
+        {
+          "device": "Samsung Galaxy A16 5G",
+          "why": "Budget-friendly, simple interface, large display. Good entry point for someone who doesn't need flagship features.",
+          "pitchVariations": [
+            "This is a great phone that doesn't try to do too much. Big screen, easy to use, and it's very affordable.",
+            "If you mainly use your phone for calls, texts, photos, and maybe some video calls — this handles all of that beautifully without the flagship price.",
+            "The Galaxy A16 is the phone I'd recommend to my own parents. It works well, it's simple, and it doesn't cost a fortune."
+          ]
+        }
+      ],
+
+      "tablets": [
+        {
+          "device": "Apple iPad (A16)",
+          "why": "Familiar ecosystem, large screen for video calls with family, simple enough to hand to someone and say 'here, this works.'",
+          "pitchVariations": [
+            "A lot of people get these specifically for FaceTime with grandkids. Big screen, great camera, dead simple to use.",
+            "It's the easiest device Apple makes. Tap, swipe, done. No complicated setup. We can even set it up for you before you leave today.",
+            "Great for reading, watching shows, video calls. And at this price with the tablet plan, it's really accessible."
+          ]
+        }
+      ],
+
+      "wearables": [
+        {
+          "device": "Apple Watch Series 11 (46mm)",
+          "why": "Fall detection, heart monitoring, emergency SOS. Health and safety features that provide real peace of mind for them and their family.",
+          "pitchVariations": [
+            "The fall detection on this watch has genuinely saved lives. If you fall and can't get to your phone, it calls emergency services automatically.",
+            "Heart rate monitoring, irregular rhythm alerts — it's watching out for you even when you're not thinking about it. And your family can check in through the Family Sharing features.",
+            "The larger size means the screen is easy to read. Big text, bright display. And it works with your iPhone for calls and texts right from your wrist."
+          ]
+        }
+      ],
+
+      "iotProducts": [
+        {
+          "product": "T-Mobile Home Internet",
+          "why": "Simple setup (15 minutes, no technician), no contract, transparent pricing. Replace confusing cable bills with one simple price.",
+          "pitchVariations": [
+            "Setting this up takes about 15 minutes. Plug it in, follow three steps on the screen, done. No waiting for a cable technician.",
+            "No contract means if it doesn't work the way you need, you can cancel anytime. No penalty, no hassle. And there's a 15-day money-back guarantee.",
+            "Your internet bill stays the same price for five years. No surprise increases. What you sign up for today is what you'll pay in 2031."
+          ]
+        },
+        {
+          "product": "SyncUP TRACKER 2",
+          "why": "Simple peace of mind. Attaches to keys or luggage. 'Ring When Lost' audible alarm. No complicated app setup.",
+          "pitchVariations": [
+            "This attaches to your keys, your purse, your luggage — anything you don't want to lose. If you can't find it, press a button on your phone and it beeps.",
+            "It's not like those Bluetooth tags that only work when you're close. This has its own cellular connection — it tracks across the country.",
+            "Simple as it gets. Clip it on, open the app, done. If your keys are in the couch cushions or your bag is at the airport, you'll find them."
+          ]
+        }
+      ],
+
+      "accessories": [
+        {
+          "category": "Protection",
+          "items": ["Screen protectors", "Simple folio cases"],
+          "why": "Tangible protection they can see and feel. Folio cases protect screen when closed — feels secure.",
+          "pitchVariations": [
+            "The folio case keeps the screen covered when it's in your pocket or purse. Nothing touches the glass. And it folds back as a stand for video calls.",
+            "Screen protector goes on once and you forget about it. If it ever cracks, ZAGG replaces it free — you don't buy a new one.",
+            "Case plus screen protector plus a charger — three things, 25% off all of them together. Under fifty dollars and your phone is fully protected."
+          ]
+        },
+        {
+          "category": "Tracking",
+          "items": ["Chipolo tracker", "SyncUP TRACKER 2"],
+          "why": "Help keep track of everyday items. Low-tech feel, high-tech function.",
+          "pitchVariations": [
+            "If you've ever spent twenty minutes looking for your keys, this pays for itself the first time you use it.",
+            "It's a little disc that goes on your keychain. When you can't find your keys, your phone tells you where they are. That's it.",
+            "Gift idea too — a lot of people buy these for their parents. Simple, useful, and it actually gets used every day."
+          ]
+        }
+      ]
+    }
+  },
+
+  "crossDemographicProducts": {
+    "protection360": {
+      "alwaysPitch": true,
+      "pitchByDemo": {
+        "18-24": "P360 covers loss and theft — AppleCare doesn't. If you lose your phone at a concert or it gets stolen, you're covered. $7 to $26 a month depending on the device.",
+        "25-34": "With little kids around? Phones get dropped, dunked, and disappeared. P360 covers all of it — loss, theft, cracked screens. It's the one thing you don't want to skip.",
+        "35-54": "P360 is the practical play. It covers loss, theft, and accidental damage. The math is simple — one claim saves you $500+ on a replacement. Monthly cost is a rounding error.",
+        "55+": "This covers you if your phone is lost, stolen, or damaged. The deductible for a cracked screen is zero dollars with the plan. It's genuine peace of mind."
+      }
+    },
+    "tLife": {
+      "alwaysMention": true,
+      "pitchByDemo": {
+        "18-24": "The T-Life app is where you manage everything — pay your bill, check your data, access perks like MLB.TV and Apple TV+. All in one place.",
+        "25-34": "T-Life app consolidates everything. Bill, perks, device support, account management. One app instead of calling in. It's the self-service experience that actually works.",
+        "35-54": "The T-Life app lets you handle everything yourself — bill, plan changes, device support. No waiting on hold. It's the fastest way to manage your account.",
+        "55+": "The T-Life app is like your personal T-Mobile assistant on your phone. You can see your bill, get help, and access your perks all in one place. We can walk you through setting it up."
+      }
+    }
+  },
+
+  "supportIntentAccessories": {
+    "description": "Premium/lifestyle accessories shown ONLY for Order Support, Tech Support, and Account Support intents. These calls are least likely to result in a sale, so this is an awareness play — remind the customer (and the rep) that T-Mobile sells more than phones. Commission is 5% but on high-ticket items that adds up.",
+    "appliesToIntents": ["order support", "tech support", "account support"],
+    "tone": "casual-mention",
+    "toneGuidance": "These are NOT hard pitches. The customer called for help, not to buy. Use 'while I've got you' or 'by the way' framing. If they bite, great. If not, you planted a seed. Never derail a support interaction to push product.",
+    "items": [
+      {
+        "product": "Ray-Ban Meta Wayfarer (Transitions)",
+        "price": "$379.99",
+        "commission": "~$19 at 5%",
+        "pitchVariations": [
+          "While I've got you — have you seen the Ray-Ban smart glasses we carry? They look like regular Wayfarers but they take calls, play music, even livestream. Pretty wild.",
+          "Random question — do you wear sunglasses? We've got Ray-Ban Metas that have speakers and a camera built in. They're legitimately cool. Just thought I'd mention it.",
+          "By the way, one thing a lot of people don't know — T-Mobile sells Ray-Ban smart glasses. Real Ray-Bans with Meta AI built in. Worth checking out if you're into that kind of thing."
+        ],
+        "bestFor": ["18-24", "25-34"],
+        "naturalTransition": "Works best after resolving their issue. 'Alright, you're all set on that. Hey, totally unrelated...'"
+      },
+      {
+        "product": "Apple AirPods Max USB-C",
+        "price": "$549.99",
+        "commission": "~$27.50 at 5%",
+        "pitchVariations": [
+          "Oh, one more thing — did you know we sell AirPods Max? If you're ever in the market for over-ear headphones, the noise cancellation on these is unreal.",
+          "Since you're on the line — if you ever want premium headphones, we carry AirPods Max. A lot of people don't realize they can add them to their T-Mobile order.",
+          "Quick thing before you go — we actually carry Apple's high-end headphones, the AirPods Max. Some people finance them on their T-Mobile bill instead of paying $550 up front."
+        ],
+        "bestFor": ["25-34", "35-54"],
+        "naturalTransition": "Best when wrapping up. 'Before I let you go, just wanted to mention...'"
+      },
+      {
+        "product": "Apple AirPods Pro 3",
+        "price": "$249.99",
+        "commission": "~$12.50 at 5%",
+        "pitchVariations": [
+          "By the way — if you've been thinking about new earbuds, we've got AirPods Pro 3 in stock. They do hearing health stuff now too, which is pretty cool.",
+          "While I have you — AirPods Pro 3 just came out. They've got hearing aid features built in now. Just mentioning it since a lot of customers have been asking.",
+          "One thing I like to mention — we sell AirPods here too. The new Pro 3s have crazy good noise cancellation and they work as hearing aids now. Worth knowing about."
+        ],
+        "bestFor": ["18-24", "25-34", "35-54", "55+"],
+        "naturalTransition": "Universal appeal. Can mention to any demo."
+      },
+      {
+        "product": "Samsung Galaxy Buds4",
+        "price": "$179.99",
+        "commission": "~$9 at 5%",
+        "pitchVariations": [
+          "Since you've got a Samsung — have you tried Galaxy Buds? They pair with your phone instantly. Just pop them out of the case and they connect.",
+          "Quick heads up — Galaxy Buds4 are out and they pair perfectly with your Samsung. Way better than third-party earbuds for the ecosystem.",
+          "If you're ever in the market for earbuds that work seamlessly with Samsung, the Galaxy Buds4 are the ones. They pair in like two seconds."
+        ],
+        "bestFor": ["18-24", "25-34", "35-54"],
+        "naturalTransition": "Best when you know they have a Samsung device. 'Since you're on a Galaxy...'"
+      },
+      {
+        "product": "JBL / Harman Kardon Bluetooth Speakers",
+        "price": "$99–$349",
+        "commission": "~$5–$17 at 5%",
+        "pitchVariations": [
+          "Oh, we also carry some really nice Bluetooth speakers — JBL, Harman Kardon. If you ever need a speaker for the house or backyard, we've got solid options.",
+          "Random one — T-Mobile actually sells premium Bluetooth speakers. JBL Flip, Harman Kardon — stuff you'd usually buy at Best Buy. Just wanted you to know.",
+          "Before you go — if you ever need a good speaker, check out what we have online. JBL, Harmon Kardon. You can even add them to your T-Mobile bill."
+        ],
+        "bestFor": ["25-34", "35-54", "55+"],
+        "naturalTransition": "Good for any support call wrap-up. Low pressure, high curiosity."
+      },
+      {
+        "product": "Samsung Magnetic Battery Pack",
+        "price": "$64.99",
+        "commission": "~$3.25 at 5%",
+        "pitchVariations": [
+          "One thing that's been really popular — Samsung's magnetic battery pack. Snaps right onto the back of your Galaxy and charges it wirelessly. No cables.",
+          "Hey, do you ever deal with your phone dying before the day's over? Samsung makes a magnetic battery that sticks to the back of your phone. Pretty slick.",
+          "Quick mention — if battery life's ever an issue, Samsung has this magnetic pack that snaps onto your phone and adds hours. Sixty-five bucks and it's a lifesaver."
+        ],
+        "bestFor": ["18-24", "25-34", "35-54"],
+        "naturalTransition": "Works naturally if the customer mentioned battery issues during support."
+      },
+      {
+        "product": "Backbone One Mobile Gaming Controller",
+        "price": "$99.99",
+        "commission": "~$5 at 5%",
+        "pitchVariations": [
+          "Totally off topic — do you game at all? We sell this controller called Backbone that turns your phone into basically a Switch. It's surprisingly good.",
+          "Hey, if you're into mobile gaming, we carry the Backbone controller. Snaps onto your phone, works with Game Pass. Just throwing it out there.",
+          "Random thought — we've got the Backbone gaming controller. If you or anyone in the family games on their phone, it's a game changer. Pun intended."
+        ],
+        "bestFor": ["18-24", "25-34"],
+        "naturalTransition": "Best for younger demos. Skip for 55+ unless they mention gaming."
+      }
+    ],
+    "repGuidance": {
+      "maxMentions": 1,
+      "rule": "Pick ONE item that fits the customer's profile. Don't rattle off a list. One casual mention, gauge interest, and move on. If they seem even slightly interested, give them the price and mention it can go on their T-Mobile bill.",
+      "billingAngle": "Most customers don't know they can finance accessories on their T-Mobile bill. That's a real perk — no credit card, just added to the monthly payment. Mention this if they express interest.",
+      "doNot": "Do NOT pitch support-intent accessories if the customer is frustrated, angry, or their issue isn't resolved yet. Resolve first, always. The accessory mention is a cherry on top, not the priority.",
+      "demographicFallback": "Most reps will ONLY tap the intent button and skip customer details. If no age range is selected, use items where bestFor includes 3+ demographics (universal appeal). AirPods Pro 3 and JBL speakers are safe defaults. If age IS selected, filter by bestFor for a tighter match.",
+      "surfaceIn": "instant-plays — these must appear in the right-side panel immediately when the rep taps a support intent, NOT buried in a generated game plan behind the Build button. The rep probably won't click Build on support calls."
+    }
+  },
+
+  "rotationConfig": {
+    "maxConsecutiveRepeats": 1,
+    "variationSelectionMethod": "weighted-random",
+    "weightDecayPerShow": 0.5,
+    "resetWeightsAfterAllShown": true
+  }
+}

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">Kip success</title>
+  <image href="../icons/kip-visor.svg" width="64" height="64"/>
+  <circle cx="51" cy="14" r="10" fill="#0b0b10" stroke="#41FF8F" stroke-width="2"/>
+  <path d="M46 14l4 4 7-8" fill="none" stroke="#41FF8F" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"/>
+</svg>

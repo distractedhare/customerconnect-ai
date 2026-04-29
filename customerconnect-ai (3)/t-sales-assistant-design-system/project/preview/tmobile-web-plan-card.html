@@ -1,0 +1,183 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><style>
+/* Shared card frame for design-system previews.
+   Self-contained — tokens duplicated locally so this works when inlined
+   into <style> blocks (preview iframes can 401 on cross-path CSS fetches).
+   The Poppins @import is inlined by each HTML file directly. */
+
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700;800;900&display=swap");
+
+:root {
+  --t-magenta: #E20074;
+  --t-magenta-hover: #C70066;
+  --t-berry: #861B54;
+  --t-magenta-hot: #FF2D8A;
+
+  --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
+  --glass-blur: blur(32px) saturate(180%);
+  --glass-blur-strong: blur(40px) saturate(200%);
+
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-full: 999px;
+}
+
+:root {
+  /* Dark theme tokens — mirrored from colors_and_type.css [data-theme="dark"]
+     so previews inherit Liquid Glass over the magenta substrate by default. */
+  --bg-page: #0D0D0D;
+  --bg-page-secondary: #161616;
+  --bg-surface: rgba(22, 22, 22, 0.98);
+  --bg-surface-elevated: rgba(30, 30, 30, 0.98);
+
+  --border-surface: #2A2A2A;
+  --border-surface-strong: rgba(226, 0, 116, 0.30);
+
+  --text-primary: #F0F0F0;
+  --text-secondary: #9A9A9A;
+  --text-tertiary: #858585;
+  --text-muted: #858585;
+  --text-accent: #FF2D8A;
+  --text-pitch: #F0A0C8;
+
+  --glass-bg: rgba(255, 255, 255, 0.08);
+  --glass-bg-strong: rgba(255, 255, 255, 0.14);
+  --glass-bg-tinted: rgba(226, 0, 116, 0.14);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-border-subtle: rgba(255, 255, 255, 0.07);
+  --glass-border-hover: rgba(226, 0, 116, 0.35);
+
+  --glass-specular-top: rgba(255, 255, 255, 0.45);
+  --glass-specular-bottom: rgba(255, 255, 255, 0.08);
+  --glass-ring-light: rgba(255, 255, 255, 0.10);
+  --glass-ring-dark: rgba(0, 0, 0, 0.00);
+
+  --glass-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.35),
+    0 2px 8px rgba(0, 0, 0, 0.20),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.45),
+    inset 0 -1px 0 0 rgba(255, 255, 255, 0.08),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.10);
+
+  --glass-shadow-elevated:
+    0 24px 60px rgba(0, 0, 0, 0.45),
+    0 4px 12px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.55),
+    inset 0 -1px 0 0 rgba(255, 255, 255, 0.10),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.16);
+
+  --glass-shadow-magenta:
+    0 16px 40px rgba(226, 0, 116, 0.28),
+    0 2px 8px rgba(0, 0, 0, 0.20),
+    inset 0 1px 0 0 rgba(255, 180, 220, 0.55),
+    inset 0 -1px 0 0 rgba(226, 0, 116, 0.18),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+
+  --glass-shadow-strong: var(--glass-shadow-elevated);
+
+  --page-bg:
+    radial-gradient(ellipse 60% 50% at 15% 10%, rgba(255, 45, 138, 0.55) 0%, transparent 55%),
+    radial-gradient(ellipse 55% 50% at 90% 30%, rgba(226, 0, 116, 0.50) 0%, transparent 50%),
+    radial-gradient(ellipse 70% 60% at 70% 95%, rgba(134, 27, 84, 0.55) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 50% at 10% 85%, rgba(160, 0, 80, 0.50) 0%, transparent 55%),
+    linear-gradient(180deg, #0D0D0D 0%, #1A0912 60%, #0D0D0D 100%);
+
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+  background: var(--page-bg);
+  background-attachment: fixed;
+  color: var(--text-primary);
+  min-height: 100%;
+  -webkit-font-smoothing: antialiased;
+}
+body {
+  padding: 20px;
+  overflow: hidden;
+}
+.frame {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.row { display: flex; gap: 12px; align-items: stretch; }
+.col { display: flex; flex-direction: column; gap: 8px; }
+
+/* Liquid-glass card — pulls the full recipe from tokens */
+.glass {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow);
+  border-radius: 16px;
+}
+.glass-magenta {
+  background: var(--glass-bg-tinted);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow-magenta);
+  border-radius: 16px;
+}
+.glass-elevated {
+  background: var(--glass-bg-strong);
+  -webkit-backdrop-filter: var(--glass-blur-strong);
+  backdrop-filter: var(--glass-blur-strong);
+  box-shadow: var(--glass-shadow-elevated);
+  border-radius: 16px;
+}
+
+.eyebrow {
+  font-size: 9px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--text-accent);
+}
+.eyebrow--muted { color: var(--text-secondary); }
+
+</style>
+<style>
+  body { padding: 18px; display:flex; gap:14px; align-items:flex-start; }
+  .card { width: 280px; border: 1px solid #E8E8E8; border-radius: 18px; overflow: hidden; background:#fff; box-shadow: 0 6px 18px rgba(0,0,0,0.06); font-family: system-ui,-apple-system,sans-serif; }
+  .head { background:#000; color:#fff; padding: 16px 20px; font-size: 20px; font-weight: 600; line-height: 24px; border-radius: 16px 16px 0 0; }
+  .head small { display:block; font-size:11px; font-weight:600; letter-spacing:0.16em; text-transform:uppercase; opacity:0.7; margin-bottom:2px; }
+  .body { padding: 18px 20px; }
+  .price { font-family: TeleNeo, system-ui, sans-serif; font-size: 32px; font-weight: 700; color: #141414; line-height: 34px; }
+  .price small { font-size: 13px; font-weight: 600; color: #6A6A6A; margin-left: 4px; }
+  .sub { font-size: 12px; color: #6A6A6A; margin-top: 6px; line-height: 1.4; }
+  .promo { color: #A7005A; font-weight: 700; font-size: 12px; margin-top: 10px; text-decoration: underline; }
+  .spec-col { flex: 1; font-family: ui-monospace, Menlo, monospace; font-size: 10px; line-height: 1.7; color: var(--text-muted); }
+  .spec-col h3 { font-family: system-ui, sans-serif; font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.2em; color: var(--text-secondary); margin: 0 0 8px; }
+</style></head>
+<body>
+  <div class="card">
+    <div class="head"><small>Better Value</small>Experience Beyond</div>
+    <div class="body">
+      <div class="price">$140<small>/mo for 4 lines</small></div>
+      <div class="sub">+ up to $35 device connection charge per line</div>
+      <div class="promo">Get a 3rd line FREE</div>
+    </div>
+  </div>
+  <div class="spec-col">
+    <h3>t-mobile.com plan card</h3>
+    Header: #000 / #FFF<br>
+    Header type: system-ui 20/600<br>
+    Eyebrow: 11/600 UC 0.16em<br>
+    Radius: 16px top only<br>
+    Price: <b>TeleNeo 32/700</b> #141414<br>
+    Body: system-ui 12/400 #6A6A6A<br>
+    Promo link: #A7005A 12/700 underline<br>
+    Corners: 18px outer, 16px header<br><br>
+    NOTE: TeleNeo is T-Mobile's<br>
+    corporate font — NOT Poppins.<br>
+    Poppins is coaching-app only.
+  </div>
+</body></html>

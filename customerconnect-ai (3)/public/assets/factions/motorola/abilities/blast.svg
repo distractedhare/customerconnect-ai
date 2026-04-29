@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title>Speed Dash</title>
+  <rect x="6" y="6" width="52" height="52" rx="14" fill="#120A03" stroke="#FF7A18" stroke-width="3"/>
+  <path d="M14 36h20l-5 12 20-22H30l5-12-21 22Z" fill="#FF7A18" stroke="#FFB35C" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M12 20h15M10 28h11M9 46h14" stroke="#36D9FF" stroke-width="3" stroke-linecap="round"/>
+</svg>

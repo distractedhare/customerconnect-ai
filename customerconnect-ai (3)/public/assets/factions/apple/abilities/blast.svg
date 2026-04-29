@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title>MagSafe Core</title>
+  <rect x="6" y="6" width="52" height="52" rx="14" fill="#071018" stroke="#9DD9FF" stroke-width="3"/>
+  <circle cx="32" cy="32" r="16" fill="none" stroke="#EAF7FF" stroke-width="4"/>
+  <circle cx="32" cy="32" r="7" fill="#9DD9FF"/>
+  <path d="M32 10v8M32 46v8M10 32h8M46 32h8" stroke="#66B2FF" stroke-width="3" stroke-linecap="round"/>
+</svg>

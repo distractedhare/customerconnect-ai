@@ -1,0 +1,52 @@
+{
+  "metadata": {
+    "generatedDate": "2026-03-26",
+    "coversFrom": "2026-02-26",
+    "coversTo": "2026-03-26",
+    "sourcesSearched": ["https://www.t-mobile.com", "https://www.att.com", "https://www.verizon.com"],
+    "confidence": "high",
+    "previousUpdateDate": "first_run"
+  },
+  "tmobileCampaigns": {
+    "new": [
+      "Better Value plan launched — 3 lines for $140/mo with Netflix, Hulu, Apple TV+, T-Satellite",
+      "iPhone 17 On Us for switchers — no trade-in needed on Experience Beyond or Better Value",
+      "Galaxy S26 Ultra On Us with new line on Experience Beyond",
+      "Home Internet Month On Us promo (code MONTHONUS) + up to $300 back via prepaid card"
+    ],
+    "ended": [],
+    "changed": [
+      "Experience Beyond and Experience More plans replaced Go5G Plus and Go5G as the premium and mid-tier options",
+      "Home Internet All-In now includes mesh router for whole-home coverage"
+    ]
+  },
+  "competitorUpdates": {
+    "ATT": "AT&T launched Unlimited Your Way 2.0 — stripped ALL streaming perks from every plan. Also raising legacy plan prices again in April 2026 ($10-20/mo increases).",
+    "Verizon": "Verizon settled $100M class action over hidden Administrative & Telco Recovery Charge. Still requires trade-in for most best phone deals."
+  },
+  "regionalIntel": {},
+  "weeklyHighlights": {
+    "biggestThreat": {
+      "competitor": "AT&T",
+      "why": "AT&T Unlimited Your Way 2.0 is a simplified lineup that could appeal to price-conscious customers, despite stripping streaming perks. Their aggressive marketing may confuse customers into thinking they're getting a better deal.",
+      "counterStrategy": "Lead with the streaming value gap — AT&T just removed Netflix, Max, and Disney+ from all plans. T-Mobile includes Netflix, Hulu, and Apple TV+. That's ~$30/mo in value they lost. Plus the $3,700 savings stat over 5 years."
+    },
+    "biggestOpportunity": {
+      "description": "iPhone 17 launch week with no-trade-in switcher deals + Better Value plan for families",
+      "targetCustomer": "AT&T and Verizon families (3+ lines) frustrated by price increases and lost streaming perks",
+      "pitch": "Free iPhone 17 — no trade-in. 3 lines for $140/mo with Netflix, Hulu, Apple TV+ included. AT&T just took all streaming away. We'll even pay off your old phones up to $800 each."
+    },
+    "trendingTopics": [
+      "iPhone 17 launch buzz",
+      "T-Satellite now powering apps (WhatsApp, AllTrails)",
+      "AT&T streaming perk removal backlash",
+      "T-Mobile $3,700 family savings stat"
+    ],
+    "keyNumbersThisPeriod": [
+      "$3,700 — amount T-Mobile families saved vs AT&T/Verizon over 5 years",
+      "$140/mo — Better Value plan price for 3 lines with all perks",
+      "$0 — trade-in required for iPhone 17 On Us switcher deal",
+      "$300 — max Home Internet rebate on All-In tier"
+    ]
+  }
+}

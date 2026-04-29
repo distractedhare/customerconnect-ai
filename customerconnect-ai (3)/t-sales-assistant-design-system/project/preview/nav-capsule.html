@@ -1,0 +1,222 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><style>
+/* Shared card frame for design-system previews.
+   Self-contained — tokens duplicated locally so this works when inlined
+   into <style> blocks (preview iframes can 401 on cross-path CSS fetches).
+   The Poppins @import is inlined by each HTML file directly. */
+
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700;800;900&display=swap");
+
+:root {
+  --t-magenta: #E20074;
+  --t-magenta-hover: #C70066;
+  --t-berry: #861B54;
+  --t-magenta-hot: #FF2D8A;
+
+  --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
+  --glass-blur: blur(32px) saturate(180%);
+  --glass-blur-strong: blur(40px) saturate(200%);
+
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-full: 999px;
+}
+
+:root {
+  /* Dark theme tokens — mirrored from colors_and_type.css [data-theme="dark"]
+     so previews inherit Liquid Glass over the magenta substrate by default. */
+  --bg-page: #0D0D0D;
+  --bg-page-secondary: #161616;
+  --bg-surface: rgba(22, 22, 22, 0.98);
+  --bg-surface-elevated: rgba(30, 30, 30, 0.98);
+
+  --border-surface: #2A2A2A;
+  --border-surface-strong: rgba(226, 0, 116, 0.30);
+
+  --text-primary: #F0F0F0;
+  --text-secondary: #9A9A9A;
+  --text-tertiary: #858585;
+  --text-muted: #858585;
+  --text-accent: #FF2D8A;
+  --text-pitch: #F0A0C8;
+
+  --glass-bg: rgba(255, 255, 255, 0.08);
+  --glass-bg-strong: rgba(255, 255, 255, 0.14);
+  --glass-bg-tinted: rgba(226, 0, 116, 0.14);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-border-subtle: rgba(255, 255, 255, 0.07);
+  --glass-border-hover: rgba(226, 0, 116, 0.35);
+
+  --glass-specular-top: rgba(255, 255, 255, 0.45);
+  --glass-specular-bottom: rgba(255, 255, 255, 0.08);
+  --glass-ring-light: rgba(255, 255, 255, 0.10);
+  --glass-ring-dark: rgba(0, 0, 0, 0.00);
+
+  --glass-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.35),
+    0 2px 8px rgba(0, 0, 0, 0.20),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.45),
+    inset 0 -1px 0 0 rgba(255, 255, 255, 0.08),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.10);
+
+  --glass-shadow-elevated:
+    0 24px 60px rgba(0, 0, 0, 0.45),
+    0 4px 12px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.55),
+    inset 0 -1px 0 0 rgba(255, 255, 255, 0.10),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.16);
+
+  --glass-shadow-magenta:
+    0 16px 40px rgba(226, 0, 116, 0.28),
+    0 2px 8px rgba(0, 0, 0, 0.20),
+    inset 0 1px 0 0 rgba(255, 180, 220, 0.55),
+    inset 0 -1px 0 0 rgba(226, 0, 116, 0.18),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+
+  --glass-shadow-strong: var(--glass-shadow-elevated);
+
+  --page-bg:
+    radial-gradient(ellipse 60% 50% at 15% 10%, rgba(255, 45, 138, 0.55) 0%, transparent 55%),
+    radial-gradient(ellipse 55% 50% at 90% 30%, rgba(226, 0, 116, 0.50) 0%, transparent 50%),
+    radial-gradient(ellipse 70% 60% at 70% 95%, rgba(134, 27, 84, 0.55) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 50% at 10% 85%, rgba(160, 0, 80, 0.50) 0%, transparent 55%),
+    linear-gradient(180deg, #0D0D0D 0%, #1A0912 60%, #0D0D0D 100%);
+
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+  background: var(--page-bg);
+  background-attachment: fixed;
+  color: var(--text-primary);
+  min-height: 100%;
+  -webkit-font-smoothing: antialiased;
+}
+body {
+  padding: 20px;
+  overflow: hidden;
+}
+.frame {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.row { display: flex; gap: 12px; align-items: stretch; }
+.col { display: flex; flex-direction: column; gap: 8px; }
+
+/* Liquid-glass card — pulls the full recipe from tokens */
+.glass {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow);
+  border-radius: 16px;
+}
+.glass-magenta {
+  background: var(--glass-bg-tinted);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow-magenta);
+  border-radius: 16px;
+}
+.glass-elevated {
+  background: var(--glass-bg-strong);
+  -webkit-backdrop-filter: var(--glass-blur-strong);
+  backdrop-filter: var(--glass-blur-strong);
+  box-shadow: var(--glass-shadow-elevated);
+  border-radius: 16px;
+}
+
+.eyebrow {
+  font-size: 9px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--text-accent);
+}
+.eyebrow--muted { color: var(--text-secondary); }
+
+</style>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+  body { padding: 30px 20px; display: flex; flex-direction: column; gap: 22px; align-items: center; justify-content: center; }
+
+  /* Floating tab capsule — Apple's toolbar idiom */
+  .capsule {
+    display: inline-flex; gap: 4px; padding: 6px;
+    border-radius: 999px;
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    box-shadow: var(--glass-shadow);
+  }
+  .capsule button {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 9px 16px; border-radius: 999px;
+    font-family: inherit; font-size: 10px; font-weight: 900;
+    text-transform: uppercase; letter-spacing: 0.14em;
+    background: transparent; color: var(--text-secondary);
+    border: 0; cursor: pointer;
+  }
+  .capsule button svg { width: 14px; height: 14px; stroke-width: 2.25; }
+  .capsule button.active {
+    background: var(--t-magenta);
+    color: #fff;
+    box-shadow:
+      0 6px 14px rgba(226, 0, 116, 0.30),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.40);
+  }
+
+  /* FAB — floating action on glass */
+  .fab-row { display: inline-flex; gap: 14px; align-items: center; }
+  .fab {
+    width: 54px; height: 54px; border-radius: 999px;
+    background: var(--t-magenta); color: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    box-shadow:
+      0 16px 30px rgba(226, 0, 116, 0.38),
+      inset 0 1px 0 0 rgba(255,255,255,0.38);
+    border: 0;
+  }
+  .fab svg { width: 22px; height: 22px; stroke-width: 2.25; }
+  .fab-ghost {
+    width: 48px; height: 48px; border-radius: 999px;
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    box-shadow: var(--glass-shadow);
+    color: var(--text-primary);
+    display: inline-flex; align-items: center; justify-content: center;
+    border: 0;
+  }
+  .fab-ghost svg { width: 20px; height: 20px; stroke-width: 2; }
+
+  .label { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.2em; color: var(--text-secondary); }
+</style></head>
+<body>
+  <div style="display:flex; flex-direction:column; gap:8px; align-items:center;">
+    <div class="label">Floating tab capsule</div>
+    <div class="capsule">
+      <button class="active"><i data-lucide="zap"></i>Live</button>
+      <button><i data-lucide="book-open"></i>Learn</button>
+      <button><i data-lucide="trophy"></i>Level</button>
+      <button><i data-lucide="target"></i>Discover</button>
+    </div>
+  </div>
+  <div style="display:flex; flex-direction:column; gap:8px; align-items:center;">
+    <div class="label">Floating action buttons</div>
+    <div class="fab-row">
+      <button class="fab-ghost"><i data-lucide="refresh-cw"></i></button>
+      <button class="fab"><i data-lucide="play"></i></button>
+      <button class="fab-ghost"><i data-lucide="sparkles"></i></button>
+    </div>
+  </div>
+  <script>lucide.createIcons();</script>
+</body></html>

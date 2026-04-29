@@ -1,0 +1,209 @@
+{
+  "version": 1,
+  "theme": "T-Life Runner phone-brand mech characters",
+  "cards": [
+    {
+      "id": "apple",
+      "series": "iPhone Pro Series",
+      "name": "Titanium Duelist",
+      "rarity": "Legendary",
+      "role": "Precision / Speed",
+      "image": "apple_titanium_duelist_card.png",
+      "stats": {
+        "speed": 9,
+        "agility": 9,
+        "power": 8,
+        "defense": 8,
+        "tech": 10
+      },
+      "abilities": [
+        {
+          "name": "MagSafe Overcharge",
+          "effect": "Magnetically pulls in coins and boosts speed."
+        },
+        {
+          "name": "Precision Slash",
+          "effect": "Clears a lane with surgical accuracy."
+        },
+        {
+          "name": "Perfect Parry",
+          "effect": "Reflects obstacles and stuns enemies."
+        }
+      ],
+      "ultimate": {
+        "name": "A17 Protocol",
+        "effect": "Time-slow field with perfect coin magnet."
+      }
+    },
+    {
+      "id": "samsung",
+      "series": "Galaxy S Series",
+      "name": "Foldwing Warrior",
+      "rarity": "Legendary",
+      "role": "Power / Glide",
+      "image": "samsung_foldwing_warrior_card.png",
+      "stats": {
+        "speed": 8,
+        "agility": 9,
+        "power": 10,
+        "defense": 8,
+        "tech": 10
+      },
+      "abilities": [
+        {
+          "name": "Armor Unfold",
+          "effect": "Expands wings for shield and temporary glide."
+        },
+        {
+          "name": "S Pen Spear",
+          "effect": "Pierces obstacles and marks targets."
+        },
+        {
+          "name": "AMOLED Burst",
+          "effect": "Reveals hidden lanes and doubles coins."
+        }
+      ],
+      "ultimate": {
+        "name": "Infinity Display",
+        "effect": "Full-screen mode with triple coin value."
+      }
+    },
+    {
+      "id": "tcl",
+      "series": "NXTVISION Series",
+      "name": "Display Brawler",
+      "rarity": "Epic",
+      "role": "Area Damage / Obstacle Clear",
+      "image": "tcl_display_brawler_card.png",
+      "stats": {
+        "speed": 6,
+        "agility": 5,
+        "power": 10,
+        "defense": 9,
+        "tech": 7
+      },
+      "abilities": [
+        {
+          "name": "NXTVision Blast",
+          "effect": "Wide-area shockwave clears obstacles."
+        },
+        {
+          "name": "Sound Pulse",
+          "effect": "Stuns enemies and breaks barriers."
+        },
+        {
+          "name": "Bass Boost",
+          "effect": "Temporarily enlarges coin magnet radius."
+        }
+      ],
+      "ultimate": {
+        "name": "Cinemax Mode",
+        "effect": "Turns all coins into bonus stars."
+      }
+    },
+    {
+      "id": "motorola",
+      "series": "razr Series",
+      "name": "Flip Rider",
+      "rarity": "Legendary",
+      "role": "Mobility / Burst Speed",
+      "image": "motorola_flip_rider_card.png",
+      "stats": {
+        "speed": 10,
+        "agility": 10,
+        "power": 7,
+        "defense": 7,
+        "tech": 8
+      },
+      "abilities": [
+        {
+          "name": "Flip Boost",
+          "effect": "Instant surge of speed."
+        },
+        {
+          "name": "Hinge Dash",
+          "effect": "Dashes under low obstacles."
+        },
+        {
+          "name": "Batwing Shield",
+          "effect": "Brief shield that deflects one hit."
+        }
+      ],
+      "ultimate": {
+        "name": "Razr Rush",
+        "effect": "High-speed combo run with massive bonuses."
+      }
+    },
+    {
+      "id": "pixel",
+      "series": "Pixel Series",
+      "name": "Pixel Scout",
+      "rarity": "Legendary",
+      "role": "Adaptive / Utility",
+      "image": "pixel_scout_card.png",
+      "stats": {
+        "speed": 8,
+        "agility": 9,
+        "power": 7,
+        "defense": 7,
+        "tech": 10
+      },
+      "abilities": [
+        {
+          "name": "AI Pathfind",
+          "effect": "Reveals optimal path and secrets."
+        },
+        {
+          "name": "Drone Swarm",
+          "effect": "Collects distant coins automatically."
+        },
+        {
+          "name": "Photon Dash",
+          "effect": "Short dash with invulnerability frames."
+        }
+      ],
+      "ultimate": {
+        "name": "Google Lens",
+        "effect": "Scans ahead and reveals everything."
+      }
+    },
+    {
+      "id": "tmobile_sidekick_core",
+      "series": "Sidekick Command Device",
+      "name": "Sidekick Core",
+      "rarity": "Legendary",
+      "role": "Support / Command",
+      "image": "tmobile_sidekick_core_command_card_v2.png",
+      "layout": "portrait-command-card",
+      "stats": {
+        "speed": 8,
+        "agility": 9,
+        "power": 7,
+        "defense": 9,
+        "tech": 10
+      },
+      "abilities": [
+        {
+          "name": "Sidekick Sync",
+          "effect": "Pulls nearby rewards, reveals the safest lane, and boosts score briefly."
+        },
+        {
+          "name": "Signal Save",
+          "effect": "Spends a full charge to prevent one lethal crash."
+        },
+        {
+          "name": "Magenta Overdrive",
+          "effect": "Projects a command grid that slows time and amplifies the active runner."
+        }
+      ],
+      "passive": {
+        "name": "Un-Carrier Aura",
+        "effect": "The team gets cleaner cooldown flow, better trivia lift, and steadier rhythm."
+      },
+      "ultimate": {
+        "name": "Magenta Overdrive",
+        "effect": "Time-slow command burst with wide route control and team amplification."
+      }
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">Kip alert</title>
+  <image href="../icons/kip-visor.svg" width="64" height="64"/>
+  <path d="M50 7l12 22H38L50 7Z" fill="#0b0b10" stroke="#FF2D8A" stroke-width="2"/>
+  <path d="M50 15v7M50 26h.1" stroke="#FF2D8A" stroke-linecap="round" stroke-width="3"/>
+</svg>

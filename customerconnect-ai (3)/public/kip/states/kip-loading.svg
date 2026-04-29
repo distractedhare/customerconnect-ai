@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">Kip loading</title>
+  <image href="../icons/kip-visor.svg" width="64" height="64"/>
+  <circle cx="51" cy="14" r="10" fill="#0b0b10" stroke="#E20074" stroke-width="2"/>
+  <circle cx="47" cy="14" r="1.8" fill="#ff8cc6"/>
+  <circle cx="51" cy="14" r="1.8" fill="#ff8cc6"/>
+  <circle cx="55" cy="14" r="1.8" fill="#ff8cc6"/>
+</svg>

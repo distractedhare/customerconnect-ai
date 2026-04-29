@@ -1,0 +1,480 @@
+/* =================================================================
+   T-Sales Assistant (CustomerConnect AI) — design tokens
+   Extracted from src/index.css in distractedhare/improved-robot.
+   Light theme is the default; dark theme lives under [data-theme="dark"].
+   ================================================================= */
+
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700;800;900&display=swap");
+
+/* ---------- BRAND COLORS (invariant) ---------- */
+:root {
+  --t-magenta: #E20074;        /* T-Mobile primary */
+  --t-magenta-hover: #C70066;
+  --t-magenta-pressed: #A00050;
+  --t-berry: #861B54;          /* Deep magenta, used for text-pitch + gradients */
+  --t-magenta-hot: #FF2D8A;    /* Dark-mode magenta */
+
+  /* Prize tiers */
+  --prize-daily: #00A550;
+  --prize-weekly: #E20074;
+  --prize-monthly: #D4A017;
+}
+
+/* ---------- LIGHT THEME ---------- */
+:root,
+[data-theme="light"] {
+  /* Surfaces */
+  --bg-page: #F2F2F3;
+  --bg-page-secondary: #E8E8EB;
+  --bg-surface: rgba(255, 255, 255, 0.98);
+  --bg-surface-elevated: rgba(255, 255, 255, 0.98);
+
+  /* Borders */
+  --border-surface: #E8E8E8;
+  --border-surface-strong: rgba(226, 0, 116, 0.22);
+
+  /* Text */
+  --text-primary: #141414;
+  --text-secondary: #6A6A6A;  /* t-dark-gray — default body copy color */
+  --text-tertiary: #767676;
+  --text-muted: #757575;
+  --text-on-magenta: #FFFFFF;
+  --text-accent: #E20074;
+  --text-pitch: #861B54;
+
+  /* Page ambient shadows (box) */
+  --shadow-surface: 0 6px 18px rgba(0, 0, 0, 0.05);
+  --shadow-surface-hover: 0 14px 28px rgba(0, 0, 0, 0.08),
+                          0 0 0 1px rgba(226, 0, 116, 0.08);
+  --shadow-cta: 0 10px 22px rgba(226, 0, 116, 0.24);
+
+  /* ==== LIQUID GLASS — light ====
+     The recipe Apple uses: heavy backdrop-blur + saturate,
+     a visible but translucent fill, and layered inset shadows
+     that simulate light refracting off the top edge and a
+     faint dark base edge. Tokens below drive .glass, .glass-magenta,
+     .glass-elevated — the three core surface variants. */
+  --glass-bg: rgba(255, 255, 255, 0.55);
+  --glass-bg-strong: rgba(255, 255, 255, 0.72);
+  --glass-bg-tinted: rgba(226, 0, 116, 0.09);
+  --glass-border: rgba(200, 200, 200, 0.50);
+  --glass-border-subtle: rgba(200, 200, 200, 0.30);
+  --glass-border-hover: rgba(226, 0, 116, 0.25);
+  --glass-blur: blur(32px) saturate(180%);
+  --glass-blur-strong: blur(40px) saturate(200%);
+
+  /* Specular edges — what makes Liquid Glass look like glass.
+     Top: bright inner highlight (refraction).
+     Bottom: faint dark inner hairline (defined base edge).
+     Ring: subtle white 1px outer, subtle black 1.5px outer. */
+  --glass-specular-top: rgba(255, 255, 255, 0.95);
+  --glass-specular-bottom: rgba(20, 20, 20, 0.05);
+  --glass-ring-light: rgba(255, 255, 255, 0.60);
+  --glass-ring-dark: rgba(0, 0, 0, 0.04);
+
+  --glass-shadow:
+    0 12px 32px rgba(20, 20, 20, 0.10),
+    0 2px 6px rgba(20, 20, 20, 0.05),
+    inset 0 1px 0 0 var(--glass-specular-top),
+    inset 0 -1px 0 0 var(--glass-specular-bottom),
+    inset 0 0 0 1px var(--glass-ring-light),
+    inset 0 0 0 1.5px var(--glass-ring-dark);
+
+  --glass-shadow-elevated:
+    0 24px 50px rgba(20, 20, 20, 0.14),
+    0 4px 10px rgba(20, 20, 20, 0.06),
+    inset 0 1px 0 0 rgba(255, 255, 255, 1),
+    inset 0 -1px 0 0 rgba(20, 20, 20, 0.06),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.70),
+    inset 0 0 0 1.5px rgba(0, 0, 0, 0.04);
+
+  --glass-shadow-magenta:
+    0 14px 34px rgba(226, 0, 116, 0.22),
+    0 2px 6px rgba(20, 20, 20, 0.06),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.75),
+    inset 0 -1px 0 0 rgba(226, 0, 116, 0.12),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.40),
+    inset 0 0 0 1.5px rgba(226, 0, 116, 0.10);
+
+  /* Legacy alias for older components */
+  --glass-shadow-strong: var(--glass-shadow-elevated);
+
+  /* Semantic — info (uses magenta, not blue) */
+  --sem-info-surface: rgba(226, 0, 116, 0.06);
+  --sem-info-border: rgba(226, 0, 116, 0.16);
+  --sem-info-foreground: #861B54;
+  --sem-info-accent: #E20074;
+
+  --sem-success-surface: rgba(0, 165, 80, 0.08);
+  --sem-success-border: rgba(0, 165, 80, 0.18);
+  --sem-success-foreground: #006D36;
+  --sem-success-accent: #00A550;
+
+  --sem-warning-surface: rgba(134, 27, 84, 0.08);
+  --sem-warning-border: rgba(134, 27, 84, 0.16);
+  --sem-warning-foreground: #861B54;
+  --sem-warning-accent: #861B54;
+
+  --sem-error-surface: rgba(211, 47, 47, 0.08);
+  --sem-error-border: rgba(211, 47, 47, 0.18);
+  --sem-error-foreground: #8B1E1E;
+  --sem-error-accent: #D32F2F;
+
+  --sem-support-surface: rgba(232, 232, 232, 0.5);
+  --sem-support-border: rgba(106, 106, 106, 0.14);
+  --sem-support-foreground: #6A6A6A;
+
+  /* Body background — near-white grayscale with soft magenta & gray
+     blobs. Gives Liquid Glass something to refract against. */
+  --page-bg:
+    radial-gradient(ellipse 55% 45% at 12% 12%, rgba(226, 0, 116, 0.10) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 45% at 90% 25%, rgba(134, 27, 84, 0.07) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 55% at 75% 92%, rgba(226, 0, 116, 0.08) 0%, transparent 52%),
+    radial-gradient(ellipse 45% 40% at 8% 85%, rgba(60, 60, 70, 0.10) 0%, transparent 55%),
+    linear-gradient(180deg, #F2F2F3 0%, #E8E8EB 60%, #F2F2F3 100%);
+
+  color-scheme: light;
+}
+
+/* ---------- DARK THEME ---------- */
+[data-theme="dark"],
+.dark {
+  --bg-page: #0D0D0D;
+  --bg-page-secondary: #161616;
+  --bg-surface: rgba(22, 22, 22, 0.98);
+  --bg-surface-elevated: rgba(30, 30, 30, 0.98);
+
+  --border-surface: #2A2A2A;
+  --border-surface-strong: rgba(226, 0, 116, 0.30);
+
+  --text-primary: #F0F0F0;
+  --text-secondary: #9A9A9A;
+  --text-tertiary: #858585;
+  --text-muted: #858585;
+  --text-on-magenta: #FFFFFF;
+  --text-accent: #FF2D8A;
+  --text-pitch: #F0A0C8;
+
+  --shadow-surface: 0 6px 18px rgba(0, 0, 0, 0.25);
+  --shadow-surface-hover: 0 14px 28px rgba(0, 0, 0, 0.35),
+                          0 0 0 1px rgba(226, 0, 116, 0.15);
+  --shadow-cta: 0 10px 22px rgba(226, 0, 116, 0.30);
+
+  /* ==== LIQUID GLASS — dark ====
+     Same recipe, flipped: translucent white-on-black fill,
+     bright top highlight, soft under-glow bottom. */
+  --glass-bg: rgba(255, 255, 255, 0.08);
+  --glass-bg-strong: rgba(255, 255, 255, 0.14);
+  --glass-bg-tinted: rgba(226, 0, 116, 0.14);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-border-subtle: rgba(255, 255, 255, 0.07);
+  --glass-border-hover: rgba(226, 0, 116, 0.35);
+  --glass-blur: blur(32px) saturate(180%);
+  --glass-blur-strong: blur(40px) saturate(200%);
+
+  --glass-specular-top: rgba(255, 255, 255, 0.45);
+  --glass-specular-bottom: rgba(255, 255, 255, 0.08);
+  --glass-ring-light: rgba(255, 255, 255, 0.10);
+  --glass-ring-dark: rgba(0, 0, 0, 0.00);
+
+  --glass-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.35),
+    0 2px 8px rgba(0, 0, 0, 0.20),
+    inset 0 1px 0 0 var(--glass-specular-top),
+    inset 0 -1px 0 0 var(--glass-specular-bottom),
+    inset 0 0 0 1px var(--glass-ring-light);
+
+  --glass-shadow-elevated:
+    0 24px 60px rgba(0, 0, 0, 0.45),
+    0 4px 12px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.55),
+    inset 0 -1px 0 0 rgba(255, 255, 255, 0.10),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.16);
+
+  --glass-shadow-magenta:
+    0 16px 40px rgba(226, 0, 116, 0.28),
+    0 2px 8px rgba(0, 0, 0, 0.20),
+    inset 0 1px 0 0 rgba(255, 180, 220, 0.55),
+    inset 0 -1px 0 0 rgba(226, 0, 116, 0.18),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+
+  --glass-shadow-strong: var(--glass-shadow-elevated);
+
+  --sem-info-surface: rgba(226, 0, 116, 0.10);
+  --sem-info-border: rgba(226, 0, 116, 0.22);
+  --sem-info-foreground: #F0A0C8;
+  --sem-info-accent: #FF2D8A;
+
+  --sem-success-surface: rgba(0, 165, 80, 0.12);
+  --sem-success-border: rgba(0, 165, 80, 0.24);
+  --sem-success-foreground: #4ADE80;
+  --sem-success-accent: #22C55E;
+
+  --sem-warning-surface: rgba(134, 27, 84, 0.14);
+  --sem-warning-border: rgba(134, 27, 84, 0.24);
+  --sem-warning-foreground: #F0A0C8;
+  --sem-warning-accent: #C74B8A;
+
+  --sem-error-surface: rgba(211, 47, 47, 0.12);
+  --sem-error-border: rgba(211, 47, 47, 0.24);
+  --sem-error-foreground: #FCA5A5;
+  --sem-error-accent: #EF4444;
+
+  --sem-support-surface: rgba(42, 42, 42, 0.5);
+  --sem-support-border: rgba(106, 106, 106, 0.20);
+  --sem-support-foreground: #9A9A9A;
+
+  /* Body background — near-black with magenta-infused blobs.
+     The saturated substrate is what makes Liquid Glass pop. */
+  --page-bg:
+    radial-gradient(ellipse 60% 50% at 15% 10%, rgba(255, 45, 138, 0.55) 0%, transparent 55%),
+    radial-gradient(ellipse 55% 50% at 90% 30%, rgba(226, 0, 116, 0.50) 0%, transparent 50%),
+    radial-gradient(ellipse 70% 60% at 70% 95%, rgba(134, 27, 84, 0.55) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 50% at 10% 85%, rgba(160, 0, 80, 0.50) 0%, transparent 55%),
+    linear-gradient(180deg, #0D0D0D 0%, #1A0912 60%, #0D0D0D 100%);
+
+  color-scheme: dark;
+}
+
+/* ---------- TYPE SYSTEM ----------
+   Poppins is the only family. Weights that actually ship:
+     300 (light, rare), 400 (body), 500 (medium UI), 700 (bold),
+     800 (extrabold), 900 (black — the hero weight).
+   The app leans on 700–900 + uppercase + wide tracking for headings
+   and micro-labels; body copy stays at 400–500.
+*/
+:root {
+  --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
+
+  /* Sizes — mobile-first, tight because phone-screen-first product */
+  --fs-micro: 9px;   /* micro-label, section eyebrows ([9px] uppercase tracking-widest) */
+  --fs-2xs: 10px;    /* helper text, tiny caption */
+  --fs-xs: 11px;     /* dense UI labels, buttons */
+  --fs-sm: 12px;     /* secondary body */
+  --fs-base: 13px;   /* base body */
+  --fs-md: 14px;     /* primary body (text-sm in Tailwind lingo) */
+  --fs-lg: 16px;     /* larger body */
+  --fs-xl: 18px;     /* card headings */
+  --fs-2xl: 20px;    /* section headings (text-xl) */
+  --fs-3xl: 24px;    /* page title */
+  --fs-4xl: 30px;    /* hero H1 mobile */
+  --fs-5xl: 36px;    /* hero H1 tablet+ */
+  --fs-6xl: 48px;    /* hero H1 desktop */
+
+  --lh-tight: 1.1;
+  --lh-snug: 1.25;
+  --lh-normal: 1.4;
+  --lh-relaxed: 1.6;
+
+  --tracking-tight: -0.01em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.08em;
+  --tracking-wider: 0.14em;
+  --tracking-widest: 0.2em;   /* the signature eyebrow tracking */
+  --tracking-cta: 0.18em;     /* uppercase CTA buttons */
+}
+
+/* ---------- SEMANTIC TYPE RULES ----------
+   These mirror the in-app patterns so you can write
+     <p class="eyebrow">Today's Hot</p>
+   without rebuilding the Tailwind chain every time.
+*/
+body {
+  font-family: var(--font-sans);
+  font-size: var(--fs-md);
+  line-height: var(--lh-normal);
+  color: var(--text-primary);
+  background: var(--page-bg);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Hero — gradient magenta display text */
+.h-display {
+  font-size: var(--fs-5xl);
+  font-weight: 900;
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tracking-tight);
+  background: linear-gradient(135deg, #E20074 0%, #861B54 50%, #E20074 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* Page H1 — "Your Game Plan" style */
+.h1,
+h1 {
+  font-size: var(--fs-3xl);
+  font-weight: 900;
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tracking-tight);
+  text-transform: uppercase;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* Card H2 — "Customer Context" style */
+.h2,
+h2 {
+  font-size: var(--fs-xl);
+  font-weight: 900;
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tracking-tight);
+  text-transform: uppercase;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* Section title — Card interior heading */
+.h3,
+h3 {
+  font-size: var(--fs-sm);
+  font-weight: 900;
+  line-height: var(--lh-snug);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-tight);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Eyebrow — the ubiquitous magenta/gray micro-label */
+.eyebrow {
+  font-size: var(--fs-micro);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--text-accent);
+}
+
+.eyebrow--muted { color: var(--text-secondary); }
+.eyebrow--on-magenta { color: rgba(255, 255, 255, 0.7); }
+
+/* Body copy */
+p,
+.body {
+  font-size: var(--fs-md);
+  line-height: var(--lh-normal);
+  font-weight: 400;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Dense UI label — form fields, button text */
+.label {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  line-height: var(--lh-tight);
+  color: var(--text-secondary);
+}
+
+/* Talk track — the bold magenta "say this" copy that sits in
+   a tinted card. Used everywhere in InstantPlays. */
+.talk-track {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  line-height: var(--lh-relaxed);
+  color: var(--text-accent);
+  font-style: normal;
+}
+
+/* Pill — the rounded tag used for badges like "Demo Ready" */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: var(--fs-micro);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-widest);
+  background: var(--t-magenta);
+  color: #FFFFFF;
+}
+
+/* CTA button text */
+.cta-text {
+  font-size: var(--fs-xs);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-cta);
+}
+
+/* Monospace — we don't have a branded mono, use system */
+code,
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: var(--fs-sm);
+  background: var(--bg-page-secondary);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+/* ---------- SPACING + RADII ---------- */
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  --radius-xs: 4px;
+  --radius-sm: 6px;    /* scrollbar thumb */
+  --radius-md: 8px;
+  --radius-lg: 12px;   /* rounded-xl — compact cards, input fields */
+  --radius-xl: 16px;   /* rounded-2xl — standard card */
+  --radius-2xl: 20px;  /* rounded-3xl — primary containers */
+  --radius-full: 999px;
+}
+
+
+/* =================================================================
+   LIQUID GLASS — utility classes
+   Use these on any element that should render as the Apple-style
+   glass material. Three variants:
+     .glass            — default translucent material
+     .glass-magenta    — magenta-tinted (for CTAs, warnings, HINTs)
+     .glass-elevated   — heavier blur + stronger sheen (modals, sheets)
+   All three work identically in light and dark themes; the tokens
+   above rewrite themselves when [data-theme="dark"] is set.
+   ================================================================= */
+.glass,
+.glass-magenta,
+.glass-elevated {
+  border-radius: var(--radius-2xl);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+}
+.glass {
+  background: var(--glass-bg);
+  box-shadow: var(--glass-shadow);
+}
+.glass-magenta {
+  background: var(--glass-bg-tinted);
+  box-shadow: var(--glass-shadow-magenta);
+}
+.glass-elevated {
+  background: var(--glass-bg-strong);
+  -webkit-backdrop-filter: var(--glass-blur-strong);
+  backdrop-filter: var(--glass-blur-strong);
+  box-shadow: var(--glass-shadow-elevated);
+}
+
+/* Floating capsule — Apple's toolbar/tab-bar idiom.
+   Use for nav, tab bars, and any floating chrome. */
+.glass-capsule {
+  display: inline-flex;
+  padding: 6px;
+  border-radius: var(--radius-full);
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow);
+}

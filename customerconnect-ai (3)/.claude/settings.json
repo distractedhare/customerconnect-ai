@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__github__pull_request_read",
+      "mcp__github__list_pull_requests",
+      "mcp__github__get_commit",
+      "mcp__github__list_commits",
+      "mcp__github__search_pull_requests",
+      "Bash(npm run lint)",
+      "Bash(git fetch *)",
+      "Write(./.claude/notes/**)",
+      "Edit(./.claude/notes/**)",
+      "Write(./.claude/agents/**)",
+      "Edit(./.claude/agents/**)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path // .tool_response.filePath' | { read -r f; echo \"$f\" | grep -qE '\\.(ts|tsx)$' && npx tsc --noEmit 2>&1 | grep -E 'error TS' | head -5 || true; }",
+            "timeout": 30,
+            "statusMessage": "Type-checking..."
+          }
+        ]
+      }
+    ]
+  }
+}

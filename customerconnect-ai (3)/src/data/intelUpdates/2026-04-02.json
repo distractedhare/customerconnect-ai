@@ -1,0 +1,58 @@
+{
+  "metadata": {
+    "generatedDate": "2026-04-02",
+    "coversFrom": "2026-03-26",
+    "coversTo": "2026-04-02",
+    "sourcesSearched": ["https://www.t-mobile.com", "https://www.att.com", "https://www.verizon.com"],
+    "confidence": "high",
+    "previousUpdateDate": "2026-03-26"
+  },
+  "tmobileCampaigns": {
+    "new": [
+      "iPhone Air On Us for switchers on Experience Beyond or Better Value — no trade-in needed",
+      "Pixel 10a + Pixel Buds 2a both On Us with new line on most plans ($60+/mo)",
+      "Galaxy Z Flip7 On Us with any-condition trade on Experience Beyond",
+      "Galaxy Z Fold7 up to $1,300 off with new line on Experience Beyond",
+      "Motorola razr (Swarovski edition) On Us with new line on Experience Beyond",
+      "FREE same-day phone delivery for new accounts"
+    ],
+    "ended": [],
+    "changed": [
+      "Home Internet All-In updated to $50/mo standalone or $35/mo bundled — now includes mesh router",
+      "Home Internet Amplified at $45/mo bundled, $200 back via prepaid card",
+      "Home Internet Rely at $35/mo bundled, $100 back via prepaid card",
+      "T-Satellite now powers apps like WhatsApp and AllTrails — not just texting anymore"
+    ]
+  },
+  "competitorUpdates": {
+    "ATT": "AT&T raising legacy plan prices AGAIN in April 2026 ($10-20/month increases). At least the 4th increase in about 2 years. Still no streaming perks on any plan.",
+    "Verizon": "Verizon still requires trade-in for best phone deals. T-Mobile's top deals are no trade-in required for switchers."
+  },
+  "regionalIntel": {},
+  "weeklyHighlights": {
+    "biggestThreat": {
+      "competitor": "AT&T",
+      "why": "AT&T April price hikes will drive frustrated customers to shop around — but they may also consider Verizon. Need to intercept with clear value messaging.",
+      "counterStrategy": "Lead with 5-Year Price Guarantee and the $3,700 savings stat. AT&T is raising prices for the 4th time in 2 years — T-Mobile locks your rate. Plus free iPhone 17, no trade-in."
+    },
+    "biggestOpportunity": {
+      "description": "AT&T April price hike driving switcher traffic + expanded device lineup (iPhone Air, Pixel 10a, Z Flip7/Fold7)",
+      "targetCustomer": "AT&T customers seeing $10-20/mo price increases on their April bill, plus tech enthusiasts interested in iPhone Air and foldables",
+      "pitch": "Tired of AT&T raising your bill? Switch to T-Mobile — we'll give you a free iPhone 17 (no trade-in), pay off your old phone up to $800, and lock your price for 5 years. Plus Netflix, Hulu, and Apple TV+ included."
+    },
+    "trendingTopics": [
+      "iPhone Air launch — thinnest iPhone ever",
+      "AT&T April 2026 price increases hitting customer bills",
+      "T-Satellite app expansion (WhatsApp, AllTrails)",
+      "Galaxy Z Flip7/Fold7 availability",
+      "Pixel 10a as budget-friendly bundle play"
+    ],
+    "keyNumbersThisPeriod": [
+      "$3,700 — T-Mobile family savings vs AT&T/Verizon over 5 years",
+      "$140/mo — Better Value plan for 3 lines with Netflix, Hulu, Apple TV+, T-Satellite",
+      "$1,300 — max discount on Galaxy Z Fold7",
+      "$300 — max Home Internet rebate (All-In tier)",
+      "89-418 Mbps — typical Home Internet download speeds (fastest per Ookla)"
+    ]
+  }
+}

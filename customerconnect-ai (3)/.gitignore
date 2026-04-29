@@ -1,0 +1,14 @@
+node_modules/
+build/
+dist/
+coverage/
+.DS_Store
+*.log
+.env*
+!.env.example
+.vercel
+.tmp.driveupload/
+.tmp.original_levelup.tsx
+.deprecated/test-artifacts/
+.claude/sessions/
+web-capture-*.json

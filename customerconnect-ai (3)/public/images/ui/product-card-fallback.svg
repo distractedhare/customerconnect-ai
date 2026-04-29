@@ -1,0 +1,12 @@
+<svg width="640" height="640" viewBox="0 0 640 640" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="640" height="640" rx="72" fill="#F4F6FB"/>
+  <rect x="72" y="72" width="496" height="496" rx="52" fill="#FFFFFF" stroke="#D8DFEE" stroke-width="12"/>
+  <rect x="208" y="150" width="224" height="224" rx="32" fill="#F7D4E7"/>
+  <path d="M260 308L308 256L344 292L392 244L448 300V342H260V308Z" fill="#E20074" fill-opacity="0.25"/>
+  <circle cx="382" cy="218" r="24" fill="#E20074" fill-opacity="0.35"/>
+  <rect x="168" y="420" width="304" height="20" rx="10" fill="#D8DFEE"/>
+  <rect x="204" y="456" width="232" height="20" rx="10" fill="#E4E9F4"/>
+  <text x="320" y="528" text-anchor="middle" fill="#556070" font-family="Arial, Helvetica, sans-serif" font-size="32" font-weight="700">
+    Product Image Pending
+  </text>
+</svg>

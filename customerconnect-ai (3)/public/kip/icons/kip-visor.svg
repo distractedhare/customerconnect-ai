@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">Kip visor icon</title>
+  <defs>
+    <radialGradient id="face" cx="50%" cy="34%" r="62%">
+      <stop offset="0%" stop-color="#24242d"/>
+      <stop offset="58%" stop-color="#07070b"/>
+      <stop offset="100%" stop-color="#000000"/>
+    </radialGradient>
+    <linearGradient id="shell" x1="14" x2="50" y1="8" y2="56">
+      <stop offset="0%" stop-color="#f5f1f4"/>
+      <stop offset="45%" stop-color="#9a98a2"/>
+      <stop offset="100%" stop-color="#33323a"/>
+    </linearGradient>
+  </defs>
+  <circle cx="32" cy="32" r="29" fill="#05050a"/>
+  <circle cx="32" cy="32" r="27" fill="none" stroke="#E20074" stroke-width="2"/>
+  <path d="M15 30c0-12 7-20 17-20s17 8 17 20c0 13-7 22-17 22s-17-9-17-22Z" fill="url(#shell)"/>
+  <path d="M19 31c0-10 5-16 13-16s13 6 13 16c0 10-5 17-13 17s-13-7-13-17Z" fill="url(#face)"/>
+  <path d="M24 34c3-5 8-4 10 2" fill="none" stroke="#ff8cc6" stroke-linecap="round" stroke-width="4"/>
+  <path d="M40 34c-3-5-8-4-10 2" fill="none" stroke="#ff8cc6" stroke-linecap="round" stroke-width="4"/>
+  <path d="M15 30h-5v11h6" fill="none" stroke="#E20074" stroke-linecap="round" stroke-width="3"/>
+  <path d="M49 30h5v11h-6" fill="none" stroke="#E20074" stroke-linecap="round" stroke-width="3"/>
+</svg>

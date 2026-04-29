@@ -1,0 +1,729 @@
+{
+  "generatedAt": "2026-04-23T00:00:00.000Z",
+  "version": "1.0.1",
+  "categories": {
+    "welcome": {
+      "exploring": [
+        [
+          "Hey! No pressure at all — let's just figure out what's out there that might work for you.",
+          "Hello! No rush at all — let's just figure out what's out there that might work for you.",
+          "Hey there! Absolutely no pressure at all — let's just figure out what's out there that might work for you."
+        ],
+        [
+          "Welcome in! Totally cool to just look around. What caught your eye?",
+          "Welcome in! Completely cool to just look around. What caught your eye?",
+          "Welcome in! Definitely cool to just look around. What caught your eye?"
+        ],
+        [
+          "What's up! Just exploring? That's the best way to start. Let me know if anything jumps out.",
+          "What's going on! Just exploring? That's the best way to start. Let me know if anything jumps out.",
+          "Hello! Just exploring? That's the best way to start. Let me know if anything jumps out."
+        ]
+      ],
+      "ready to buy": [
+        [
+          "Awesome, let's get you set up! I'll make sure you're getting the best deal we have right now.",
+          "Fantastic, let's get you set up! I'll make sure you're getting the best deal we have right now.",
+          "Perfect, let's get you set up! I'll make sure you're getting the best deal we have right now."
+        ],
+        [
+          "Love it — you came ready! Let me pull up what we've got and make this quick and easy.",
+          "Excellent — you came ready! Let me check on what we've got and make this quick and easy.",
+          "Perfect — you came ready! Let me bring up what we've got and make this quick and easy."
+        ],
+        [
+          "Perfect timing! We've got some solid deals running. Let's find the right fit.",
+          "You picked a good time! We've got some excellent deals running. We can find the right fit.",
+          "Excellent timing! We've got some strong deals running. I'd love to find the right fit."
+        ]
+      ],
+      "upgrade / add a line": [
+        [
+          "Smart move comparing before you commit. Let me show you what we bring to the table.",
+          "That's wise comparing before you commit. Here's what I can show you what we bring to the table.",
+          "Great idea comparing before you commit. Check this out what we bring to the table."
+        ],
+        [
+          "Love that you're doing your homework. Let me give you the real side-by-side — no fluff.",
+          "Love that you're doing your homework. Let me give you the real side-by-side — no fluff.",
+          "Love that you're doing your homework. Let me give you the real side-by-side – no fluff."
+        ],
+        [
+          "Great to see you shopping around! I think you'll like what T-Mobile offers vs. what you're paying now.",
+          "Great to see you shopping around! I think you'll like what T-Mobile offers vs. what you're paying now.",
+          "Great to see you shopping around! I think you'll like what T-Mobile offers vs. what you're paying now."
+        ]
+      ],
+      "order support": [
+        [
+          "I've got you — let's get that order sorted out real quick.",
+          "Let me take care of that — let's get that order sorted out in just a moment.",
+          "I'm on it — let's get that order sorted out for you now."
+        ],
+        [
+          "No worries, let's take a look at what's going on with your order.",
+          "Of course, let's take a look at what's going on with your order.",
+          "Absolutely, let's take a look at what's going on with your order."
+        ],
+        [
+          "I'm on it! Let me pull up your info and get this resolved.",
+          "I'm on it! Let me check on your info and get this resolved.",
+          "I'm on it! Let me bring up your info and get this resolved."
+        ]
+      ],
+      "tech support": [
+        [
+          "Let's figure this out together. What's going on with your device?",
+          "We can work through this together. What's going on with your device?",
+          "I'd love to resolve this together. What's going on with your device?"
+        ],
+        [
+          "I deal with this stuff all day — we'll get it sorted. What's happening?",
+          "I work with this stuff all day — we'll get it sorted. What's happening?",
+          "I take care of this stuff all day — we'll get it sorted. What's happening?"
+        ],
+        [
+          "No stress, tech issues happen. Let me take a look.",
+          "No problem at all, tech issues happen. Let me take a look.",
+          "It happens, tech issues happen. Let me take a look."
+        ]
+      ],
+      "account support": [
+        [
+          "I've got you! Let me pull up your account and see what we can do.",
+          "Let me take care of that! Let me check on your account and see what we can do.",
+          "I'm on it! Let me bring up your account and see what we can do."
+        ],
+        [
+          "No problem at all. What's going on with your account?",
+          "No problem at all. What's going on with your account?",
+          "No problem at all. What's going on with your account?"
+        ],
+        [
+          "Let's take a look together. What do you need help with?",
+          "We can take a look together. What do you need help with?",
+          "I'd love to take a look together. What do you need help with?"
+        ]
+      ]
+    },
+    "discovery": {
+      "Phone": [
+        [
+          "What phone are you using right now, and how's it treating you?",
+          "What phone are you using right now, and how's it treating you?",
+          "What phone are you using at the moment, and how's it treating you?"
+        ],
+        [
+          "What matters most to you in a phone — camera, battery life, screen size?",
+          "What matters most to you in a phone — camera, battery life, screen size?",
+          "What matters most to you in a phone – camera, battery life, screen size?"
+        ],
+        [
+          "Are you looking at iPhone, Samsung, or open to whatever's best?",
+          "Are you looking at iPhone, Samsung, or open to whatever's best?",
+          "Are you looking at iPhone, Samsung, or open to whatever's best?"
+        ],
+        [
+          "How many lines would be on your account?",
+          "How many lines would be on your account?",
+          "How many lines would be on your account?"
+        ],
+        [
+          "Do you travel internationally much? That's actually a big one for savings.",
+          "Do you travel internationally much? That's actually a big one for savings.",
+          "Do you travel internationally much? That's really a big one for savings."
+        ],
+        [
+          "What are you paying right now per month? (Just ballpark is fine)",
+          "What are you paying right now per month? (Just ballpark is fine)",
+          "What are you paying at the moment per month? (Just ballpark is fine)"
+        ],
+        [
+          "Are you into streaming — Netflix, Hulu, that kind of stuff?",
+          "Are you into streaming — Netflix, Hulu, that kind of stuff?",
+          "Are you into streaming – Netflix, Hulu, that kind of stuff?"
+        ],
+        [
+          "Would you be interested in trading in your current device? We take them in any condition.",
+          "Would you be interested in trading in your current device? We take them in any condition.",
+          "Would you be interested in trading in your current device? We take them in any condition."
+        ]
+      ],
+      "Home Internet": [
+        [
+          "What internet provider do you have now, and what are you paying?",
+          "What internet provider do you have now, and what are you paying?",
+          "What internet provider do you have now, and what are you paying?"
+        ],
+        [
+          "How many people in your household are usually online at once?",
+          "How many people in your household are usually online at once?",
+          "How many people in your household are usually online at once?"
+        ],
+        [
+          "Do you work from home or do a lot of video calls?",
+          "Do you work from home or do a lot of video calls?",
+          "Do you work from home or do many video calls?"
+        ],
+        [
+          "Are you happy with your current speeds, or do things feel slow sometimes?",
+          "Are you happy with your current speeds, or do things feel slow sometimes?",
+          "Are you happy with your current speeds, or do things feel slow sometimes?"
+        ],
+        [
+          "Have you ever had T-Mobile Home Internet on your radar before?",
+          "Have you ever had T-Mobile Home Internet on your radar before?",
+          "Have you ever had T-Mobile Home Internet on your radar before?"
+        ],
+        [
+          "Is your current provider locked into a contract?",
+          "Is your current provider locked into a contract?",
+          "Is your current provider locked into a contract?"
+        ]
+      ],
+      "BTS": [
+        [
+          "Do you have a tablet or watch on your account yet? A lot of people don't realize it's only $5/month to add one.",
+          "Do you have a tablet or watch on your account yet? A lot of people don't realize it's only $5/month to add one.",
+          "Do you have a tablet or watch on your account yet? A lot of people don't realize it's only $5/month to add one."
+        ],
+        [
+          "Do you have kids? A watch with cellular is huge for safety — they can call you without needing a phone.",
+          "Do you have kids? A watch with cellular is huge for safety — they can call you without needing a phone.",
+          "Do you have kids? A watch with cellular is huge for safety – they can call you without needing a phone."
+        ],
+        [
+          "Are you Apple or Samsung? I ask because we've got some wild watch deals right now depending on your ecosystem.",
+          "Are you Apple or Samsung? I ask because we've got some wild watch deals right now depending on your ecosystem.",
+          "Are you Apple or Samsung? I ask because we've got some wild watch deals at the moment depending on your ecosystem."
+        ],
+        [
+          "Do you ever wish you could leave your phone behind at the gym or on a run but still get calls and texts?",
+          "Do you ever wish you could leave your phone behind at the gym or on a run but still get calls and texts?",
+          "Do you ever wish you could leave your phone behind at the gym or on a run but still get calls and texts?"
+        ],
+        [
+          "Would a tablet help with work or school? We've got iPads and Galaxy Tabs with cellular for basically nothing with a new line.",
+          "Would a tablet help with work or school? We've got iPads and Galaxy Tabs with cellular for basically nothing with a new line.",
+          "Would a tablet help with work or school? We've got iPads and Galaxy Tabs with cellular for basically nothing with a new line."
+        ],
+        [
+          "Have you seen the Galaxy Watch8? It's FREE right now with a new wearable line — 36 monthly credits.",
+          "Have you seen the Galaxy Watch8? It's FREE right now with a new wearable line — 36 monthly credits.",
+          "Have you seen the Galaxy Watch8? It's FREE at the moment with a new wearable line – 36 monthly credits."
+        ],
+        [
+          "The Apple Watch SE 3 is $200 off with a new line — great for fitness tracking and staying connected without your phone.",
+          "The Apple Watch SE 3 is $200 off with a new line — great for fitness tracking and staying connected without your phone.",
+          "The Apple Watch SE 3 is $200 off with a new line – great for fitness tracking and staying connected without your phone."
+        ]
+      ],
+      "IOT": [
+        [
+          "Do you ever worry about your car when it's parked somewhere? SyncUP DRIVE gives you GPS tracking, trip history, and even vehicle diagnostics.",
+          "Do you ever worry about your car when it's parked somewhere? SyncUP DRIVE gives you GPS tracking, trip history, and even vehicle diagnostics.",
+          "Do you ever worry about your car when it's parked somewhere? SyncUP DRIVE gives you GPS tracking, trip history, and even vehicle diagnostics."
+        ],
+        [
+          "Do you have pets? A lot of our customers use SyncUP Trackers on their dogs — real-time GPS on our nationwide network, not just Bluetooth range like AirTag.",
+          "Do you have pets? A lot of our customers use SyncUP Trackers on their dogs — real-time GPS on our nationwide network, not just Bluetooth range like AirTag.",
+          "Do you have pets? A lot of our customers use SyncUP Trackers on their dogs – real-time GPS on our nationwide network, not just Bluetooth range like AirTag."
+        ],
+        [
+          "Got kids? SyncUP Trackers are great for backpacks — you can see exactly where they are on a map in real time.",
+          "Got kids? SyncUP Trackers are great for backpacks — you can see exactly where they are on a map in real time.",
+          "Got kids? SyncUP Trackers are great for backpacks – you can see exactly where they are on a map in real time."
+        ],
+        [
+          "Do you travel a lot? A SyncUP Tracker on your luggage means you always know where your bags are — even if the airline doesn't.",
+          "Do you travel a lot? A SyncUP Tracker on your luggage means you always know where your bags are — even if the airline doesn't.",
+          "Do you travel a lot? A SyncUP Tracker on your luggage means you always know where your bags are – even if the airline doesn't."
+        ],
+        [
+          "Have you used AirTag or Tile before? SyncUP is different — it uses cellular, so it works anywhere with T-Mobile coverage, not just near other people's phones.",
+          "Have you used AirTag or Tile before? SyncUP is different — it uses cellular, so it works anywhere with T-Mobile coverage, not just near other people's phones.",
+          "Have you used AirTag or Tile before? SyncUP is different – it uses cellular, so it works anywhere with T-Mobile coverage, not just near other people's phones."
+        ],
+        [
+          "The TCL LINKPORT is under $50 right now — it's a USB-C 5G hotspot that works on any laptop. Great for people who work remotely.",
+          "The TCL LINKPORT is under $50 right now — it's a USB-C 5G hotspot that works on any laptop. Great for people who work remotely.",
+          "The TCL LINKPORT is under $50 at the moment – it's a USB-C 5G hotspot that works on any laptop. Great for people who work remotely."
+        ]
+      ],
+      "No Specific Product": [
+        [
+          "What brings you in today? Just checking things out?",
+          "What brings you in today? Just checking things out?",
+          "What brings you in today? Just checking things out?"
+        ],
+        [
+          "Are you currently with T-Mobile or thinking about switching?",
+          "Are you currently with T-Mobile or thinking about switching?",
+          "Are you currently with T-Mobile or thinking about switching?"
+        ],
+        [
+          "Is there anything specific that's been bugging you about your current service?",
+          "Is there anything specific that's been bugging you about your current service?",
+          "Is there anything specific that's been bugging you about your current service?"
+        ],
+        [
+          "Have you seen any T-Mobile deals that caught your eye?",
+          "Have you seen any T-Mobile deals that caught your eye?",
+          "Have you seen any T-Mobile deals that caught your eye?"
+        ],
+        [
+          "What's most important to you in a wireless carrier?",
+          "What's most important to you in a wireless carrier?",
+          "What's most important to you in a wireless carrier?"
+        ]
+      ]
+    },
+    "transitions": {
+      "discoveryToValue": [
+        [
+          "\"Based on what you're telling me, I think I know exactly what would work...\"",
+          "\"Based on what you're telling me, I think I know exactly what would work...\"",
+          "\"Based on what you're telling me, I think I know exactly what would work...\""
+        ],
+        [
+          "\"So here's what I'm thinking — and tell me if I'm off base...\"",
+          "\"So here's what I'm thinking — and tell me if I'm off base...\"",
+          "\"So here's what I'm thinking – and tell me if I'm off base...\""
+        ],
+        [
+          "\"That actually lines up perfectly with what we've got right now...\"",
+          "\"That actually lines up perfectly with what we've got right now...\"",
+          "\"That really lines up perfectly with what we've got at the moment...\""
+        ]
+      ],
+      "valueToClose": [
+        [
+          "\"So what do you think — does that sound like something that would work for you?\"",
+          "\"So what do you think — does that sound like something that would work for you?\"",
+          "\"So what do you think – does that sound like something that would work for you?\""
+        ],
+        [
+          "\"Want me to pull up the numbers and show you what it would look like?\"",
+          "\"Want me to check on the numbers and show you what it would look like?\"",
+          "\"Want me to bring up the numbers and show you what it would look like?\""
+        ],
+        [
+          "\"I can get this set up for you right now if you're feeling good about it.\"",
+          "\"I can get this set up for you right now if you're feeling good about it.\"",
+          "\"I can get this set up for you at the moment if you're feeling good about it.\""
+        ]
+      ],
+      "objectionToPivot": [
+        [
+          "\"I totally understand that concern. Let me address that...\"",
+          "\"I completely understand that concern. Let me address that...\"",
+          "\"I definitely understand that concern. Let me address that...\""
+        ],
+        [
+          "\"That's actually a really common question. Here's the deal...\"",
+          "\"That's actually a really common question. Here's the deal...\"",
+          "\"That's really a really common question. Here's the deal...\""
+        ],
+        [
+          "\"Fair point — and here's why a lot of people who felt the same way ended up switching...\"",
+          "\"Fair point — and here's why a lot of people who felt the same way ended up switching...\"",
+          "\"Fair point – and here's why many people who felt the same way ended up switching...\""
+        ]
+      ]
+    },
+    "closing": {
+      "exploring": [
+        [
+          "\"No pressure at all — but let me save this quote for you so you have the numbers when you're ready.\"",
+          "\"No rush at all — but allow me to save this quote for you so you have the numbers when you're ready.\"",
+          "\"Absolutely no pressure at all — but I'd be happy to save this quote for you so you have the numbers when you're ready.\""
+        ],
+        [
+          "\"Here's my card. When you're ready, ask for me and I'll get you set up fast.\"",
+          "\"Here's my card. When you're ready, ask for me and I'll get you set up fast.\"",
+          "\"Here's my card. When you're ready, ask for me and I'll get you set up fast.\""
+        ],
+        [
+          "\"These promos are running for a limited time — just want you to have the info.\"",
+          "\"These promos are running for a limited time — just want you to have the info.\"",
+          "\"These promos are running for a limited time – just want you to have the info.\""
+        ]
+      ],
+      "ready to buy": [
+        [
+          "\"Let's do it! I can get you out of here in about 20 minutes with everything set up.\"",
+          "\"We can do it! I can get you out of here in about 20 minutes with everything set up.\"",
+          "\"I'd love to do it! I can get you out of here in about 20 minutes with everything set up.\""
+        ],
+        [
+          "\"I'll get this rolling — do you want to start with the trade-in or the new device?\"",
+          "\"I'll get this rolling — do you want to start with the trade-in or the new device?\"",
+          "\"I'll get this rolling – do you want to start with the trade-in or the new device?\""
+        ]
+      ],
+      "upgrade / add a line": [
+        [
+          "\"Let me show you the side-by-side. Once you see what you're actually getting vs paying, the decision usually makes itself.\"",
+          "\"Here's what I can show you the side-by-side. Once you see what you're actually getting vs paying, the decision usually makes itself.\"",
+          "\"Check this out the side-by-side. Once you see what you're actually getting vs paying, the decision usually makes itself.\""
+        ],
+        [
+          "\"Want me to pull up your current carrier's plan next to ours? I think you'll be surprised.\"",
+          "\"Want me to check on your current carrier's plan next to ours? I think you'll be surprised.\"",
+          "\"Want me to bring up your current carrier's plan next to ours? I think you'll be surprised.\""
+        ],
+        [
+          "\"The 5-Year Price Guarantee is a big one — no other carrier offers that.\"",
+          "\"The 5-Year Price Guarantee is a big one — no other carrier offers that.\"",
+          "\"The 5-Year Price Guarantee is a big one – no other carrier offers that.\""
+        ]
+      ],
+      "order support": [
+        [
+          "\"Let me get this resolved for you real quick. While I'm pulling this up — do you have a watch or tablet on your account yet?\"",
+          "\"Let me get this resolved for you in just a moment. While I'm pulling this up — do you have a watch or tablet on your account yet?\"",
+          "\"Let me get this resolved for you for you now. While I'm pulling this up — do you have a watch or tablet on your account yet?\""
+        ],
+        [
+          "\"Got it taken care of! Hey, quick question before I let you go — do you have anything protecting your car or tracking your luggage when you travel?\"",
+          "\"All handled now! Hello, quick question before I let you go — do you have anything protecting your car or tracking your luggage when you travel?\"",
+          "\"That's resolved! Hey there, quick question before I let you go — do you have anything protecting your car or tracking your luggage when you travel?\""
+        ],
+        [
+          "\"All set! By the way, the Galaxy Watch8 is free right now with a wearable line — $5/month. Want me to show you?\"",
+          "\"That's taken care of! On another note, the Galaxy Watch8 is free right now with a wearable line — $5/month. Want me to show you?\"",
+          "\"Everything's handled! Quick thought, the Galaxy Watch8 is free right now with a wearable line — $5/month. Want me to show you?\""
+        ]
+      ],
+      "tech support": [
+        [
+          "\"Glad we got that fixed! While I have you — are you using any kind of smartwatch or tracker? We have some solid deals right now.\"",
+          "\"Good that we fixed that fixed! While I have you — are you using any kind of smartwatch or tracker? We have some excellent deals right now.\"",
+          "\"Great that we sorted that fixed! While I have you — are you using any kind of smartwatch or tracker? We have some strong deals right now.\""
+        ],
+        [
+          "\"All good now! Quick thought — if you're having device issues, P360 protection would cover stuff like this going forward. Plus it comes with JUMP! upgrades.\"",
+          "\"All good now! Quick thought — if you're having device issues, P360 protection would cover stuff like this going forward. Plus it comes with JUMP! upgrades.\"",
+          "\"All good now! Quick thought – if you're having device issues, P360 protection would cover stuff like this going forward. Plus it comes with JUMP! upgrades.\""
+        ],
+        [
+          "\"That should do it! Hey, have you thought about a tablet? iPads are basically free with a new line right now, and it's only $5/month for the line.\"",
+          "\"That should do it! Hello, have you thought about a tablet? iPads are basically free with a new line right now, and it's only $5/month for the line.\"",
+          "\"That should do it! Hey there, have you thought about a tablet? iPads are basically free with a new line right now, and it's only $5/month for the line.\""
+        ]
+      ],
+      "account support": [
+        [
+          "\"Got that taken care of! While you're here — I noticed you don't have any connected devices. A watch line is only $5/month and the Galaxy Watch8 is free right now.\"",
+          "\"Got that taken care of! While you're here — I noticed you don't have any connected devices. A watch line is only $5/month and the Galaxy Watch8 is free right now.\"",
+          "\"Got that taken care of! While you're here – I noticed you don't have any connected devices. A watch line is only $5/month and the Galaxy Watch8 is free at the moment.\""
+        ],
+        [
+          "\"All set on the account! Quick question — do you have kids? The SyncUP Tracker is great for peace of mind, and it's way more reliable than AirTag.\"",
+          "\"That's taken care of on the account! Just curious — do you have kids? The SyncUP Tracker is great for peace of mind, and it's way more reliable than AirTag.\"",
+          "\"Everything's handled on the account! While I have you — do you have kids? The SyncUP Tracker is great for peace of mind, and it's way more reliable than AirTag.\""
+        ],
+        [
+          "\"You're all good! Before I let you go — have you looked at Home Internet? With your voice line you'd get it for $30/month, no contract.\"",
+          "\"You're all good! Before I let you go — have you looked at Home Internet? With your voice line you'd get it for $30/month, no contract.\"",
+          "\"You're all good! Before I let you go – have you looked at Home Internet? With your voice line you'd get it for $30/month, no contract.\""
+        ]
+      ]
+    },
+    "objectionRebuttals": {
+      "Price is too high": [
+        [
+          "I totally get that — let's look at the full picture though, not just the line item.",
+          "I completely get that — let's look at the full picture though, not just the line item.",
+          "I definitely get that — let's look at the full picture though, not just the line item."
+        ],
+        [
+          "Factor in current entertainment perks only after verifying the selected plan's Netflix, Hulu, and Apple TV terms",
+          "Factor in current entertainment perks only after checking the selected plan's Netflix, Hulu, and Apple TV terms",
+          "Use entertainment perks as value only after confirming the selected plan's Netflix, Hulu, and Apple TV terms"
+        ],
+        [
+          "Compare total cost vs current carrier: include their hidden fees, activation charges, and the perks they charge extra for",
+          "Compare total cost vs current carrier: include their hidden fees, activation charges, and the perks they charge extra for",
+          "Compare total cost vs current carrier: include their hidden fees, activation charges, and the perks they charge extra for"
+        ],
+        [
+          "International benefits can change the math for travelers — verify destination, plan, and usage before quoting savings",
+          "International benefits can shift the value story for travelers — verify destination, plan, and usage before quoting savings",
+          "For travelers, compare international benefits only after verifying destination, plan, and usage"
+        ],
+        [
+          "5-Year Price Guarantee helps make the monthly cost feel predictable",
+          "5-Year Price Guarantee gives the customer a predictable monthly-cost story",
+          "Use the 5-Year Price Guarantee when predictability matters more than chasing a short-term discount"
+        ],
+        [
+          "Better Value plan: public terms show 3 lines from $140+/month with AutoPay when eligibility fits",
+          "Better Value plan: use the $140+/month family anchor only after checking 3-line and port-in eligibility",
+          "Better Value plan: strong family anchor for 3+ lines, but verify exact account eligibility first"
+        ],
+        [
+          "Ask: \"What are you paying now with everything included?\" — often T-Mobile is cheaper when you add it all up",
+          "Ask: \"What are you paying now with everything included?\" — often T-Mobile is cheaper when you add it all up",
+          "Ask: \"What are you paying now with everything included?\" – often T-Mobile is cheaper when you add it all up"
+        ]
+      ],
+      "Happy with current provider": [
+        [
+          "That's fair! But let me ask — are you happy with the price too, or just the service?",
+          "I respect that! But allow me to ask — are you happy with the price too, or just the service?",
+          "Totally get it! But I'd be happy to ask — are you happy with the price too, or just the service?"
+        ],
+        [
+          "If they're happy with the provider, ask whether they're equally happy with the full bill",
+          "If they like their provider, ask whether the full monthly bill still feels right",
+          "Respect the loyalty, then compare whether the total bill still matches what they value"
+        ],
+        [
+          "Ask which entertainment perks they actually use, then compare current plan terms",
+          "Ask what entertainment services they pay for today, then compare current plan terms",
+          "Use streaming only if it matters to them, and verify current plan terms before quoting"
+        ],
+        [
+          "If they travel, compare international features by destination and plan instead of guessing",
+          "If travel matters, verify the destination and plan before making an international comparison",
+          "For travelers, destination and plan details come first; savings claims come after verification"
+        ],
+        [
+          "T-Mobile's 5G is now the fastest (309 Mbps) — things have changed",
+          "T-Mobile's 5G is now the fastest (309 Mbps) — things have changed",
+          "T-Mobile's 5G is now the fastest (309 Mbps) – things have changed"
+        ],
+        [
+          "No harm in seeing what we can offer. No contracts means they can always go back",
+          "No harm in seeing what we can offer. No contracts means they can always go back",
+          "No harm in seeing what we can offer. No contracts means they can always go back"
+        ]
+      ],
+      "Don't need a new phone/plan": [
+        [
+          "Totally respect that. But sometimes the deals are so good it actually saves money to upgrade now.",
+          "Completely respect that. But sometimes the deals are so good it actually saves money to upgrade now.",
+          "Definitely respect that. But sometimes the deals are so good it actually saves money to upgrade now."
+        ],
+        [
+          "Trade-in values are at peak right now — up to $1,100 for flagship trade-ins",
+          "Trade-in values are at peak right now — up to $1,100 for flagship trade-ins",
+          "Trade-in values are at peak at the moment – up to $1,100 for flagship trade-ins"
+        ],
+        [
+          "We take devices in ANY condition for trade-in",
+          "We take devices in ANY condition for trade-in",
+          "We take devices in ANY condition for trade-in"
+        ],
+        [
+          "New devices often have better battery, camera, security updates",
+          "New devices often have better battery, camera, security updates",
+          "New devices often have better battery, camera, security updates"
+        ],
+        [
+          "Eligible switchers may have a no-trade iPhone 17e path — verify port-in and service requirements",
+          "For iPhone 17e, verify port-in, qualifying service, and bill-credit terms before using it as the close",
+          "The iPhone 17e offer can be strong, but eligibility comes first: port-in, service, and bill-credit terms"
+        ],
+        [
+          "If their current phone works great, they can still save by switching their plan",
+          "If their current phone works great, they can still save by switching their plan",
+          "If their current phone works great, they can still save by switching their plan"
+        ]
+      ],
+      "Worried about coverage": [
+        [
+          "That's the #1 thing I hear, and honestly T-Mobile has changed a LOT. Let me show you.",
+          "That's the #1 thing I hear, and honestly T-Mobile has changed a LOT. Here's what I can show you.",
+          "That's the #1 thing I hear, and honestly T-Mobile has changed a LOT. Check this out."
+        ],
+        [
+          "T-Mobile now #1 in network quality by JD Power in 5 of 6 regions — first time ever",
+          "T-Mobile now #1 in network quality by JD Power in 5 of 6 regions — first time ever",
+          "T-Mobile now #1 in network quality by JD Power in 5 of 6 regions – first time ever"
+        ],
+        [
+          "5G covers 325+ million Americans across 1.9 million square miles",
+          "5G covers 325+ million Americans across 1.9 million square miles",
+          "5G covers 325+ million Americans across 1.9 million square miles"
+        ],
+        [
+          "Ookla certified: 309 Mbps median 5G — fastest in the country",
+          "Ookla certified: 309 Mbps median 5G — fastest in the country",
+          "Ookla certified: 309 Mbps median 5G – fastest in the country"
+        ],
+        [
+          "T-Satellite with Starlink covers 500,000+ square miles with ZERO cell towers",
+          "T-Satellite with Starlink covers 500,000+ square miles with ZERO cell towers",
+          "T-Satellite with Starlink covers 500,000+ square miles with ZERO cell towers"
+        ],
+        [
+          "Offer the 15-day Home Internet test drive if relevant",
+          "Offer the 15-day Home Internet test drive if relevant",
+          "Offer the 15-day Home Internet test drive if relevant"
+        ],
+        [
+          "Ask: \"Where specifically are you worried about coverage?\" — check the coverage map together",
+          "Ask: \"Where specifically are you worried about coverage?\" — check the coverage map together",
+          "Ask: \"Where specifically are you worried about coverage?\" – check the coverage map together"
+        ]
+      ],
+      "Too much hassle to switch": [
+        [
+          "I hear you — but we actually make it really easy. Most of it we do right here.",
+          "That makes sense — but we actually make it really easy. Most of it we do right here.",
+          "I get that — but we actually make it really easy. Most of it we do right here."
+        ],
+        [
+          "We handle number porting in-store — usually takes about 15 minutes",
+          "We handle number porting in-store — usually takes about 15 minutes",
+          "We handle number porting in-store – usually takes about 15 minutes"
+        ],
+        [
+          "Family Freedom: up to $800/line to pay off your current device balance",
+          "Family Freedom: up to $800/line to pay off your current device balance",
+          "Family Freedom: up to $800/line to pay off your current device balance"
+        ],
+        [
+          "No contracts with T-Mobile — if you don't love it, you can leave anytime",
+          "No contracts with T-Mobile — if you don't love it, you can leave anytime",
+          "No contracts with T-Mobile – if you don't love it, you can leave anytime"
+        ],
+        [
+          "We'll help transfer contacts, apps, and data right here",
+          "We'll help transfer contacts, apps, and data right here",
+          "We'll help transfer contacts, apps, and data right here"
+        ],
+        [
+          "Most people are surprised how quick and painless it actually is",
+          "Most people are surprised how quick and painless it actually is",
+          "Most people are surprised how quick and painless it really is"
+        ]
+      ],
+      "Contract/ETF concerns": [
+        [
+          "Good news — we can actually help with that.",
+          "Good news — we can actually help with that.",
+          "Good news – we can really help with that."
+        ],
+        [
+          "Family Freedom: up to $800/line via virtual prepaid Mastercard to cover remaining device balances",
+          "Family Freedom: up to $800/line via virtual prepaid Mastercard to cover remaining device balances",
+          "Family Freedom: up to $800/line via virtual prepaid Mastercard to cover remaining device balances"
+        ],
+        [
+          "T-Mobile has NO annual service contracts — ever",
+          "T-Mobile has NO annual service contracts — ever",
+          "T-Mobile has NO annual service contracts – ever"
+        ],
+        [
+          "Even if they have a balance, the math usually works out in their favor when you factor in the savings",
+          "Even if they have a balance, the math usually works out in their favor when you factor in the savings",
+          "Even if they have a balance, the math usually works out in their favor when you factor in the savings"
+        ],
+        [
+          "Help them calculate: remaining balance vs monthly savings over 12-24 months",
+          "Help them calculate: remaining balance vs monthly savings over 12-24 months",
+          "Help them calculate: remaining balance vs monthly savings over 12-24 months"
+        ]
+      ],
+      "Waiting for the new iPhone/Samsung": [
+        [
+          "Smart thinking! But here's something to consider...",
+          "Smart thinking! But here's something to consider...",
+          "Smart thinking! But here's something to consider..."
+        ],
+        [
+          "Current promos are some of the best we've had — they may not be available later",
+          "Current promos are some of the best we've had — they may not be available later",
+          "Current promos are some of the best we've had – they may not be available later"
+        ],
+        [
+          "With yearly upgrades on Experience Beyond, they can upgrade when the new one drops",
+          "With yearly upgrades on Experience Beyond, they can upgrade when the new one drops",
+          "With yearly upgrades on Experience Beyond, they can upgrade when the new one drops"
+        ],
+        [
+          "Trade-in values tend to DROP when new models release (everyone trades in at once)",
+          "Trade-in values tend to DROP when new models release (everyone trades in at once)",
+          "Trade-in values tend to DROP when new models release (everyone trades in at once)"
+        ],
+        [
+          "Get set up now, lock in the deal, and upgrade when they're ready",
+          "Get set up now, lock in the deal, and upgrade when they're ready",
+          "Get set up now, lock in the deal, and upgrade when they're ready"
+        ]
+      ],
+      "I need to talk to my spouse": [
+        [
+          "Absolutely — that's a smart move. Let me set you up so the conversation is easy.",
+          "Absolutely — that's a smart move. Let me set you up so the conversation is easy.",
+          "Absolutely – that's a smart move. Let me set you up so the conversation is easy."
+        ],
+        [
+          "Offer to send a comparison or summary they can share (print or email)",
+          "Offer to send a comparison or summary they can share (print or email)",
+          "Offer to send a comparison or summary they can share (print or email)"
+        ],
+        [
+          "Give them a card with the deal details and your name",
+          "Give them a card with the deal details and your name",
+          "Give them a card with the deal details and your name"
+        ],
+        [
+          "Mention the time-sensitive nature of current promos (gently, not pushy)",
+          "Mention the time-sensitive nature of current promos (gently, not pushy)",
+          "Mention the time-sensitive nature of current promos (gently, not pushy)"
+        ],
+        [
+          "Suggest: \"Want to give them a quick call? We have great Wi-Fi in here.\"",
+          "Suggest: \"Want to give them a quick call? We have great Wi-Fi in here.\"",
+          "Suggest: \"Want to give them a quick call? We have great Wi-Fi in here.\""
+        ],
+        [
+          "Set a follow-up: \"When would be a good time for me to check back with you?\"",
+          "Set a follow-up: \"When would be a good time for me to check back with you?\"",
+          "Set a follow-up: \"When would be a good time for me to check back with you?\""
+        ]
+      ],
+      "Bad past experience with T-Mobile": [
+        [
+          "I appreciate you being honest about that. A lot has changed — let me show you what's different now.",
+          "I appreciate you being honest about that. A lot has changed — allow me to show you what's different now.",
+          "I appreciate you being honest about that. A lot has changed — I'd be happy to show you what's different now."
+        ],
+        [
+          "T-Mobile is now #1 in customer satisfaction (JD Power 2025)",
+          "T-Mobile is now #1 in customer satisfaction (JD Power 2025)",
+          "T-Mobile is now #1 in customer satisfaction (JD Power 2025)"
+        ],
+        [
+          "Network has improved dramatically — 309 Mbps median 5G, most awarded network",
+          "Network has improved dramatically — 309 Mbps median 5G, most awarded network",
+          "Network has improved dramatically – 309 Mbps median 5G, most awarded network"
+        ],
+        [
+          "5-Year Price Guarantee means no more surprise price increases",
+          "5-Year Price Guarantee means no more surprise price increases",
+          "5-Year Price Guarantee means no more surprise price increases"
+        ],
+        [
+          "New leadership has focused heavily on customer experience",
+          "New leadership has focused heavily on customer experience",
+          "New leadership has focused heavily on customer experience"
+        ],
+        [
+          "Ask: \"What specifically went wrong last time?\" — and address it directly",
+          "Ask: \"What specifically went wrong last time?\" — and address it directly",
+          "Ask: \"What specifically went wrong last time?\" – and address it directly"
+        ],
+        [
+          "No contracts means if they're not happy, they can leave anytime",
+          "No contracts means if they're not happy, they can leave anytime",
+          "No contracts means if they're not happy, they can leave anytime"
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,2565 @@
+diff --git a/src/App.tsx b/src/App.tsx
+index 0f8db98..2c3c712 100644
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -4,7 +4,7 @@
+  */
+ 
+ import React, { Suspense, lazy, startTransition, useState, useCallback, useRef, useEffect } from 'react';
+-import { Loader2, ShieldCheck, Sparkles, AlertCircle, XCircle, Calendar, ChevronDown, ChevronUp, ArrowUp, CheckCircle2, Search, ShoppingBag, ArrowUpCircle, Package, Wrench, UserCircle, AlertTriangle, RefreshCw } from 'lucide-react';
++import { Loader2, ShieldCheck, Sparkles, AlertCircle, XCircle, Calendar, ChevronDown, ChevronUp, ArrowUp, CheckCircle2, Search, ShoppingBag, ArrowUpCircle, Package, Wrench, UserCircle, RefreshCw, Wifi, WifiOff } from 'lucide-react';
+ import { AnimatePresence, motion } from 'motion/react';
+ import { SalesContext, SalesScript, ObjectionAnalysis } from './types';
+ import { loadWeeklyUpdate, generateScript, analyzeObjectionLocal, WeeklyUpdateSource } from './services/localGenerationService';
+@@ -32,9 +32,16 @@ import GamePlanTab, { GamePlanResults } from './components/GamePlanTab';
+ import ObjectionTab, { ObjectionResults } from './components/ObjectionTab';
+ import InstantPlays from './components/InstantPlays';
+ import SessionStats from './components/SessionStats';
++import GuidedCallModal from './components/GuidedCallModal';
++import LivePlanResults from './components/LivePlanResults';
++import SupportPanel from './components/SupportPanel';
++import { OrderSupportType } from './components/OrderSupportSelector';
+ 
+ const LearnView = lazy(() => import('./components/learn/LearnView'));
+ const LevelUpView = lazy(() => import('./components/levelup/LevelUpView'));
++const OfflineCoach = lazy(() => import('./components/OfflineCoach'));
++const SettingsView = lazy(() => import('./components/SettingsView'));
++import type { SettingsTab } from './components/SettingsView';
+ 
+ function LazySectionFallback({ label }: { label: string }) {
+   return (
+@@ -92,6 +99,30 @@ function logDevWarning(message: string, error?: unknown): void {
+   }
+ }
+ 
++function StatusPill({
++  label,
++  value,
++  tone,
++}: {
++  label: string;
++  value: string;
++  tone: 'warning' | 'success' | 'magenta' | 'neutral';
++}) {
++  const toneClass = {
++    warning: 'border-warning-border bg-warning-surface text-warning-foreground',
++    success: 'border-success-border bg-success-surface text-success-foreground',
++    magenta: 'border-t-magenta/20 bg-t-magenta/8 text-t-magenta',
++    neutral: 'border-t-light-gray bg-surface text-t-dark-gray',
++  }[tone];
++
++  return (
++    <div className={`rounded-full border px-3 py-2 ${toneClass}`}>
++      <p className="text-[8px] font-black uppercase tracking-[0.18em]">{label}</p>
++      <p className="mt-0.5 text-[10px] font-bold leading-none">{value}</p>
++    </div>
++  );
++}
++
+ export default function App() {
+   const [context, setContext] = useState<SalesContext>({
+     age: 'Not Specified',
+@@ -99,7 +130,12 @@ export default function App() {
+     zipCode: '',
+     product: ['Phone'],
+     purchaseIntent: 'exploring',
+-    currentCarrier: 'Not Specified'
++    currentCarrier: 'Not Specified',
++    totalLines: undefined,
++    familyCount: undefined,
++    currentPlatform: 'Not Specified',
++    desiredPlatform: 'Not Specified',
++    hintAvailable: undefined
+   });
+   const [script, setScript] = useState<SalesScript | null>(null);
+   const [loading, setLoading] = useState(false);
+@@ -110,14 +146,18 @@ export default function App() {
+   const [analyzing, setAnalyzing] = useState(false);
+   const [selectedGamePlanItems, setSelectedGamePlanItems] = useState<string[]>([]);
+ 
+-  const [activeTab, setActiveTab] = useState<'gameplan' | 'objections'>('gameplan');
++  const [activeTab, setActiveTab] = useState<'gameplan' | 'objections' | 'order-support' | 'tech-support' | 'account-support'>('gameplan');
++  const [guidedOpen, setGuidedOpen] = useState(false);
++  const [guidedDone, setGuidedDone] = useState(false);
+   const [mode, setMode] = useState<AppMode>('home');
++  const [settingsSection, setSettingsSection] = useState<SettingsTab>('team');
+   const [contextExpanded, setContextExpanded] = useState(false);
+   const [sessionStats, setSessionStats] = useState(() => getSessionStats());
+   const [lastDemoScenarioName, setLastDemoScenarioName] = useState<string | null>(null);
+   const [refreshingApp, setRefreshingApp] = useState(false);
+   const [enhancingPlan, setEnhancingPlan] = useState(false);
+   const [enhancingObjection, setEnhancingObjection] = useState(false);
++  const [showHintPrompt, setShowHintPrompt] = useState(false);
+ 
+   // Track if user has tapped an intent (to show instant plays)
+   const [intentTapped, setIntentTapped] = useState(true); // default true since exploring is set
+@@ -238,6 +278,24 @@ export default function App() {
+     return data;
+   }, [refreshWeeklyData, weeklyData, weeklyLoaded]);
+ 
++  const getDefaultLiveTab = useCallback((intent: SalesContext['purchaseIntent']) => {
++    if (intent === 'order support') return 'order-support' as const;
++    if (intent === 'tech support') return 'tech-support' as const;
++    if (intent === 'account support') return 'account-support' as const;
++    return 'gameplan' as const;
++  }, []);
++
++  const normalizeContextForIntent = useCallback((
++    prev: SalesContext,
++    next: Partial<SalesContext> & Pick<SalesContext, 'purchaseIntent'>,
++  ): SalesContext => {
++    const merged: SalesContext = { ...prev, ...next };
++    if (merged.purchaseIntent !== 'order support') {
++      merged.orderSupportType = undefined;
++    }
++    return merged;
++  }, []);
++
+   const handleIntentSelect = useCallback((intent: SalesContext['purchaseIntent']) => {
+     cancelInFlightRequests();
+     planRequestIdRef.current += 1;
+@@ -246,12 +304,22 @@ export default function App() {
+     setAnalyzing(false);
+     setEnhancingPlan(false);
+     setEnhancingObjection(false);
+-    setContext(prev => ({ ...prev, purchaseIntent: intent }));
++    setContext(prev => normalizeContextForIntent(prev, { purchaseIntent: intent }));
+     setIntentTapped(true);
+     setScript(null);
+     setObjectionResult(null);
+     setSelectedObjections([]);
+     setSelectedGamePlanItems([]);
++    // Guided mode drives the first 10 minutes. Tab routing happens at close time.
++    const guidedEnabled =
++      typeof window !== 'undefined' &&
++      window.localStorage.getItem('cc:guidedMode') !== 'off';
++    if (guidedEnabled) {
++      setGuidedOpen(true);
++      setGuidedDone(false);
++    } else {
++      setActiveTab(getDefaultLiveTab(intent));
++    }
+     setError(null);
+     try {
+       trackIntentUsed(intent);
+@@ -259,7 +327,7 @@ export default function App() {
+     } catch (err) {
+       logDevWarning('Intent tracking failed, but the app will keep going.', err);
+     }
+-  }, [cancelInFlightRequests, refreshSessionStats]);
++  }, [cancelInFlightRequests, getDefaultLiveTab, normalizeContextForIntent, refreshSessionStats]);
+ 
+   const handleContextUpdate = useCallback((value: React.SetStateAction<SalesContext>) => {
+     cancelInFlightRequests();
+@@ -269,15 +337,27 @@ export default function App() {
+     setAnalyzing(false);
+     setEnhancingPlan(false);
+     setEnhancingObjection(false);
+-    setContext(value);
++    setContext((prev) => {
++      const rawNext = typeof value === 'function' ? value(prev) : value;
++      const next = normalizeContextForIntent(prev, rawNext);
++      setActiveTab((current) => {
++        if (current === 'objections') return current;
++        if (current === 'tech-support' && next.purchaseIntent !== 'tech support') return current;
++        return getDefaultLiveTab(next.purchaseIntent);
++      });
++      return next;
++    });
+     setScript(null);
+     setObjectionResult(null);
+     setSelectedObjections([]);
+     setSelectedGamePlanItems([]);
+-    setActiveTab('gameplan');
+     setIntentTapped(true);
+     setError(null);
+-  }, [cancelInFlightRequests]);
++  }, [cancelInFlightRequests, getDefaultLiveTab, normalizeContextForIntent]);
++
++  const handleOrderSupportTypeChange = useCallback((type: OrderSupportType) => {
++    handleContextUpdate((prev) => ({ ...prev, purchaseIntent: 'order support', orderSupportType: type }));
++  }, [handleContextUpdate]);
+ 
+   const handleGenerate = useCallback(async (overrideContext?: SalesContext) => {
+     const now = Date.now();
+@@ -461,7 +541,12 @@ export default function App() {
+       zipCode: '',
+       product: ['Phone'],
+       purchaseIntent: 'exploring',
+-      currentCarrier: 'Not Specified'
++      currentCarrier: 'Not Specified',
++      totalLines: undefined,
++      familyCount: undefined,
++      currentPlatform: 'Not Specified',
++      desiredPlatform: 'Not Specified',
++      hintAvailable: undefined
+     });
+     setIntentTapped(true);
+     setError(null);
+@@ -544,6 +629,29 @@ export default function App() {
+   const isDataExpired = weeklyLoaded && weeklyData?.metadata.validUntil
+     ? new Date(weeklyData.metadata.validUntil) < new Date()
+     : false;
++  const livePlanStatus = script
++    ? 'Plan Built'
++    : loading
++      ? 'Building Plan…'
++      : activeTab === 'gameplan'
++        ? 'Quick Play Ready'
++        : activeTab === 'objections'
++          ? 'Comeback Mode'
++          : activeTab === 'order-support'
++            ? context.orderSupportType ? 'Order Workflow Ready' : 'Choose Order Lane'
++            : activeTab === 'account-support'
++              ? 'Account Routing Ready'
++              : 'Fix Toolkit';
++  const hintStatusLabel = context.hintAvailable === undefined
++    ? 'HINT Not Checked'
++    : context.hintAvailable
++      ? 'HINT Available'
++      : 'HINT Full';
++  const freshnessLabel = weeklyLoaded && weeklyData
++    ? isDataExpired
++      ? `Update Due • ${weeklyData.metadata.validUntil}`
++      : `Fresh Until • ${weeklyData.metadata.validUntil}`
++    : 'Briefing Warmup';
+ 
+   const handleModeChange = useCallback((nextMode: AppMode) => {
+     if (nextMode !== 'live') {
+@@ -554,8 +662,12 @@ export default function App() {
+       setEnhancingObjection(false);
+     }
+ 
++    if (nextMode === 'settings' && mode !== 'offline-coach') {
++      setSettingsSection('team');
++    }
++
+     setMode(nextMode);
+-  }, [cancelInFlightRequests]);
++  }, [cancelInFlightRequests, mode]);
+ 
+   return (
+     <ErrorBoundary>
+@@ -566,14 +678,56 @@ export default function App() {
+ 
+       <Header onReset={reset} mode={mode} onModeChange={handleModeChange} />
+ 
+-      {isDataExpired && (
+-        <div className="sticky top-0 z-50 text-center py-2 px-4 text-xs font-bold shadow-md bg-warning-surface text-warning-foreground border-b border-warning-border backdrop-blur-lg"
+-        >
+-          Weekly update expired — data may be stale. Upload a fresh update.
+-        </div>
+-      )}
+-
+-      <main className="relative z-[1] mx-auto max-w-5xl px-4 py-6 md:p-10">
++      <GuidedCallModal
++        open={guidedOpen}
++        context={context}
++        setContext={setContext}
++        onStartOrder={() => {
++          void handleGenerate();
++        }}
++        onReleaseCall={() => {
++          try {
++            refreshSessionStats();
++          } catch {
++            /* noop */
++          }
++        }}
++        onPivotToSales={() => {
++          setActiveTab('gameplan');
++        }}
++        onClose={() => {
++          setGuidedOpen(false);
++          setGuidedDone(true);
++          const nextTab = getDefaultLiveTab(context.purchaseIntent);
++          setActiveTab(nextTab);
++          if (nextTab === 'gameplan') {
++            if (!script) void handleGenerate();
++          }
++        }}
++      />
++
++      <main className="relative z-[1] mx-auto max-w-5xl px-4 pt-2 pb-4 md:px-10 md:pb-6">
++        {mode !== 'home' ? (
++          <div className="mb-3 flex flex-wrap gap-2 rounded-2xl border border-t-light-gray/60 bg-surface/85 p-2.5 backdrop-blur-md">
++            <StatusPill tone="warning" label="Shift Only" value="Use During Scheduled Hours" />
++            <StatusPill
++              tone={isDataExpired ? 'warning' : 'neutral'}
++              label="Data"
++              value={freshnessLabel}
++            />
++            <StatusPill tone="success" label="Privacy" value="No PII" />
++            {mode === 'live' ? (
++              <>
++                <StatusPill tone="magenta" label="Live" value={livePlanStatus} />
++                <StatusPill
++                  tone={context.hintAvailable === undefined ? 'neutral' : context.hintAvailable ? 'success' : 'warning'}
++                  label="Home Internet"
++                  value={hintStatusLabel}
++                />
++              </>
++            ) : null}
++          </div>
++        ) : null}
+         <AnimatePresence mode="wait">
+           {mode === 'home' ? (
+             <motion.section
+@@ -609,7 +763,7 @@ export default function App() {
+                 message="The practice tab can be reloaded without affecting the rest of the app."
+               >
+                 <Suspense fallback={<LazySectionFallback label="Level Up" />}>
+-                  <LevelUpView />
++                  <LevelUpView onSelectScenario={handlePracticeScenario} />
+                 </Suspense>
+               </ErrorBoundary>
+             </motion.section>
+@@ -634,7 +788,51 @@ export default function App() {
+                     weeklySource={weeklySource}
+                     ecosystemMatrix={ecosystemMatrix}
+                     onDataUpdate={handleWeeklyDataRefresh}
+-                    onSelectScenario={handlePracticeScenario}
++                  />
++                </Suspense>
++              </ErrorBoundary>
++            </motion.section>
++          ) : mode === 'settings' ? (
++            <motion.section
++              id="mode-panel-settings"
++              key="mode-settings"
++              initial={{ opacity: 0, y: 18, scale: 0.985 }}
++              animate={{ opacity: 1, y: 0, scale: 1 }}
++              exit={{ opacity: 0, y: -14, scale: 0.99 }}
++              transition={{ duration: 0.24, ease: 'easeOut' }}
++            >
++              <ErrorBoundary
++                compact
++                resetKey="mode-settings"
++                title="Settings needs a refresh"
++                message="The settings panel encountered an error."
++              >
++                <Suspense fallback={<LazySectionFallback label="Settings" />}>
++                  <SettingsView initialTab={settingsSection} />
++                </Suspense>
++              </ErrorBoundary>
++            </motion.section>
++          ) : mode === 'offline-coach' ? (
++            <motion.section
++              id="mode-panel-offline-coach"
++              key="mode-offline-coach"
++              initial={{ opacity: 0, y: 18, scale: 0.985 }}
++              animate={{ opacity: 1, y: 0, scale: 1 }}
++              exit={{ opacity: 0, y: -14, scale: 0.99 }}
++              transition={{ duration: 0.24, ease: 'easeOut' }}
++            >
++              <ErrorBoundary
++                compact
++                resetKey="mode-offline-coach"
++                title="Offline Coach needs a refresh"
++                message="The local AI engine encountered an error."
++              >
++                <Suspense fallback={<LazySectionFallback label="Offline Coach" />}>
++                  <OfflineCoach
++                    onOpenOfflineAiSettings={() => {
++                      setSettingsSection('offline-ai');
++                      setMode('settings');
++                    }}
+                   />
+                 </Suspense>
+               </ErrorBoundary>
+@@ -655,24 +853,11 @@ export default function App() {
+           message="A live-call panel ran into trouble. Reloading this tab is safer than risking a white screen in the demo."
+         >
+         <>
+-        {/* On-the-clock disclaimer */}
+-        <div className="flex items-start gap-2.5 rounded-2xl border border-warning-border bg-warning-surface p-3 mb-4 max-w-5xl mx-auto">
+-          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warning-accent" />
+-          <div>
+-            <p className="text-[10px] font-black uppercase tracking-widest text-warning-foreground">
+-              On-the-clock only
+-            </p>
+-            <p className="mt-0.5 text-[11px] font-medium text-warning-foreground/80">
+-              This tool is for use during scheduled work hours only. Do not use outside of your shift.
+-            </p>
+-          </div>
+-        </div>
+-
+-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6">
++        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-5 items-start">
+           {/* Input Section */}
+-          <div className="lg:col-span-5 space-y-3">
+-            {/* INTENT + PRODUCT SELECTOR — STICKY on desktop */}
+-            <section className="rounded-3xl p-4 lg:sticky lg:top-[60px] lg:z-[5] space-y-3 glass-card glass-shine glass-specular">
++          <div className="lg:col-span-5 space-y-4">
++            {/* INTENT + PRODUCT SELECTOR */}
++            <section className="rounded-3xl p-4 space-y-3 glass-card glass-shine glass-specular">
+               <div>
+                 <label className="text-xs font-bold mb-3 block text-t-dark-gray">
+                   Why are they calling?
+@@ -730,21 +915,25 @@ export default function App() {
+                         key={p}
+                         type="button"
+                         onClick={() => {
+-                          handleContextUpdate((prev) => {
+-                            if (p === 'No Specific Product') {
+-                              return { ...prev, product: ['No Specific Product'] };
+-                            }
+-                            let newProducts: ('Phone' | 'Home Internet' | 'BTS' | 'IOT' | 'No Specific Product')[] = prev.product.filter(prod => prod !== 'No Specific Product');
+-                            if (newProducts.includes(p)) {
+-                              newProducts = newProducts.filter(prod => prod !== p);
+-                            } else {
+-                              newProducts.push(p);
+-                            }
+-                            if (newProducts.length === 0) {
+-                              newProducts = ['No Specific Product'];
+-                            }
+-                            return { ...prev, product: newProducts };
+-                          });
++                          if (!context.product.includes(p) && p === 'Home Internet') {
++                            setShowHintPrompt(true);
++                          } else {
++                            handleContextUpdate((prev) => {
++                              if (p === 'No Specific Product') {
++                                return { ...prev, product: ['No Specific Product'] };
++                              }
++                              let newProducts: ('Phone' | 'Home Internet' | 'BTS' | 'IOT' | 'No Specific Product')[] = prev.product.filter(prod => prod !== 'No Specific Product');
++                              if (newProducts.includes(p)) {
++                                newProducts = newProducts.filter(prod => prod !== p);
++                              } else {
++                                newProducts.push(p);
++                              }
++                              if (newProducts.length === 0) {
++                                newProducts = ['No Specific Product'];
++                              }
++                              return { ...prev, product: newProducts };
++                            });
++                          }
+                         }}
+                         aria-pressed={isSelected}
+                         className={`focus-ring py-2 px-3 text-[10px] font-black rounded-xl border-2 uppercase transition-all flex items-center justify-between ${p === 'No Specific Product' ? 'col-span-2' : ''} ${
+@@ -796,6 +985,7 @@ export default function App() {
+                 inline
+                 showAge={false}
+                 showCarrier={false}
++                showSharperRead={false}
+                 defaultLocationOpen
+                 locationLabel="Region + ZIP"
+                 locationHint="Tap a region, zoom into the state, then add the ZIP if the caller gives it to you."
+@@ -817,12 +1007,14 @@ export default function App() {
+                 aria-controls="customer-context-panel"
+                 className="focus-ring w-full flex items-center justify-between p-5"
+               >
+-                <span className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>
+-                  {contextExpanded ? 'Customer details' : 'Want a sharper read?'}
+-                  {' '}<span style={{ color: 'var(--text-tertiary)' }} className="font-medium">
+-                    {contextExpanded ? '(age + carrier)' : '— age + carrier sharpen the plan'}
++                <div className="text-left">
++                  <span className="text-xs font-bold block" style={{ color: 'var(--text-primary)' }}>
++                    {contextExpanded ? 'Customer Profile' : 'Sharper Read'}
+                   </span>
+-                </span>
++                  <span style={{ color: 'var(--text-tertiary)' }} className="text-[10px] font-medium">
++                    {contextExpanded ? 'Age, carrier, lines, and platforms' : 'Add lines, family count, and platforms for a better plan'}
++                  </span>
++                </div>
+                 {contextExpanded ? <ChevronUp className="w-4 h-4" style={{ color: 'var(--text-tertiary)' }} /> : <ChevronDown className="w-4 h-4" style={{ color: 'var(--text-tertiary)' }} />}
+               </button>
+               <AnimatePresence>
+@@ -856,16 +1048,28 @@ export default function App() {
+               lastDemoScenarioName={lastDemoScenarioName}
+             />
+ 
++            <SessionStats stats={sessionStats} />
++            <p className="text-[9px] text-center text-t-dark-gray font-medium px-4 flex items-center justify-center gap-1">
++              <ShieldCheck className="w-3 h-3 text-t-magenta/50" />
++              <span>CPNI compliant. No PII. Fully offline.</span>
++            </p>
++          </div>
++
++          {/* RIGHT PANEL — Tabs + Results */}
++          <div className="lg:col-span-7 space-y-3">
+             {/* Tabs — Plan + Objections */}
+             <div
+               role="tablist"
+               aria-label="Live call tools"
+-              className="grid grid-cols-2 gap-1.5 rounded-2xl p-1.5 md:flex md:gap-0 glass-tab"
++              className="flex flex-wrap gap-1.5 rounded-2xl p-1.5 glass-tab"
+               style={{ borderColor: 'rgba(226, 0, 116, 0.1)' }}
+             >
+               {([
+-                { id: 'gameplan' as const, icon: Sparkles, label: 'Plan' },
+-                { id: 'objections' as const, icon: AlertCircle, label: 'Objections' },
++                { id: 'gameplan' as const, icon: Sparkles, label: 'Plan', helper: script ? 'Plan built' : loading ? 'Building…' : 'Quick play ready' },
++                { id: 'objections' as const, icon: AlertCircle, label: 'Objections', helper: selectedObjections.length > 0 ? `${selectedObjections.length} queued for deep dive` : 'Quick comeback first' },
++                { id: 'order-support' as const, icon: Package, label: 'Orders', helper: context.orderSupportType ? 'Order lane locked' : 'Tracking, edits, returns' },
++                { id: 'tech-support' as const, icon: Wrench, label: 'Fix', helper: context.product.includes('Home Internet') ? 'HINT toolkit ready' : 'Repair, reassure, escalate' },
++                { id: 'account-support' as const, icon: UserCircle, label: 'Account', helper: 'Billing, access, ownership' },
+               ]).map(tab => (
+                 <button
+                   key={tab.id}
+@@ -875,84 +1079,74 @@ export default function App() {
+                   aria-selected={activeTab === tab.id}
+                   aria-controls={`live-panel-${tab.id}`}
+                   onClick={() => setActiveTab(tab.id)}
+-                  className={`focus-ring flex-1 min-h-[48px] px-2 py-3 text-[10px] md:text-[10px] font-black uppercase tracking-wider md:tracking-widest rounded-xl transition-all flex items-center justify-center gap-1 md:gap-2 text-center ${activeTab === tab.id ? 'bg-surface-elevated text-t-magenta shadow-sm border border-t-light-gray' : 'text-t-dark-gray hover:text-t-magenta hover:bg-surface-elevated/60'}`}
++                  className={`focus-ring flex-1 min-h-[56px] min-w-[80px] px-2 py-3 text-[9px] sm:text-[10px] font-black uppercase tracking-wider md:tracking-widest rounded-xl transition-all text-center ${activeTab === tab.id ? 'bg-surface-elevated text-t-magenta shadow-sm border border-t-light-gray' : 'text-t-dark-gray hover:text-t-magenta hover:bg-surface-elevated/60'}`}
+                   style={{ touchAction: 'manipulation' }}
+                 >
+-                  <tab.icon className="w-3 h-3 md:w-3.5 md:h-3.5" /> {tab.label}
++                  <span className="flex flex-col items-center gap-1 leading-none">
++                    <span className="flex items-center justify-center gap-1 md:gap-2">
++                      <tab.icon className="w-3 h-3 md:w-3.5 md:h-3.5" /> {tab.label}
++                    </span>
++                    <span className={`text-[8px] font-bold normal-case tracking-normal ${activeTab === tab.id ? 'text-t-magenta/70' : 'text-t-muted'}`}>
++                      {tab.helper}
++                    </span>
++                  </span>
+                 </button>
+               ))}
+             </div>
+ 
+-	            {/* Tab-specific content on left (objections form, devices list, briefing) */}
+-	            <AnimatePresence mode="wait">
+-	              {activeTab === 'objections' && (
+-	                <div id="live-panel-objections" role="tabpanel" aria-labelledby="live-tab-objections">
+-	                  <ObjectionTab
+-	                    context={context}
+-	                    script={script}
+-	                    selectedObjections={selectedObjections}
+-	                    setSelectedObjections={setSelectedObjections}
+-	                    selectedGamePlanItems={selectedGamePlanItems}
+-	                    objectionResult={objectionResult}
+-	                    analyzing={analyzing}
+-	                    onAnalyze={handleAnalyzeObjection}
+-	                    onClearResult={() => setObjectionResult(null)}
+-	                  />
+-	                </div>
+-	              )}
+-	            </AnimatePresence>
+-
+-            <SessionStats stats={sessionStats} />
+-            <p className="text-[9px] text-center text-t-dark-gray font-medium px-4 flex items-center justify-center gap-1">
+-              <ShieldCheck className="w-3 h-3 text-t-magenta/50" />
+-              <span>CPNI compliant. No PII. Fully offline.</span>
+-            </p>
+-          </div>
+-
+-	          {/* RIGHT PANEL — Results */}
+-	          <div className="lg:col-span-7">
+-	            <ErrorBoundary
+-	              compact
+-	              resetKey={`live-results-${activeTab}`}
+-	              title="Results panel needs a refresh"
+-	              message="The local coaching engine is still safe. Reset this panel and keep the conversation moving."
+-	            >
+-	            <div id="live-panel-gameplan" role="tabpanel" aria-labelledby="live-tab-gameplan">
+-	            <AnimatePresence mode="wait">
+-	              {/* INSTANT PLAYS — show when intent is tapped but no full game plan generated yet */}
+-	              {activeTab === 'gameplan' && intentTapped && !script && !loading && (
+-	                <InstantPlays intent={context.purchaseIntent} age={context.age} product={context.product} ecosystemMatrix={ecosystemMatrix} />
++            {/* Objection form — shows when objections tab active */}
++            <AnimatePresence mode="wait">
++              {activeTab === 'objections' && (
++                <div id="live-panel-objections" role="tabpanel" aria-labelledby="live-tab-objections">
++                  <ObjectionTab
++                    context={context}
++                    script={script}
++                    selectedObjections={selectedObjections}
++                    setSelectedObjections={setSelectedObjections}
++                    selectedGamePlanItems={selectedGamePlanItems}
++                    objectionResult={objectionResult}
++                    analyzing={analyzing}
++                    onAnalyze={handleAnalyzeObjection}
++                    onClearResult={() => setObjectionResult(null)}
++                  />
++                </div>
+               )}
++              {(activeTab === 'order-support' || activeTab === 'tech-support' || activeTab === 'account-support') && (
++                <div id={`live-panel-${activeTab}`} role="tabpanel" aria-labelledby={`live-tab-${activeTab}`}>
++                  <SupportPanel
++                    context={{
++                      ...context,
++                      purchaseIntent:
++                        activeTab === 'order-support'
++                          ? 'order support'
++                          : activeTab === 'account-support'
++                            ? 'account support'
++                            : 'tech support',
++                    }}
++                    onOrderSupportTypeChange={handleOrderSupportTypeChange}
++                    onPivotToSales={() => {
++                      setContext((prev) => ({ ...prev, purchaseIntent: 'exploring' }));
++                      setActiveTab('gameplan');
++                    }}
++                  />
++                </div>
++              )}
++            </AnimatePresence>
+ 
+-
+-              {/* Objections empty state */}
+-              {activeTab === 'objections' && !objectionResult && !analyzing && (
+-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
+-	                  className="h-full min-h-[400px] flex flex-col items-center justify-center text-center p-10 rounded-3xl glass-card glass-shine glass-specular"
+-	                  style={{ borderStyle: 'dashed' }}
+-	                >
+-	                  <div className="w-16 h-16 bg-surface-elevated rounded-full flex items-center justify-center mb-6 shadow-sm">
+-	                    <AlertCircle className="w-8 h-8 text-t-magenta" />
+-	                  </div>
+-	                  <h3 className="mb-6 text-xl font-black uppercase tracking-tight text-t-magenta">Flip the Script</h3>
+-	                  <div className="text-left space-y-4 max-w-sm w-full">
+-                    <div className="flex items-start gap-3">
+-                      <div className="w-6 h-6 rounded-full bg-t-magenta text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">1</div>
+-                      <p className="text-sm text-t-dark-gray font-medium">Pick the pushback you're hearing.</p>
+-                    </div>
+-                    <div className="flex items-start gap-3">
+-                      <div className="w-6 h-6 rounded-full bg-t-magenta text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">2</div>
+-                      <p className="text-sm text-t-dark-gray font-medium">Hit <span className="font-bold text-t-magenta">Analyze</span> and get your comeback.</p>
+-                    </div>
+-                    <div className="flex items-start gap-3 bg-surface-elevated p-3 rounded-xl border border-t-light-gray shadow-sm mt-2">
+-                      <div className="w-6 h-6 rounded-full bg-t-magenta/10 text-t-magenta flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">★</div>
+-                      <p className="text-xs text-t-dark-gray font-medium"><span className="font-bold text-t-magenta">Pro tip:</span> Build your Game Plan first — it makes the analyzer way sharper.</p>
+-                    </div>
+-                  </div>
+-                </motion.div>
++            <ErrorBoundary
++              compact
++              resetKey={`live-results-${activeTab}`}
++              title="Results panel needs a refresh"
++              message="The local coaching engine is still safe. Reset this panel and keep the conversation moving."
++            >
++            <div id="live-panel-gameplan" role="tabpanel" aria-labelledby="live-tab-gameplan">
++            <AnimatePresence mode="wait">
++              {/* INSTANT PLAYS — show when intent is tapped but no full game plan generated yet */}
++              {activeTab === 'gameplan' && intentTapped && !script && !loading && (
++                <InstantPlays intent={context.purchaseIntent} age={context.age} product={context.product} ecosystemMatrix={ecosystemMatrix} />
+               )}
+ 
+-	              {/* Loading state */}
++              {/* Loading state */}
+ 	              {((activeTab === 'gameplan' && loading) || (activeTab === 'objections' && analyzing)) && (
+ 	                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+ 	                  className="min-h-[400px] rounded-3xl glass-card p-6"
+@@ -976,6 +1170,10 @@ export default function App() {
+                 <ObjectionResults result={objectionResult} onClear={() => setObjectionResult(null)} />
+               )}
+ 
++              {/* In-call spine — mounts after guided mode hands off */}
++              {activeTab === 'gameplan' && guidedDone && script && (
++                <LivePlanResults script={script} context={context} />
++              )}
+               {/* Full generated game plan replaces instant plays */}
+               {activeTab === 'gameplan' && script && !loading && (
+                 <GamePlanResults
+@@ -1018,38 +1216,34 @@ export default function App() {
+       </main>
+ 
+ 
+-      <footer className="max-w-5xl mx-auto p-6 md:p-10 text-center mt-10 space-y-4 relative z-[1]" style={{ borderTop: '1px solid var(--glass-border-subtle)' }}>
+-        {weeklyLoaded && weeklyData && (
+-          <div className="inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-t-muted">
+-            <Calendar className="w-3 h-3 text-t-magenta/50" />
+-            <span>Data updated: {weeklyData.metadata.updatedDate}</span>
+-            <span className="opacity-40">|</span>
+-            <span>Valid until: {weeklyData.metadata.validUntil}</span>
+-          </div>
+-        )}
+-        <div className="p-4 rounded-2xl inline-block max-w-2xl mx-auto glass-card glass-specular" style={{ borderTop: '2px solid rgba(226, 0, 116, 0.3)' }}>
+-          <p className="text-[10px] text-t-magenta font-black uppercase tracking-[0.15em] mb-1">
+-            <ShieldCheck className="w-3.5 h-3.5 inline-block mr-1 mb-0.5" /> Stay compliant
+-          </p>
+-          <p className="text-[11px] font-bold leading-relaxed text-t-dark-gray">
+-            No real customer info. Everything here runs on generic context — CPNI compliant, always.
+-          </p>
+-        </div>
+-        <div className="flex flex-col items-center gap-2">
++      <footer className="max-w-5xl mx-auto px-6 pb-8 pt-6 md:px-10 text-center mt-10 space-y-3 relative z-[1]" style={{ borderTop: '1px solid var(--glass-border-subtle)' }}>
++        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[10px] font-semibold text-t-dark-gray">
++          {weeklyLoaded && weeklyData ? (
++            <span className="inline-flex items-center gap-1.5">
++              <Calendar className="w-3 h-3 text-t-magenta/60" />
++              <span>
++                {weeklyData.metadata.updatedDate} → {weeklyData.metadata.validUntil}
++              </span>
++            </span>
++          ) : null}
++          <span className="inline-flex items-center gap-1.5">
++            <ShieldCheck className="w-3 h-3 text-t-magenta/60" />
++            <span>CPNI safe • no real customer info</span>
++          </span>
+           <button
+             type="button"
+             onClick={() => { void handleRefreshApp(); }}
+             disabled={refreshingApp}
+-            className="focus-ring inline-flex items-center gap-2 rounded-full border border-t-light-gray bg-surface-elevated px-4 py-2 text-[10px] font-black uppercase tracking-[0.18em] text-t-dark-gray transition-colors hover:border-t-magenta/40 hover:text-t-magenta disabled:opacity-60 disabled:cursor-wait"
++            className="focus-ring inline-flex items-center gap-1.5 rounded-full border border-t-light-gray bg-surface-elevated px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.18em] text-t-dark-gray transition-colors hover:border-t-magenta/40 hover:text-t-magenta disabled:cursor-wait disabled:opacity-60"
+           >
+-            <RefreshCw className={`h-3.5 w-3.5 ${refreshingApp ? 'animate-spin text-t-magenta' : 'text-t-magenta/70'}`} />
+-            {refreshingApp ? 'Refreshing App...' : 'Refresh App'}
++            <RefreshCw className={`h-3 w-3 ${refreshingApp ? 'animate-spin text-t-magenta' : 'text-t-magenta/70'}`} />
++            {refreshingApp ? 'Refreshing…' : 'Refresh App'}
+           </button>
+-          <p className="text-[10px] font-medium text-t-dark-gray">
+-            Use this if the app looks stale or a tester thinks they are seeing an older version.
+-          </p>
+         </div>
+-        <p className="pt-4 text-[10px] font-black uppercase tracking-widest text-t-dark-gray">
++        <p className="text-[10px] font-medium text-t-muted">
++          If the app looks stale, refresh once and let the preview reload.
++        </p>
++        <p className="pt-2 text-[10px] font-black uppercase tracking-widest text-t-dark-gray">
+           &copy; 2026 CustomerConnect AI. Built for fast, stable call support.
+         </p>
+       </footer>
+@@ -1070,6 +1264,62 @@ export default function App() {
+           </motion.button>
+         )}
+       </AnimatePresence>
++
++      {/* HINT Availability Prompt Modal */}
++      <AnimatePresence>
++        {showHintPrompt && (
++          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
++            <motion.div
++              initial={{ opacity: 0, scale: 0.95, y: 10 }}
++              animate={{ opacity: 1, scale: 1, y: 0 }}
++              exit={{ opacity: 0, scale: 0.95, y: 10 }}
++              className="bg-surface w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-t-light-gray"
++            >
++              <div className="flex items-center gap-3 mb-4">
++                <div className="w-10 h-10 rounded-full bg-t-magenta/10 flex items-center justify-center shrink-0">
++                  <Wifi className="w-5 h-5 text-t-magenta" />
++                </div>
++                <h3 className="text-lg font-black tracking-tight text-t-dark-gray">HINT Availability</h3>
++              </div>
++              <p className="text-sm text-t-dark-gray font-medium mb-6">
++                Did you check their address? Is T-Mobile Home Internet currently available for them?
++              </p>
++              <div className="space-y-3">
++                <button
++                  type="button"
++                  onClick={() => {
++                    handleContextUpdate(prev => ({
++                      ...prev,
++                      hintAvailable: true,
++                      product: [...prev.product.filter(p => p !== 'No Specific Product'), 'Home Internet']
++                    }));
++                    setShowHintPrompt(false);
++                    void handleGenerate();
++                  }}
++                  className="w-full focus-ring btn-magenta-shimmer rounded-xl py-3.5 text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2"
++                >
++                  <CheckCircle2 className="w-4 h-4" /> Yes, Available
++                </button>
++                <button
++                  type="button"
++                  onClick={() => {
++                    handleContextUpdate(prev => ({
++                      ...prev,
++                      hintAvailable: false,
++                      product: [...prev.product.filter(p => p !== 'No Specific Product'), 'Home Internet']
++                    }));
++                    setShowHintPrompt(false);
++                    void handleGenerate();
++                  }}
++                  className="w-full focus-ring bg-surface border-2 border-t-light-gray hover:border-t-magenta/30 text-t-dark-gray rounded-xl py-3.5 text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-colors"
++                >
++                  <WifiOff className="w-4 h-4" /> No, Spots Full
++                </button>
++              </div>
++            </motion.div>
++          </div>
++        )}
++      </AnimatePresence>
+     </div>
+     </ErrorBoundary>
+   );
+diff --git a/src/components/AccessoriesReference.tsx b/src/components/AccessoriesReference.tsx
+index ede95d7..3db903c 100644
+--- a/src/components/AccessoriesReference.tsx
++++ b/src/components/AccessoriesReference.tsx
+@@ -9,6 +9,7 @@ import {
+   getReferenceAccessoryPositioningSummary,
+   PositioningSummary,
+ } from '../services/positioningService';
++import LearnTagGroup from './learn/LearnTagGroup';
+ 
+ interface AccessoriesReferenceProps {
+   ecosystemMatrix?: EcosystemMatrix | null;
+@@ -248,6 +249,7 @@ export default function AccessoriesReference({ ecosystemMatrix }: AccessoriesRef
+                                 )}
+                               </div>
+                             )}
++                            shopperTags={item.shopperTags}
+                           />
+                         ))}
+                       </div>
+@@ -289,6 +291,7 @@ export default function AccessoriesReference({ ecosystemMatrix }: AccessoriesRef
+                   </div>
+                 </div>
+               )}
++              shopperTags={item.shopperTags}
+             />
+           ))}
+         </div>
+@@ -304,6 +307,7 @@ function AccessoryReferenceCard({
+   dimmed,
+   header,
+   meta,
++  shopperTags,
+ }: {
+   summary: PositioningSummary;
+   outcomeLabel: string;
+@@ -311,8 +315,11 @@ function AccessoryReferenceCard({
+   dimmed?: boolean;
+   header: ReactNode;
+   meta?: ReactNode;
++  shopperTags?: string[];
+ }) {
+   const callCue = summary.listenFor.slice(0, 2).join(' • ');
++  const bestForTags = shopperTags && shopperTags.length > 0 ? shopperTags : summary.bestFit;
++  const angleTags = [getAppealTypeLabel(summary.appealType), outcomeLabel];
+ 
+   return (
+     <div className={`rounded-xl border p-3 text-[10px] transition-all ${
+@@ -325,21 +332,10 @@ function AccessoryReferenceCard({
+       {header}
+       {meta}
+ 
+-      <div className="mt-2 flex flex-wrap gap-1.5">
+-        <span className="rounded-full bg-t-magenta/10 px-2 py-1 text-[8px] font-black uppercase tracking-widest text-t-magenta">
+-          {getAppealTypeLabel(summary.appealType)}
+-        </span>
+-        <span className="rounded-full bg-t-light-gray/30 px-2 py-1 text-[8px] font-black uppercase tracking-widest text-t-dark-gray">
+-          {outcomeLabel}
+-        </span>
+-        {summary.bestFit.slice(0, 2).map(fit => (
+-          <span
+-            key={fit}
+-            className="rounded-full border border-t-light-gray px-2 py-1 text-[8px] font-black uppercase tracking-widest text-t-dark-gray"
+-          >
+-            {fit}
+-          </span>
+-        ))}
++      <div className="mt-3 space-y-2">
++        <LearnTagGroup label="Best For" tags={bestForTags} tone="magenta" />
++        <LearnTagGroup label="Listen For" tags={summary.listenFor} tone="info" />
++        <LearnTagGroup label="Sales Angle" tags={angleTags} tone="neutral" />
+       </div>
+ 
+       <p className="mt-2 text-[10px] font-bold leading-relaxed text-t-magenta">{summary.sayThis}</p>
+diff --git a/src/components/AccessoryPitchBuilder.tsx b/src/components/AccessoryPitchBuilder.tsx
+index 46ade32..4a4a24b 100644
+--- a/src/components/AccessoryPitchBuilder.tsx
++++ b/src/components/AccessoryPitchBuilder.tsx
+@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
+ import { Device } from '../data/devices';
+ import { getAccessoriesForDevice, sortByPitchPriority, AccessoryPitch } from '../data/accessoryPitches';
+ import { EcosystemMatrix } from '../types/ecosystem';
++import AccessoryImageSlot from './AccessoryImageSlot';
+ import {
+   getAccessoryOutcomeLabel,
+   getAccessoryPitchPositioningSummary,
+@@ -79,6 +80,24 @@ export default function AccessoryPitchBuilder({ device, ecosystemMatrix }: Acces
+         </p>
+       </div>
+ 
++      <div className="rounded-2xl border border-t-light-gray/60 bg-surface-elevated p-4">
++        <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">Pitch order</p>
++        <div className="mt-2 grid gap-2 md:grid-cols-3">
++          <div className="rounded-2xl border border-t-light-gray bg-surface px-3 py-2">
++            <p className="text-[8px] font-black uppercase tracking-widest text-t-muted">Best For</p>
++            <p className="mt-1 text-[10px] font-medium text-t-dark-gray">Match the accessory to the caller first so it never feels random.</p>
++          </div>
++          <div className="rounded-2xl border border-t-light-gray bg-surface px-3 py-2">
++            <p className="text-[8px] font-black uppercase tracking-widest text-t-muted">Use When</p>
++            <p className="mt-1 text-[10px] font-medium text-t-dark-gray">Grab one or two cues from the call before you mention the item.</p>
++          </div>
++          <div className="rounded-2xl border border-t-light-gray bg-surface px-3 py-2">
++            <p className="text-[8px] font-black uppercase tracking-widest text-t-muted">Proof</p>
++            <p className="mt-1 text-[10px] font-medium text-t-dark-gray">Close with the proof line, then move into price only if they lean in.</p>
++          </div>
++        </div>
++      </div>
++
+       {Object.entries(grouped).map(([category, items]) => (
+         <div key={category} className="space-y-2">
+           <h4 className="px-1 text-[9px] font-black uppercase tracking-widest text-t-muted">
+@@ -123,8 +142,14 @@ function AccessoryCard({
+ 
+   return (
+     <div className="rounded-xl glass-card p-4 transition-all hover:border-t-magenta/30">
+-      <div className="mb-2 flex items-start justify-between gap-2">
+-        <div>
++      <div className="mb-2 flex items-start gap-3">
++        <AccessoryImageSlot
++          name={accessory.name}
++          imageUrl={accessory.imageUrl}
++          className="h-14 w-14 shrink-0 rounded-xl border border-t-light-gray/50 bg-t-light-gray/20 p-2"
++          imageClassName="h-full w-full object-contain"
++        />
++        <div className="min-w-0 flex-1">
+           <p className="text-xs font-black text-t-dark-gray">{accessory.name}</p>
+           <div className="mt-1 flex flex-wrap items-center gap-2">
+             <span className="text-[10px] font-black text-t-magenta">{accessory.price}</span>
+@@ -140,7 +165,7 @@ function AccessoryCard({
+           </div>
+         </div>
+         <DollarSign
+-          className={`h-4 w-4 shrink-0 ${
++          className={`mt-1 h-4 w-4 shrink-0 ${
+             accessory.margin === 'high'
+               ? 'text-success-accent'
+               : accessory.margin === 'medium'
+diff --git a/src/components/learn/HomeInternetSection.tsx b/src/components/learn/HomeInternetSection.tsx
+index f03df27..1861431 100644
+--- a/src/components/learn/HomeInternetSection.tsx
++++ b/src/components/learn/HomeInternetSection.tsx
+@@ -1,8 +1,15 @@
+ import { useState } from 'react';
+-import { Home, Wifi, ChevronDown, ChevronRight, Zap, Shield, MessageSquareQuote, AlertTriangle, DollarSign, Cable, Globe, Router, Users, Gamepad2, Briefcase, Heart } from 'lucide-react';
++import { Home, Wifi, ChevronDown, ChevronRight, Zap, Shield, MessageSquareQuote, AlertTriangle, DollarSign, Cable, Globe, Router, Users, Briefcase, Heart } from 'lucide-react';
+ import { HOME_INTERNET_PLANS, HINT_SELLING_FRAMEWORK, FIBER_INFO, HINT_QUICK_FACTS, OTHER_HOME_PRODUCTS } from '../../data/homeInternet';
+ 
+ type Section = 'plans' | 'selling' | 'objections' | 'competitors' | 'fiber';
++const PLAN_IMAGES: Record<string, string> = {
++  Rely: '/images/ui/hint-rely.png',
++  Amplified: '/images/ui/hint-amplified.png',
++  'All-In': '/images/ui/hint-all-in.png',
++};
++
++const PRODUCT_IMAGE_FALLBACK = '/images/ui/product-card-fallback.svg';
+ 
+ export default function HomeInternetSection() {
+   const [activeSection, setActiveSection] = useState<Section>('plans');
+@@ -10,21 +17,55 @@ export default function HomeInternetSection() {
+   return (
+     <div className="space-y-5">
+       {/* Hero banner */}
+-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-t-magenta to-t-berry p-6">
+-        <div className="absolute top-0 right-0 opacity-10">
+-          <Wifi className="w-36 h-36 -mt-6 -mr-6 text-white" />
++      <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-t-magenta via-t-magenta to-t-berry p-8 shadow-xl shadow-t-magenta/20">
++        <div className="absolute top-0 right-0 opacity-10 pointer-events-none">
++          <Wifi className="w-64 h-64 -mt-10 -mr-10 text-white" />
+         </div>
+-        <div className="relative">
+-          <p className="text-[10px] font-black uppercase tracking-[0.25em] text-white/60 mb-1">Biggest Push Right Now</p>
+-          <h3 className="text-2xl font-black text-white mb-2">T-Mobile Home Internet</h3>
+-          <p className="text-sm text-white/90 font-medium leading-relaxed max-w-lg">
+-            Check every address, every call. No data caps, no contracts, no equipment fees.
+-            Up to $300 rebate + "Month On Us" promo active now.
++        <div className="relative z-10">
++          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 mb-4">
++            <Home className="w-3 h-3 text-white" />
++            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Biggest Push Right Now</p>
++          </div>
++          <h3 className="text-4xl font-black text-white mb-3 tracking-tight">T-Mobile Home Internet</h3>
++          <p className="text-base text-white/90 font-medium leading-relaxed max-w-xl">
++            Check every address on every call. No data caps, no contracts, and no equipment fees.
++            <span className="text-white font-black"> Up to a $300 rebate plus the "Month On Us" promo is active now.</span>
+           </p>
+-          <div className="flex flex-wrap gap-2 mt-4">
+-            <span className="bg-white/20 rounded-full px-3 py-1 text-[10px] font-black text-white uppercase tracking-wider">From $35/mo w/ voice line</span>
+-            <span className="bg-white/20 rounded-full px-3 py-1 text-[10px] font-black text-white uppercase tracking-wider">15-Day Test Drive</span>
+-            <span className="bg-white/20 rounded-full px-3 py-1 text-[10px] font-black text-white uppercase tracking-wider">Self-Install in 15 min</span>
++          <div className="flex flex-wrap gap-2.5 mt-6">
++            <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/10">
++              <DollarSign className="w-3.5 h-3.5 text-white/80" />
++              <span className="text-[10px] font-black text-white uppercase tracking-wider">From $35/mo w/ voice line</span>
++            </div>
++            <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/10">
++              <Zap className="w-3.5 h-3.5 text-white/80" />
++              <span className="text-[10px] font-black text-white uppercase tracking-wider">15-Day Test Drive</span>
++            </div>
++            <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/10">
++              <Router className="w-3.5 h-3.5 text-white/80" />
++              <span className="text-[10px] font-black text-white uppercase tracking-wider">Self-Install in 15 min</span>
++            </div>
++          </div>
++        </div>
++      </div>
++
++      <div className="rounded-2xl border border-t-light-gray/60 bg-surface-elevated p-4">
++        <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">Primary path</p>
++        <div className="mt-2 grid gap-2 md:grid-cols-4">
++          <div className="rounded-2xl border border-t-light-gray bg-surface px-3 py-2">
++            <p className="text-[8px] font-black uppercase tracking-widest text-t-muted">1. Fit</p>
++            <p className="mt-1 text-[10px] font-medium text-t-dark-gray">Check the address first and decide whether HINT is actually a match.</p>
++          </div>
++          <div className="rounded-2xl border border-t-light-gray bg-surface px-3 py-2">
++            <p className="text-[8px] font-black uppercase tracking-widest text-t-muted">2. Pitch</p>
++            <p className="mt-1 text-[10px] font-medium text-t-dark-gray">Lead with simplicity, savings, and fast setup before speed jargon.</p>
++          </div>
++          <div className="rounded-2xl border border-t-light-gray bg-surface px-3 py-2">
++            <p className="text-[8px] font-black uppercase tracking-widest text-t-muted">3. Objections</p>
++            <p className="mt-1 text-[10px] font-medium text-t-dark-gray">Only open the objection lane when the caller gives you a real blocker.</p>
++          </div>
++          <div className="rounded-2xl border border-t-light-gray bg-surface px-3 py-2">
++            <p className="text-[8px] font-black uppercase tracking-widest text-t-muted">4. Competition</p>
++            <p className="mt-1 text-[10px] font-medium text-t-dark-gray">Use the compare story only if they ask why they should switch from cable.</p>
+           </div>
+         </div>
+       </div>
+@@ -32,7 +73,7 @@ export default function HomeInternetSection() {
+       {/* Quick facts ticker */}
+       <div className="bg-info-surface rounded-2xl border-2 border-info-border p-4">
+         <p className="text-[9px] font-black uppercase tracking-widest text-info-foreground mb-3 flex items-center gap-1.5">
+-          <Zap className="w-3 h-3" /> Quick Facts — Know These Cold
++          <Zap className="w-3 h-3" /> Quick facts to keep ready
+         </p>
+         <div className="space-y-2">
+           {HINT_QUICK_FACTS.map((fact, i) => (
+@@ -45,14 +86,14 @@ export default function HomeInternetSection() {
+       </div>
+ 
+       {/* Section nav */}
+-      <div className="flex rounded-2xl p-1 gap-1 overflow-x-auto glass-tab">
+-        {([
++      <div className="flex flex-wrap rounded-2xl p-1 gap-1 glass-tab">
++        {[
+           { id: 'plans' as Section, icon: DollarSign, label: 'Plans' },
+           { id: 'selling' as Section, icon: MessageSquareQuote, label: 'How to Sell' },
+           { id: 'objections' as Section, icon: Shield, label: 'Objections' },
+           { id: 'competitors' as Section, icon: Globe, label: 'vs Competition' },
+           { id: 'fiber' as Section, icon: Cable, label: 'Fiber' },
+-        ]).map((s) => (
++        ].map((s) => (
+           <button
+             key={s.id}
+             type="button"
+@@ -72,7 +113,6 @@ export default function HomeInternetSection() {
+       {/* Plans */}
+       {activeSection === 'plans' && (
+         <div className="space-y-4">
+-          {/* Plan cards */}
+           {HOME_INTERNET_PLANS.map((plan, idx) => {
+             const tierConfig = [
+               { tag: 'GOOD', tagColor: 'bg-info-accent', customerTypes: ['Budget-conscious', 'Light browsing'], icon: Users },
+@@ -81,93 +121,114 @@ export default function HomeInternetSection() {
+             ][idx] || { tag: 'GOOD', tagColor: 'bg-info-accent', customerTypes: [], icon: Users };
+ 
+             return (
+-            <div
+-              key={plan.name}
+-              className={`rounded-2xl border-2 p-5 ${
+-                idx === 2 ? 'border-t-magenta bg-t-magenta/5' : 'glass-card'
+-              }`}
+-            >
+-              <div className="flex items-start justify-between mb-3">
+-                <div>
+-                  <div className="flex items-center gap-2 flex-wrap">
+-                    <h4 className="text-lg font-black text-t-dark-gray">{plan.name}</h4>
+-                    <span className={`${tierConfig.tagColor} text-white text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full`}>{tierConfig.tag}</span>
+-                    {idx === 2 && <span className="bg-t-magenta text-white text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full">Push This</span>}
+-                  </div>
+-                  <p className="text-[11px] text-t-dark-gray font-medium mt-0.5">{plan.bestFor}</p>
+-                  <div className="flex flex-wrap gap-1.5 mt-2">
+-                    {tierConfig.customerTypes.map((ct) => (
+-                      <span key={ct} className="text-[9px] font-bold text-t-muted bg-t-light-gray/40 px-2 py-0.5 rounded-full">{ct}</span>
+-                    ))}
++              <div
++                key={plan.name}
++                className={`rounded-3xl border-2 overflow-hidden transition-all hover:shadow-lg ${
++                  idx === 2 ? 'border-t-magenta bg-t-magenta/5' : 'glass-card'
++                }`}
++              >
++                {/* Plan Image */}
++                <div className="relative h-44 overflow-hidden">
++                  <img
++                    src={PLAN_IMAGES[plan.name] ?? PRODUCT_IMAGE_FALLBACK}
++                    alt={plan.name}
++                    className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
++                    width={1200}
++                    height={675}
++                    loading="lazy"
++                    onError={(event) => {
++                      const image = event.currentTarget;
++                      if (image.dataset.fallback === 'true') return;
++                      image.dataset.fallback = 'true';
++                      image.src = PRODUCT_IMAGE_FALLBACK;
++                    }}
++                    referrerPolicy="no-referrer"
++                  />
++                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
++                  <div className="absolute bottom-4 left-5 right-5">
++                    <div className="flex items-center gap-2 flex-wrap mb-1">
++                      <h4 className="text-xl font-black text-white uppercase tracking-tight">{plan.name}</h4>
++                      <span className={`${tierConfig.tagColor} text-white text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full`}>{tierConfig.tag}</span>
++                      {idx === 2 && <span className="bg-t-magenta text-white text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full">Push This</span>}
++                    </div>
++                    <p className="text-[11px] text-white/90 font-medium">{plan.bestFor}</p>
+                   </div>
+                 </div>
+-                <div className="text-right">
+-                  <p className="text-2xl font-black text-t-magenta">${plan.withVoiceLine}<span className="text-sm">/mo</span></p>
+-                  <p className="text-[10px] text-t-muted font-bold">w/ voice line</p>
+-                  <p className="text-[10px] text-t-muted">${plan.standalonePrice}/mo standalone</p>
+-                </div>
+-              </div>
+ 
+-              <div className="grid grid-cols-2 gap-3 mb-3">
+-                <div className="bg-t-light-gray/30 rounded-xl p-3">
+-                  <p className="text-[9px] font-black uppercase tracking-widest text-t-muted mb-1">Download</p>
+-                  <p className="text-sm font-black text-t-dark-gray">{plan.typicalDownload}</p>
+-                </div>
+-                <div className="bg-t-light-gray/30 rounded-xl p-3">
+-                  <p className="text-[9px] font-black uppercase tracking-widest text-t-muted mb-1">Upload</p>
+-                  <p className="text-sm font-black text-t-dark-gray">{plan.typicalUpload}</p>
+-                </div>
+-              </div>
+-
+-              <div className="space-y-1.5 mb-3">
+-                {plan.features.map((f, i) => (
+-                  <div key={i} className="flex items-center gap-2">
+-                    <div className="w-1.5 h-1.5 rounded-full bg-success-accent shrink-0" />
+-                    <p className="text-[11px] text-t-dark-gray font-medium">{f}</p>
++                <div className="p-5">
++                  <div className="flex items-start justify-between mb-4">
++                    <div className="flex flex-wrap gap-1.5">
++                      {tierConfig.customerTypes.map((ct) => (
++                        <span key={ct} className="text-[9px] font-bold text-t-muted bg-t-light-gray/40 px-2 py-0.5 rounded-full">{ct}</span>
++                      ))}
++                    </div>
++                    <div className="text-right">
++                      <p className="text-2xl font-black text-t-magenta leading-none">${plan.withVoiceLine}<span className="text-sm">/mo</span></p>
++                      <p className="text-[10px] text-t-muted font-bold mt-1">w/ voice line</p>
++                    </div>
+                   </div>
+-                ))}
+-              </div>
+ 
+-              {plan.includedPerks.length > 0 && (
+-                <div className="bg-success-surface rounded-xl border border-success-border p-3">
+-                  <p className="text-[9px] font-black uppercase tracking-widest text-success-foreground mb-2">Included Perks</p>
+-                  {plan.includedPerks.map((perk, i) => (
+-                    <div key={i} className="flex items-center gap-2">
+-                      <Zap className="w-3 h-3 text-success-accent shrink-0" />
+-                      <p className="text-[11px] text-success-foreground font-bold">{perk}</p>
++                  <div className="grid grid-cols-2 gap-3 mb-3">
++                    <div className="bg-t-light-gray/30 rounded-xl p-3">
++                      <p className="text-[9px] font-black uppercase tracking-widest text-t-muted mb-1">Download</p>
++                      <p className="text-sm font-black text-t-dark-gray">{plan.typicalDownload}</p>
+                     </div>
+-                  ))}
+-                  <p className="mt-2 text-[10px] font-medium text-success-foreground/70">Over $480/year in streaming & security value</p>
+-                </div>
+-              )}
++                    <div className="bg-t-light-gray/30 rounded-xl p-3">
++                      <p className="text-[9px] font-black uppercase tracking-widest text-t-muted mb-1">Upload</p>
++                      <p className="text-sm font-black text-t-dark-gray">{plan.typicalUpload}</p>
++                    </div>
++                  </div>
+ 
+-              {/* Mesh Router callout for All-In */}
+-              {idx === 2 && (
+-                <div className="bg-gradient-to-r from-t-magenta/10 to-t-berry/10 rounded-xl border-2 border-t-magenta/30 p-4 mt-3">
+-                  <div className="flex items-start gap-3">
+-                    <div className="w-10 h-10 rounded-xl bg-t-magenta/20 flex items-center justify-center shrink-0">
+-                      <Router className="w-5 h-5 text-t-magenta" />
++                  <div className="space-y-1.5 mb-3">
++                    {plan.features.map((f, i) => (
++                      <div key={i} className="flex items-center gap-2">
++                        <div className="w-1.5 h-1.5 rounded-full bg-success-accent shrink-0" />
++                        <p className="text-[11px] text-t-dark-gray font-medium">{f}</p>
++                      </div>
++                    ))}
++                  </div>
++
++                  {plan.includedPerks.length > 0 && (
++                    <div className="bg-success-surface rounded-xl border border-success-border p-3">
++                      <p className="text-[9px] font-black uppercase tracking-widest text-success-foreground mb-2">Included Perks</p>
++                      {plan.includedPerks.map((perk, i) => (
++                        <div key={i} className="flex items-center gap-2">
++                          <Zap className="w-3 h-3 text-success-accent shrink-0" />
++                          <p className="text-[11px] text-success-foreground font-bold">{perk}</p>
++                        </div>
++                      ))}
++                      <p className="mt-2 text-[10px] font-medium text-success-foreground/70">Over $480/year in streaming & security value</p>
+                     </div>
+-                    <div>
+-                      <p className="text-xs font-black uppercase tracking-tight text-t-magenta mb-1">The #1 Reason to Push All-In</p>
+-                      <p className="text-[11px] font-bold text-t-dark-gray leading-relaxed">
+-                        The included mesh router is the game-changer. Most customers don't know they have interference — thick walls, microwaves, the router in a bad spot. The mesh router lets them put nodes where they need them for full coverage throughout the house.
+-                      </p>
+-                      <p className="text-[11px] text-t-dark-gray font-medium mt-2 leading-relaxed">
+-                        For non-techie customers especially, this is the pitch: "You don't have to figure out the best spot — the mesh system handles it. Put one near where you stream, one in the home office, and you're covered everywhere."
+-                      </p>
+-                      <div className="mt-3 bg-t-dark-gray rounded-lg p-3">
+-                        <p className="text-[10px] font-black uppercase tracking-widest text-t-magenta mb-1">Say This</p>
+-                        <p className="text-sm font-bold leading-relaxed text-white">
+-                          "The All-In comes with a mesh router — so instead of hoping your Wi-Fi reaches the back bedroom, you just place a second node there. No dead zones, no guessing. It basically sets itself up."
+-                        </p>
++                  )}
++
++                  {/* Mesh Router callout for All-In */}
++                  {idx === 2 && (
++                    <div className="bg-gradient-to-r from-t-magenta/10 to-t-berry/10 rounded-xl border-2 border-t-magenta/30 p-4 mt-3">
++                      <div className="flex items-start gap-3">
++                        <div className="w-10 h-10 rounded-xl bg-t-magenta/20 flex items-center justify-center shrink-0">
++                          <Router className="w-5 h-5 text-t-magenta" />
++                        </div>
++                        <div>
++                          <p className="text-xs font-black uppercase tracking-tight text-t-magenta mb-1">The #1 Reason to Push All-In</p>
++                          <p className="text-[11px] font-bold text-t-dark-gray leading-relaxed">
++                            The included mesh router is the game-changer. Most customers don't know they have interference — thick walls, microwaves, the router in a bad spot. The mesh router lets them put nodes where they need them for full coverage throughout the house.
++                          </p>
++                          <p className="text-[11px] text-t-dark-gray font-medium mt-2 leading-relaxed">
++                            For non-techie customers especially, this is the pitch: "You don't have to figure out the best spot — the mesh system handles it. Put one near where you stream, one in the home office, and you're covered everywhere."
++                          </p>
++                          <div className="mt-3 bg-t-dark-gray rounded-lg p-3">
++                            <p className="text-[10px] font-black uppercase tracking-widest text-t-magenta mb-1">Say This</p>
++                            <p className="text-sm font-bold leading-relaxed text-white">
++                              "The All-In comes with a mesh router — so instead of hoping your Wi-Fi reaches the back bedroom, you just place a second node there. No dead zones, no guessing. It basically sets itself up."
++                            </p>
++                          </div>
++                        </div>
+                       </div>
+                     </div>
+-                  </div>
++                  )}
+                 </div>
+-              )}
+-            </div>
+-          );
++              </div>
++            );
+           })}
+ 
+           {/* Other products */}
+@@ -227,7 +288,7 @@ export default function HomeInternetSection() {
+ 
+           {/* The pitch flow */}
+           <div className="rounded-2xl border-2 glass-card p-5">
+-            <p className="text-[9px] font-black uppercase tracking-widest text-t-muted mb-3">The 30-Second Pitch</p>
++            <p className="text-[9px] font-black uppercase tracking-widest text-t-muted mb-3">The 30-second pitch</p>
+             <div className="space-y-3">
+               {[
+                 { step: '1', title: 'Check the Address', desc: '"Let me see if Home Internet is available at your address — takes two seconds."' },
+@@ -252,7 +313,7 @@ export default function HomeInternetSection() {
+           {/* Reminder */}
+           <div className="bg-warning-surface rounded-2xl border-2 border-warning-border p-5">
+             <p className="text-[9px] font-black uppercase tracking-widest text-warning-foreground mb-2 flex items-center gap-1.5">
+-              <AlertTriangle className="w-3 h-3" /> Don't Forget
++              <AlertTriangle className="w-3 h-3" /> Don't forget
+             </p>
+             <p className="text-sm text-warning-foreground font-bold">{HINT_SELLING_FRAMEWORK.everyCallReminder}</p>
+           </div>
+@@ -264,11 +325,12 @@ export default function HomeInternetSection() {
+         <div className="space-y-3">
+           <p className="text-[9px] font-black uppercase tracking-widest text-t-muted">When They Push Back</p>
+           {HINT_SELLING_FRAMEWORK.objectionHandlers.map((obj, i) => (
+-            <CollapsibleCard key={i} title={obj.objection} defaultOpen={i === 0}>
++            <div key={i} className="rounded-2xl border-2 glass-card p-4">
++              <p className="text-sm font-black text-t-dark-gray mb-3">{obj.objection}</p>
+               <div className="bg-t-dark-gray rounded-xl p-4 text-white">
+                 <p className="text-sm font-bold leading-relaxed">{obj.response}</p>
+               </div>
+-            </CollapsibleCard>
++            </div>
+           ))}
+         </div>
+       )}
+@@ -278,7 +340,8 @@ export default function HomeInternetSection() {
+         <div className="space-y-3">
+           <p className="text-[9px] font-black uppercase tracking-widest text-t-muted">Why T-Mobile Wins</p>
+           {HINT_SELLING_FRAMEWORK.vsCompetitors.map((comp, i) => (
+-            <CollapsibleCard key={i} title={`vs ${comp.competitor}`} defaultOpen={i === 0}>
++            <div key={i} className="rounded-2xl border-2 glass-card p-4">
++              <p className="text-sm font-black text-t-dark-gray mb-3">vs {comp.competitor}</p>
+               <div className="space-y-2">
+                 {comp.tmobileAdvantages.map((adv, j) => (
+                   <div key={j} className="flex items-start gap-2">
+@@ -287,7 +350,7 @@ export default function HomeInternetSection() {
+                   </div>
+                 ))}
+               </div>
+-            </CollapsibleCard>
++            </div>
+           ))}
+         </div>
+       )}
+@@ -345,20 +408,3 @@ export default function HomeInternetSection() {
+     </div>
+   );
+ }
+-
+-function CollapsibleCard({ title, children, defaultOpen = false }: { title: string; children: React.ReactNode; defaultOpen?: boolean }) {
+-  const [open, setOpen] = useState(defaultOpen);
+-  return (
+-    <div className="rounded-2xl border-2 glass-card overflow-hidden">
+-      <button
+-        type="button"
+-        onClick={() => setOpen(!open)}
+-        className="w-full flex items-center justify-between p-4 text-left"
+-      >
+-        <p className="text-sm font-black text-t-dark-gray">{title}</p>
+-        {open ? <ChevronDown className="w-4 h-4 text-t-muted" /> : <ChevronRight className="w-4 h-4 text-t-muted" />}
+-      </button>
+-      {open && <div className="px-4 pb-4">{children}</div>}
+-    </div>
+-  );
+-}
+diff --git a/src/components/learn/PlansSection.tsx b/src/components/learn/PlansSection.tsx
+index 0733d73..d5964ec 100644
+--- a/src/components/learn/PlansSection.tsx
++++ b/src/components/learn/PlansSection.tsx
+@@ -1,40 +1,45 @@
+ import { useState } from 'react';
+-import { DollarSign, Zap, Crown, ChevronDown, ChevronRight, Star, Users, Briefcase, Shield, Smartphone, Watch, Tablet } from 'lucide-react';
++import { DollarSign, Zap, Crown, ChevronDown, ChevronRight, Star, Users, Briefcase, Shield, Smartphone, Watch, Tablet, Sparkles } from 'lucide-react';
+ import { AnimatePresence, motion } from 'motion/react';
+ import { POSTPAID_PLANS, SPECIALIZED_PLANS, RETIRED_PLANS } from '../../data/plans';
+ 
+ type Section = 'phone' | 'connected' | 'specialized' | 'why-premium';
+ 
+-const PLAN_TIERS: Record<string, { tag: string; tagColor: string; bestFor: string; repInsight: string }> = {
++const PLAN_TIERS: Record<string, { tag: string; tagColor: string; bestFor: string; repInsight: string; image: string }> = {
+   'Experience Beyond': {
+     tag: 'BEST',
+     tagColor: 'bg-t-magenta text-white',
+     bestFor: 'Power users, streamers, travelers, families who want everything. Customers who hate limits.',
+     repInsight: 'Highest margin, lowest churn. These customers stay because they never hit a wall — no throttling, no "you used too much." They get Netflix + Hulu + Apple TV+, 250GB hotspot, yearly upgrades, and satellite. When they call back, it\'s to ADD lines, not complain. This is the plan you want every customer on.',
++    image: '/images/ui/plan-experience-beyond.png',
+   },
+   'Experience More': {
+     tag: 'BETTER',
+     tagColor: 'bg-t-berry text-white',
+     bestFor: 'Most customers. Great balance of premium features and price. The sweet spot.',
+     repInsight: 'Your bread and butter. Same unlimited premium data as Beyond, Netflix + Apple TV+ included, 60GB hotspot, in-flight Wi-Fi. Covers 90% of what customers actually need. When someone says "I don\'t need ALL that" about Beyond, this is where you land them. Still a premium plan, still great metrics for you.',
++    image: '/images/ui/plan-experience-more.png',
+   },
+   'Better Value': {
+     tag: 'BEST VALUE',
+     tagColor: 'bg-success-accent text-white',
+     bestFor: 'Families with 3+ lines who qualify — switchers or long-tenure customers.',
+     repInsight: 'This is your secret weapon for switchers. Beyond-level features at $46.67/line for 3 lines. The catch: they need 3+ lines AND either 2 port-ins (new) or 5+ years tenure (existing). If they qualify, it\'s an easy close — show the math vs what they\'re paying at AT&T/Verizon.',
++    image: '/images/ui/plan-better-value.png',
+   },
+   'Essentials': {
+     tag: 'GOOD',
+     tagColor: 'bg-t-dark-gray/60 text-white',
+     bestFor: 'Price-sensitive customers, light users, seniors on a budget. Use as a last resort.',
+     repInsight: 'Don\'t lead with this. It has deprioritized data (slow during congestion), 480p video, no hotspot worth using, and no in-flight Wi-Fi. If you put someone here who streams or hotspots, they\'ll call back frustrated. Only use when the customer truly can\'t afford More/Beyond and you\'d lose the sale entirely.',
++    image: '/images/ui/plan-essentials.png',
+   },
+   'Essentials Saver': {
+     tag: 'BUDGET',
+     tagColor: 'bg-t-dark-gray/40 text-white',
+     bestFor: 'Absolute bottom dollar. Not eligible for most promos.',
+     repInsight: 'Last resort only. Most device promos don\'t apply, data is heavily deprioritized, no perks. If a customer is on this plan, you\'re leaving money on the table AND they\'ll have a worse experience. Always try to move them up to at least Essentials.',
++    image: '/images/ui/plan-essentials-saver.png',
+   },
+ };
+ 
+@@ -87,21 +92,51 @@ export default function PlansSection() {
+   return (
+     <div className="space-y-5">
+       {/* Hero banner */}
+-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-t-berry to-t-magenta p-6">
+-        <div className="absolute top-0 right-0 opacity-10">
+-          <Crown className="w-36 h-36 -mt-6 -mr-6 text-white" />
++      <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-t-magenta via-t-magenta to-t-berry p-8 shadow-xl shadow-t-magenta/20">
++        <div className="absolute top-0 right-0 opacity-10 pointer-events-none">
++          <Crown className="w-64 h-64 -mt-10 -mr-10 text-white" />
+         </div>
+-        <div className="relative">
+-          <p className="text-[10px] font-black uppercase tracking-[0.25em] text-white/60 mb-1">Product Knowledge</p>
+-          <h3 className="text-2xl font-black text-white mb-2">Plans Breakdown</h3>
+-          <p className="text-sm text-white/90 font-medium leading-relaxed max-w-lg">
+-            Know the tiers, know the value, know WHY premium plans are better for the customer AND for you.
+-            Every plan upgrade means happier customers and better metrics.
++        <div className="relative z-10">
++          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 mb-4">
++            <Sparkles className="w-3 h-3 text-white" />
++            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Product Knowledge</p>
++          </div>
++          <h3 className="text-4xl font-black text-white mb-3 tracking-tight">Plans Breakdown</h3>
++          <p className="text-base text-white/90 font-medium leading-relaxed max-w-xl">
++            Know the tiers, know the value, and know <span className="text-white font-black underline decoration-white/40 underline-offset-4">why</span> premium plans are better for both the customer and you.
++            The goal is a cleaner recommendation, happier customers, and stronger metrics.
+           </p>
+-          <div className="flex flex-wrap gap-2 mt-4">
+-            <span className="bg-white/20 rounded-full px-3 py-1 text-[10px] font-black text-white uppercase tracking-wider">5 Phone Plans</span>
+-            <span className="bg-white/20 rounded-full px-3 py-1 text-[10px] font-black text-white uppercase tracking-wider">Connected Devices</span>
+-            <span className="bg-white/20 rounded-full px-3 py-1 text-[10px] font-black text-white uppercase tracking-wider">3rd Line Free Promo</span>
++          <div className="flex flex-wrap gap-2.5 mt-6">
++            <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/10">
++              <Smartphone className="w-3.5 h-3.5 text-white/80" />
++              <span className="text-[10px] font-black text-white uppercase tracking-wider">5 Phone Plans</span>
++            </div>
++            <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/10">
++              <Watch className="w-3.5 h-3.5 text-white/80" />
++              <span className="text-[10px] font-black text-white uppercase tracking-wider">Connected Devices</span>
++            </div>
++            <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/10">
++              <Star className="w-3.5 h-3.5 text-white/80" />
++              <span className="text-[10px] font-black text-white uppercase tracking-wider">3rd Line Free Promo</span>
++            </div>
++          </div>
++        </div>
++      </div>
++
++      <div className="rounded-2xl border border-t-light-gray/60 bg-surface-elevated p-4">
++        <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">Use this fast</p>
++        <div className="mt-2 grid gap-2 md:grid-cols-3">
++          <div className="rounded-2xl border border-t-light-gray bg-surface px-3 py-2">
++            <p className="text-[8px] font-black uppercase tracking-widest text-t-muted">Best For</p>
++            <p className="mt-1 text-[10px] font-medium text-t-dark-gray">Lead with the fit first so the plan recommendation feels obvious, not scripted.</p>
++          </div>
++          <div className="rounded-2xl border border-t-light-gray bg-surface px-3 py-2">
++            <p className="text-[8px] font-black uppercase tracking-widest text-t-muted">Do Not Lead With</p>
++            <p className="mt-1 text-[10px] font-medium text-t-dark-gray">Use Essentials as a save, not your first move, unless budget is clearly the blocker.</p>
++          </div>
++          <div className="rounded-2xl border border-t-light-gray bg-surface px-3 py-2">
++            <p className="text-[8px] font-black uppercase tracking-widest text-t-muted">How To Say It</p>
++            <p className="mt-1 text-[10px] font-medium text-t-dark-gray">Use one reason, one proof point, then stop talking and let the caller react.</p>
+           </div>
+         </div>
+       </div>
+@@ -109,7 +144,7 @@ export default function PlansSection() {
+       {/* Quick facts */}
+       <div className="bg-info-surface rounded-2xl border-2 border-info-border p-4">
+         <p className="text-[9px] font-black uppercase tracking-widest text-info-foreground mb-3 flex items-center gap-1.5">
+-          <Zap className="w-3 h-3" /> Why Push Premium — Know These Cold
++          <Zap className="w-3 h-3" /> Why premium wins
+         </p>
+         <div className="space-y-2">
+           {QUICK_FACTS.map((fact, i) => (
+@@ -123,12 +158,12 @@ export default function PlansSection() {
+ 
+       {/* Section nav */}
+       <div className="flex rounded-2xl p-1 glass-tab gap-1 overflow-x-auto">
+-        {([
++        {[
+           { id: 'why-premium' as Section, icon: Star, label: 'Why Premium' },
+           { id: 'phone' as Section, icon: DollarSign, label: 'Phone Plans' },
+           { id: 'connected' as Section, icon: Watch, label: 'Connected' },
+           { id: 'specialized' as Section, icon: Users, label: 'Specialized' },
+-        ]).map((s) => (
++        ].map((s) => (
+           <button
+             key={s.id}
+             type="button"
+@@ -158,7 +193,7 @@ export default function PlansSection() {
+                   'No throttling. Ever. Their data is premium — they\'ll never get slowed down at a concert, sporting event, or busy area.',
+                   'Streaming perks pay for themselves. Netflix + Hulu + Apple TV+ = ~$20/mo in value. That\'s basically the price difference from Essentials.',
+                   'They can actually USE their hotspot. 60-250GB vs basically nothing on Essentials.',
+-                  'In-flight Wi-Fi included. No more paying $8/hr on Southwest.',
++                  'In-flight Wi-Fi included. No more paying $8 per flight.',
+                   'Satellite connectivity (Beyond) — texts go through even with zero bars in remote areas.',
+                 ]},
+                 { title: 'For you', points: [
+@@ -206,7 +241,7 @@ export default function PlansSection() {
+ 
+           {/* The script */}
+           <div className="rounded-2xl border-2 border-t-light-gray bg-surface-elevated p-5">
+-            <p className="text-[9px] font-black uppercase tracking-widest text-t-muted mb-3">How to say it</p>
++            <p className="text-[9px] font-black uppercase tracking-widest text-t-muted mb-3">How to say it on a live call</p>
+             <div className="space-y-3">
+               {[
+                 '"I want to make sure you\'re getting the most out of T-Mobile. The plan you\'re on — your data can get slowed down when the network\'s busy. On Experience More, that never happens."',
+@@ -285,11 +320,11 @@ export default function PlansSection() {
+       {/* SPECIALIZED */}
+       {activeSection === 'specialized' && (
+         <div className="space-y-4">
+-          {([
++          {[
+             { title: '55+ Plans', icon: Users, content: SPECIALIZED_PLANS.senior.description },
+             { title: 'Military & First Responder', icon: Shield, content: SPECIALIZED_PLANS.military.description },
+             { title: 'Business Plans', icon: Briefcase, content: SPECIALIZED_PLANS.business.description },
+-          ]).map((sp) => (
++          ].map((sp) => (
+             <div key={sp.title} className="rounded-2xl border-2 border-t-light-gray bg-surface-elevated p-5">
+               <div className="flex items-center gap-2 mb-2">
+                 <sp.icon className="w-4 h-4 text-t-berry" />
+@@ -325,105 +360,121 @@ export default function PlansSection() {
+ 
+ function PlanCard({ plan, tier }: { plan: typeof POSTPAID_PLANS[0]; tier: typeof PLAN_TIERS[string] }) {
+   const [expanded, setExpanded] = useState(false);
++  const [hasError, setHasError] = useState(false);
++  const imageSource = hasError ? '/images/ui/product-card-fallback.svg' : tier.image;
+   const isBest = tier.tag === 'BEST';
+   const isBetter = tier.tag === 'BETTER' || tier.tag === 'BEST VALUE';
++  const imageLabel = `${plan.name} plan image`;
+ 
+   return (
+-    <div className={`rounded-2xl border-2 p-5 ${isBest ? 'border-t-magenta bg-t-magenta/5' : isBetter ? 'border-t-berry/30 bg-surface-elevated' : 'border-t-light-gray bg-surface-elevated'}`}>
+-      {/* Header */}
+-      <div className="flex items-start justify-between mb-3">
+-        <div>
++    <div className={`rounded-3xl border-2 overflow-hidden transition-all hover:shadow-lg ${isBest ? 'border-t-magenta bg-t-magenta/5' : isBetter ? 'border-t-berry/30 bg-surface-elevated' : 'border-t-light-gray bg-surface-elevated'}`}>
++      {/* Plan Image */}
++      <div className="relative h-40 overflow-hidden">
++        <img
++          src={imageSource}
++          alt={imageLabel}
++          className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
++          width={1200}
++          height={675}
++          loading="lazy"
++          onError={() => setHasError(true)}
++          referrerPolicy="no-referrer"
++        />
++        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
++        <div className="absolute bottom-4 left-5">
+           <div className="flex items-center gap-2 mb-1">
+-            <h4 className="text-base font-black uppercase tracking-tight">{plan.name}</h4>
++            <h4 className="text-xl font-black uppercase tracking-tight text-white">{plan.name}</h4>
+             <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${tier.tagColor}`}>
+               {tier.tag}
+             </span>
+           </div>
+-          <p className="text-[11px] text-t-dark-gray font-medium">{tier.bestFor}</p>
++          <p className="text-[11px] text-white/90 font-medium">{tier.bestFor}</p>
+         </div>
+       </div>
+ 
+-      {/* Pricing grid */}
+-      <div className="rounded-xl border border-t-light-gray overflow-hidden mb-3">
+-        <div className="grid grid-cols-3 text-[9px] font-black uppercase tracking-wider text-t-muted bg-t-light-gray/30 px-3 py-1.5">
+-          <span>Lines</span>
+-          <span className="text-right">Total</span>
+-          <span className="text-right">Per Line</span>
+-        </div>
+-        {plan.pricing.map((p) => (
+-          <div key={p.lines} className="grid grid-cols-3 text-[11px] px-3 py-2 border-t border-t-light-gray/50">
+-            <span className="font-bold text-t-dark-gray">{p.lines} line{p.lines > 1 ? 's' : ''}</span>
+-            <span className="text-right font-bold text-t-dark-gray">${p.monthlyTotal}/mo</span>
+-            <span className="text-right font-black text-t-magenta">${p.perLine.toFixed(2)}/line</span>
+-          </div>
+-        ))}
+-        {plan.pricing.some(p => p.promoNote) && (
+-          <div className="px-3 py-1.5 bg-success-surface border-t border-success-border">
+-            <p className="text-[9px] font-bold text-success-foreground">
+-              {plan.pricing.find(p => p.promoNote)?.promoNote}
+-            </p>
++      <div className="p-5">
++        {/* Pricing grid */}
++        <div className="rounded-xl border border-t-light-gray overflow-hidden mb-3">
++          <div className="grid grid-cols-3 text-[9px] font-black uppercase tracking-wider text-t-muted bg-t-light-gray/30 px-3 py-1.5">
++            <span>Lines</span>
++            <span className="text-right">Total</span>
++            <span className="text-right">Per Line</span>
+           </div>
+-        )}
+-      </div>
++          {plan.pricing.map((p) => (
++            <div key={p.lines} className="grid grid-cols-3 text-[11px] px-3 py-2 border-t border-t-light-gray/50">
++              <span className="font-bold text-t-dark-gray">{p.lines} line{p.lines > 1 ? 's' : ''}</span>
++              <span className="text-right font-bold text-t-dark-gray">${p.monthlyTotal}/mo</span>
++              <span className="text-right font-black text-t-magenta">${p.perLine.toFixed(2)}/line</span>
++            </div>
++          ))}
++          {plan.pricing.some(p => p.promoNote) && (
++            <div className="px-3 py-1.5 bg-success-surface border-t border-success-border">
++              <p className="text-[9px] font-bold text-success-foreground">
++                {plan.pricing.find(p => p.promoNote)?.promoNote}
++              </p>
++            </div>
++          )}
++        </div>
+ 
+-      {/* Rep insight */}
+-      <div className="bg-t-magenta/5 rounded-xl px-3 py-2.5 border border-t-magenta/10 mb-3">
+-        <p className="text-[9px] font-black uppercase tracking-wider text-t-magenta mb-1">Rep Insight</p>
+-        <p className="text-[11px] font-medium leading-snug" style={{ color: 'var(--text-pitch, #C70066)' }}>{tier.repInsight}</p>
+-      </div>
++        {/* Rep insight */}
++        <div className="bg-t-magenta/5 rounded-xl px-3 py-2.5 border border-t-magenta/10 mb-3">
++          <p className="text-[9px] font-black uppercase tracking-wider text-t-magenta mb-1">Rep Insight</p>
++          <p className="text-[11px] font-medium leading-snug" style={{ color: 'var(--text-pitch, #C70066)' }}>{tier.repInsight}</p>
++        </div>
+ 
+-      {/* Expandable features */}
+-      <button
+-        type="button"
+-        onClick={() => setExpanded(!expanded)}
+-        className="focus-ring w-full flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-t-muted hover:text-t-dark-gray transition-colors"
+-      >
+-        <span>{expanded ? 'Hide features' : `View all ${plan.features.length} features`}</span>
+-        <ChevronDown className={`w-3.5 h-3.5 transition-transform ${expanded ? 'rotate-180' : ''}`} />
+-      </button>
++        {/* Expandable features */}
++        <button
++          type="button"
++          onClick={() => setExpanded(!expanded)}
++          className="focus-ring w-full flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-t-muted hover:text-t-dark-gray transition-colors"
++        >
++          <span>{expanded ? 'Hide features' : `View all ${plan.features.length} features`}</span>
++          <ChevronDown className={`w-3.5 h-3.5 transition-transform ${expanded ? 'rotate-180' : ''}`} />
++        </button>
+ 
+-      <AnimatePresence>
+-        {expanded && (
+-          <motion.div
+-            initial={{ height: 0, opacity: 0 }}
+-            animate={{ height: 'auto', opacity: 1 }}
+-            exit={{ height: 0, opacity: 0 }}
+-            transition={{ duration: 0.2 }}
+-            className="overflow-hidden"
+-          >
+-            <div className="mt-3 space-y-1.5">
+-              {plan.features.map((f, i) => (
+-                <div key={i} className="flex items-start gap-2">
+-                  <ChevronRight className="w-3 h-3 text-t-magenta mt-0.5 shrink-0" />
+-                  <p className="text-[11px] text-t-dark-gray font-medium leading-snug">{f}</p>
+-                </div>
+-              ))}
+-              {plan.limitations && plan.limitations.length > 0 && (
+-                <>
+-                  <p className="text-[9px] font-black uppercase tracking-widest text-warning-foreground mt-3 mb-1">Limitations</p>
+-                  {plan.limitations.map((l, i) => (
+-                    <div key={i} className="flex items-start gap-2">
+-                      <span className="text-warning-accent font-black text-xs mt-0.5">!</span>
+-                      <p className="text-[11px] text-warning-foreground font-medium leading-snug">{l}</p>
+-                    </div>
+-                  ))}
+-                </>
+-              )}
+-              {plan.eligibility && plan.eligibility.length > 0 && (
+-                <>
+-                  <p className="text-[9px] font-black uppercase tracking-widest text-info-foreground mt-3 mb-1">Eligibility</p>
+-                  {plan.eligibility.map((e, i) => (
+-                    <div key={i} className="flex items-start gap-2">
+-                      <div className="w-1.5 h-1.5 rounded-full bg-info-accent mt-1.5 shrink-0" />
+-                      <p className="text-[11px] text-info-foreground font-medium leading-snug">{e}</p>
+-                    </div>
+-                  ))}
+-                </>
+-              )}
+-            </div>
+-          </motion.div>
+-        )}
+-      </AnimatePresence>
++        <AnimatePresence>
++          {expanded && (
++            <motion.div
++              initial={{ height: 0, opacity: 0 }}
++              animate={{ height: 'auto', opacity: 1 }}
++              exit={{ height: 0, opacity: 0 }}
++              transition={{ duration: 0.2 }}
++              className="overflow-hidden"
++            >
++              <div className="mt-3 space-y-1.5">
++                {plan.features.map((f, i) => (
++                  <div key={i} className="flex items-start gap-2">
++                    <ChevronRight className="w-3 h-3 text-t-magenta mt-0.5 shrink-0" />
++                    <p className="text-[11px] text-t-dark-gray font-medium leading-snug">{f}</p>
++                  </div>
++                ))}
++                {plan.limitations && plan.limitations.length > 0 && (
++                  <>
++                    <p className="text-[9px] font-black uppercase tracking-widest text-warning-foreground mt-3 mb-1">Limitations</p>
++                    {plan.limitations.map((l, i) => (
++                      <div key={i} className="flex items-start gap-2">
++                        <span className="text-warning-accent font-black text-xs mt-0.5">!</span>
++                        <p className="text-[11px] text-warning-foreground font-medium leading-snug">{l}</p>
++                      </div>
++                    ))}
++                  </>
++                )}
++                {plan.eligibility && plan.eligibility.length > 0 && (
++                  <>
++                    <p className="text-[9px] font-black uppercase tracking-widest text-info-foreground mt-3 mb-1">Eligibility</p>
++                    {plan.eligibility.map((e, i) => (
++                      <div key={i} className="flex items-start gap-2">
++                        <div className="w-1.5 h-1.5 rounded-full bg-info-accent mt-1.5 shrink-0" />
++                        <p className="text-[11px] text-info-foreground font-medium leading-snug">{e}</p>
++                      </div>
++                    ))}
++                  </>
++                )}
++              </div>
++            </motion.div>
++          )}
++        </AnimatePresence>
++      </div>
+     </div>
+   );
+ }
+diff --git a/src/constants/bingoBoard.ts b/src/constants/bingoBoard.ts
+index f0a1d7a..cfcd8c3 100644
+--- a/src/constants/bingoBoard.ts
++++ b/src/constants/bingoBoard.ts
+@@ -13,6 +13,7 @@ export interface BingoBoardDefinition {
+   id: string;
+   name: string;
+   subtitle: string;
++  miniLesson: string;
+   cells: BingoCell[];
+ }
+ 
+@@ -50,7 +51,7 @@ const SALES_FUNDAMENTALS_CELLS: BingoCell[] = [
+   makeCell('sf-ask-sale', 'Ask Sale', 'skill', 'Made a direct close attempt.', 'Count it when you clearly ask for the order.', 'Example: "Want me to lock that in for you today?"'),
+   makeCell('sf-recap', 'Recap Next', 'skill', 'Recapped the next steps before ending the call.', 'Count it when the customer leaves knowing exactly what happens next.', 'Example: you confirm shipping, order timing, and any follow-up steps.'),
+   makeCell('sf-tradein', 'Trade-In', 'sales', 'Brought trade-in value into the conversation.', 'Count it when the trade-in meaningfully helps the close.', 'Example: you use the old phone value to soften a premium-device payment.'),
+-  makeCell('sf-autopay', 'AutoPay', 'sales', 'Included AutoPay in the value story.', 'Count it when AutoPay helps clarify the final monthly price.', 'Example: you explain the price with AutoPay already baked in.'),
++  makeCell('sf-govt-paid', 'Govt to Paid', 'sales', 'Converted a Govt/Lifeline account to a standard paid line.', 'Count it when you successfully transition a customer from a subsidized plan to a standard paid line.', 'Example: you show the value of unlimited data and device promos on a paid plan.'),
+   makeCell('sf-name', 'Mirror Words', 'vibe', "Used the customer's own words back to them.", 'Count it when you repeat a phrase the customer said to show you were listening.', 'Example: they say "I just need something reliable" and you say "Let me find you the most reliable setup."'),
+   makeCell('sf-reset-objection', 'Reset Calm', 'skill', 'Stayed calm and reset after pushback.', 'Count it when you slow the call down instead of sounding defensive.', 'Example: you acknowledge the concern, then guide the customer back to one clear option.'),
+   makeCell('sf-upgrade-path', 'Upgrade Path', 'sales', 'Mapped the cleanest upgrade path.', 'Count it when you explain the best route without overcomplicating the account.', 'Example: you show whether upgrade, add-a-line, or switcher math lands best.'),
+@@ -77,10 +78,10 @@ const PRODUCT_PRO_CELLS: BingoCell[] = [
+   makeCell('pp-samsung-eco', 'Samsung Eco', 'skill', 'Told a clean Samsung ecosystem story.', 'Count it when Galaxy devices feel built to work together.', 'Example: phone, watch, and Buds become one simple productivity pitch.'),
+   makeCell('pp-pixel-eco', 'Pixel Eco', 'skill', 'Used Pixel + Google services as a story.', 'Count it when Pixel lands because the Google workflow fits them.', 'Example: photos, Gemini, and smart-home tie-ins make the pitch stronger.'),
+   makeCell('pp-syncup-tracker', 'Tracker', 'sales', 'Recommended SyncUP Tracker naturally.', 'Count it when tracker feels useful instead of random.', 'Example: pets, luggage, or a kid backpack makes the $5 line make sense.'),
+-  makeCell('pp-syncup-drive', 'DRIVE', 'sales', 'Recommended SyncUP DRIVE with a real need.', 'Count it when connected-car value is part of the story.', 'Example: a parent wants in-car Wi-Fi and location visibility.'),
++  makeCell('pp-full-house', 'Full House', 'sales', 'Sold a "Full House" (Phone + Watch + SyncUP/Tablet on one call).', 'Count it when you attach multiple connected devices to a single phone sale.', 'Example: you close a new iPhone, an Apple Watch, and a SyncUP Tracker in one basket.'),
+   makeCell('pp-hotspot-use', 'Hotspot', 'skill', 'Used hotspot needs in the plan conversation.', 'Count it when hotspot demand clearly shapes the recommendation.', 'Example: travel or remote work points the customer to a stronger plan tier.'),
+   makeCell('pp-kids-watch', 'Kids Watch', 'sales', 'Positioned a kids watch well.', 'Count it when the parent clearly sees the watch-line value.', 'Example: GPS and messaging land for a family that is not ready for a phone.'),
+-  makeCell('pp-mesh-value', 'Mesh Value', 'skill', 'Used mesh/extender value in the HINT story.', 'Count it when better in-home coverage helps the pitch.', 'Example: the customer worries about dead zones and you position the extender.'),
++  makeCell('pp-blindside-hint', 'Blindside HINT', 'sales', 'Pitched and closed Home Internet on a call that had nothing to do with internet.', 'Count it when you successfully pivot a completely unrelated call into a HINT sale.', 'Example: a customer calls about a billing issue, and you close them on Home Internet.'),
+   makeCell('pp-audio-upgrade', 'Audio Fit', 'sales', 'Matched the right audio add-on to the customer.', 'Count it when premium audio solves a real routine.', 'Example: commute, workouts, or work calls point to the right earbuds.'),
+   makeCell('pp-charge-mount', 'Mount/Charge', 'sales', 'Used charging or mounting as the friction fixer.', 'Count it when convenience gear becomes the easy yes.', 'Example: you solve a dead-battery problem with charger + cable.'),
+   makeCell('pp-case-glass', 'Case + Glass', 'sales', 'Explained why setup protection matters on day one.', 'Count it when the caller sees case and glass as essential, not optional.', 'Example: a new phone order leaves with both protection basics.'),
+@@ -112,8 +113,8 @@ const CLOSERS_CLUB_CELLS: BingoCell[] = [
+   makeCell('cc-three-objections', 'Beat Three', 'skill', 'Worked through three objections on one call.', 'Count it when you overcome repeated pushback without losing the tone.', 'Example: price, timing, and trust all show up, and you still land the order.'),
+   makeCell('cc-competitor-reframe', 'Competitor Flip', 'skill', 'Reframed a competitor claim well.', 'Count it when you answer a competitor pitch with calm, relevant value.', 'Example: you answer an AT&T or Verizon claim with savings plus better fit.'),
+   makeCell('cc-contract-fear', 'No Contract', 'skill', 'Handled fear about lock-in or commitment.', 'Count it when you remove risk in a believable way.', 'Example: you use the test drive or flexibility story to calm the customer.'),
+-  makeCell('cc-savings-story', 'Savings Story', 'sales', 'Made the savings story feel real.', 'Count it when the caller can repeat the monthly or yearly value back to you.', 'Example: you stack plan, rebate, and internet savings into one clean story.'),
+-  makeCell('cc-next-question', 'Next Q', 'skill', 'Used one more question to reopen the close.', 'Count it when a single extra question uncovers the real blocker.', 'Example: "What still feels off about this option?" reopens the call.'),
++  makeCell('cc-competitor-flip', 'Comp Flip', 'skill', 'Customer explicitly said they were leaving Verizon/AT&T because of your pitch.', 'Count it when your pitch directly causes a switcher to commit.', 'Example: "I was going to stay with Verizon, but you made this so easy."'),
++  makeCell('cc-save-cancel', 'Save Cancel', 'sales', 'Saved a cancellation by pivoting to a lower tier or connected device.', 'Count it when you retain a line that was about to cancel by finding a better fit.', 'Example: instead of canceling a tablet line, you pivot them to a $5 watch line.'),
+   makeCell('cc-finish-strong', 'Recap & Next', 'vibe', 'Ended by restating exactly what happens next in one sentence.', 'Count it when the customer can repeat back the next step without asking.', 'Example: "Your Galaxy S25 ships tomorrow, you will get a tracking text, and your first bill with the new plan hits in 30 days."'),
+ ];
+ 
+@@ -122,18 +123,21 @@ export const BINGO_BOARDS: BingoBoardDefinition[] = [
+     id: 'sales-fundamentals',
+     name: 'Sales Fundamentals',
+     subtitle: 'Win the clean, repeatable habits that make live calls feel easy.',
++    miniLesson: 'Stop leaving money on the table. Control the call from "hello", dig into their real pain points, and quote the full stack. This board is about owning the interaction, not just taking orders.',
+     cells: SALES_FUNDAMENTALS_CELLS,
+   },
+   {
+     id: 'product-pro',
+     name: 'Product Pro',
+     subtitle: 'Sharpen the stories that make devices, perks, and Home Internet feel obvious.',
++    miniLesson: 'Don\'t just sell a phone—sell the whole ecosystem. Listen for the lifestyle drop (kids, travel, gym) and attach the gear that makes sense. Turn a single upgrade into a massive basket.',
+     cells: PRODUCT_PRO_CELLS,
+   },
+   {
+     id: 'closers-club',
+     name: "Closer's Club",
+     subtitle: 'Practice the pivots, pressure-handling, and closes that move the room.',
++    miniLesson: "Time to get paid. When they push back, you pivot. Hold the silence, assume the sale, and turn 'I need to think about it' into 'Let's do it.' This board is for the heavy hitters.",
+     cells: CLOSERS_CLUB_CELLS,
+   },
+ ];
+diff --git a/src/constants/quizQuestions.ts b/src/constants/quizQuestions.ts
+index 427d4da..1195bbe 100644
+--- a/src/constants/quizQuestions.ts
++++ b/src/constants/quizQuestions.ts
+@@ -241,6 +241,202 @@ const TMOBILE_QUESTIONS: QuizQuestion[] = [
+     correctIndex: 1,
+     explanation: 'Specificity wins. "Our mid-band 5G covers more geography than Verizon\'s spotty mmWave" is provable and credible. Vague claims get dismissed.',
+   },
++  // --- NEW: T-Mobile plans ---
++  {
++    id: 'tq-9', category: 'tmobile', difficulty: 2,
++    question: 'What is the key benefit of the Go5G Next plan for customers who love new phones?',
++    options: ['It includes free international calls', 'Annual phone upgrade eligibility every 12 months', 'It\'s the cheapest unlimited plan', 'Free device insurance on all lines'],
++    correctIndex: 1,
++    explanation: 'Go5G Next lets eligible customers upgrade to the latest phone every 12 months. Lead with this for customers who always want the newest device.',
++  },
++  {
++    id: 'tq-10', category: 'tmobile', difficulty: 2,
++    question: 'A customer asks what\'s different between Go5G Plus and Go5G Next. The single biggest difference is:',
++    options: ['Next is cheaper', 'Next includes annual upgrade eligibility; Plus does not', 'Plus has more hotspot data', 'They are the same plan'],
++    correctIndex: 1,
++    explanation: 'The upgrade cycle is the headline differentiator. If the customer loves getting new phones, Next pays for itself versus buying out a device separately.',
++  },
++  {
++    id: 'tq-11', category: 'tmobile', difficulty: 1,
++    question: 'How much does AutoPay save per line per month on most T-Mobile plans?',
++    options: ['$3/line', '$5/line', '$7/line', '$10/line'],
++    correctIndex: 1,
++    explanation: '$5/line/month with AutoPay + eligible payment method. Always quote the post-AutoPay price — that\'s the real monthly cost.',
++  },
++  {
++    id: 'tq-12', category: 'tmobile', difficulty: 1,
++    question: 'T-Mobile\'s Essentials plan is best positioned for a customer who:',
++    options: ['Travels internationally often', 'Wants streaming perks and hotspot', 'Needs affordable unlimited talk, text, and data with no frills', 'Wants the fastest possible speeds'],
++    correctIndex: 2,
++    explanation: 'Essentials is the entry-level unlimited offer. Great for budget-conscious customers who just need the basics — no need to oversell premium tiers here.',
++  },
++  {
++    id: 'tq-13', category: 'tmobile', difficulty: 3,
++    question: 'A customer on Essentials complains their video is blurry. What\'s the real reason and fix?',
++    options: ['Their phone is broken', 'Essentials streams video at SD (480p); upgrading to Experience More or Beyond enables HD/4K', 'It\'s a network outage', 'Their data ran out'],
++    correctIndex: 1,
++    explanation: 'Essentials caps video at 480p. When video quality matters — Netflix, YouTube, gaming streams — Experience More or Beyond\'s HD/4K streaming is the upgrade story.',
++  },
++  {
++    id: 'tq-14', category: 'tmobile', difficulty: 2,
++    question: 'T-Mobile\'s international data roaming benefit on Go5G plans covers:',
++    options: ['Only Mexico and Canada', 'Voice and text only in 215+ countries; data at 2G speeds', 'Full LTE speeds in 215+ countries at no extra charge', 'No international coverage at all'],
++    correctIndex: 2,
++    explanation: 'Go5G plans include unlimited full-speed data in 215+ countries. This is a huge differentiator against carriers who charge $10/day roaming. Lead with it for travelers.',
++  },
++  {
++    id: 'tq-15', category: 'tmobile', difficulty: 2,
++    question: 'The premium hotspot included in Go5G Beyond is:',
++    options: ['5GB', '15GB', '50GB', '100GB'],
++    correctIndex: 3,
++    explanation: '100GB of premium hotspot data comes with Go5G Beyond — enough for a remote worker\'s laptop. This feature alone can justify the plan upgrade.',
++  },
++  // --- NEW: T-Mobile devices ---
++  {
++    id: 'tq-16', category: 'tmobile', difficulty: 1,
++    question: 'What is the marquee camera feature that differentiates iPhone Pro models from standard iPhone?',
++    options: ['A bigger battery', 'A Pro camera system with larger sensors, 5x telephoto, and ProRAW support', 'A faster chip', 'A ceramic back'],
++    correctIndex: 1,
++    explanation: 'The Pro camera system is the headline iPhone upgrade. When a photo-focused customer hesitates on price, show them the 5x zoom and computational photography — let the camera close the deal.',
++  },
++  {
++    id: 'tq-17', category: 'tmobile', difficulty: 2,
++    question: 'What makes the Samsung Galaxy S25 Ultra stand out among Android flagships?',
++    options: ['It\'s the most affordable Galaxy', 'Built-in S Pen, Galaxy AI features, and a 200MP main camera', 'It\'s waterproof up to 100 meters', 'It uses a custom Google chip'],
++    correctIndex: 1,
++    explanation: 'S Pen + 200MP + Galaxy AI makes the Ultra uniquely productive. Pitch it to creatives and power users who want a phone that doubles as a note-taking and editing studio.',
++  },
++  {
++    id: 'tq-18', category: 'tmobile', difficulty: 2,
++    question: 'A customer is interested in a foldable phone. Which Samsung model folds in half like a compact mirror?',
++    options: ['Galaxy Z Fold', 'Galaxy Z Flip', 'Galaxy S25 Edge', 'Galaxy Tab Fold'],
++    correctIndex: 1,
++    explanation: 'Galaxy Z Flip folds vertically — compact and stylish. Galaxy Z Fold opens to a tablet-sized display. Match the form factor to what they value: pocketability (Flip) vs productivity (Fold).',
++  },
++  {
++    id: 'tq-19', category: 'tmobile', difficulty: 1,
++    question: 'Google Pixel\'s biggest sales differentiator over other Android phones is:',
++    options: ['The fastest processor', 'Pure Android experience + best-in-class computational photography', 'Comes with a free accessory', 'Foldable screen'],
++    correctIndex: 1,
++    explanation: 'Pixel owns the camera story in the Android world. Fast updates, natural colors, and features like Magic Eraser make it the go-to for customers leaving iPhone who love taking photos.',
++  },
++  {
++    id: 'tq-20', category: 'tmobile', difficulty: 2,
++    question: 'Apple Watch\'s strongest selling point for a fitness-focused customer is:',
++    options: ['It can make calls without a phone nearby', 'Advanced health sensors: ECG, blood oxygen, crash detection, and fall detection', 'It runs Android apps', 'It has a 7-day battery'],
++    correctIndex: 1,
++    explanation: 'Health monitoring is the Apple Watch closer — ECG, blood oxygen, crash detection. Ask "do you exercise or have family who should wear one?" and the watch sells itself.',
++  },
++  {
++    id: 'tq-21', category: 'tmobile', difficulty: 1,
++    question: 'Samsung Galaxy Watch is positioned as the better choice for customers who own a:',
++    options: ['iPhone', 'Android phone (especially Samsung)', 'Laptop', 'Smart TV'],
++    correctIndex: 1,
++    explanation: 'Galaxy Watch integrates deeply with Android and especially Samsung devices — sleep tracking syncs with Samsung Health, calls work seamlessly. For Samsung owners, it\'s the natural pairing.',
++  },
++  {
++    id: 'tq-22', category: 'tmobile', difficulty: 2,
++    question: 'When a customer asks "Why should I buy a tablet vs. just using my phone?" the best answer is:',
++    options: ['You shouldn\'t — phones can do everything', 'Larger screen for video, reading, gaming, and video calls — plus a hotspot line adds family productivity without another full phone bill', 'Tablets are cheaper than phones', 'It works as a backup phone'],
++    correctIndex: 1,
++    explanation: 'Position tablets as the screen upgrade, not a phone replacement. Video streaming, remote learning, kid entertainment — a tablet on a $10-15/mo data line is easy math.',
++  },
++  // --- NEW: Objection handling ---
++  {
++    id: 'tq-23', category: 'tmobile', difficulty: 2,
++    question: 'A customer says "T-Mobile doesn\'t have good coverage in my area." The best response is:',
++    options: ['Agree and suggest they look at Verizon', 'Acknowledge the concern and offer the 15-day test drive — let them verify coverage where they live and work', 'Show them a national coverage map', 'Promise it has improved recently'],
++    correctIndex: 1,
++    explanation: 'Never argue coverage — prove it. The 15-day test drive removes all risk. "Try it where you actually live. If it doesn\'t work, you walk away free." That beats any map.',
++  },
++  {
++    id: 'tq-24', category: 'tmobile', difficulty: 2,
++    question: 'A customer says "I\'m not ready to pay $1,200 for a new phone." The best pivot is:',
++    options: ['Tell them to save up', 'Break it down to the monthly device payment and show how trade-in and promotions reduce it', 'Offer an older, cheaper model instead', 'Say the phone is worth it'],
++    correctIndex: 1,
++    explanation: 'Monthly math wins. "$50/mo with your trade-in and current promo" lands better than "$1,200 retail." Always anchor to what they\'ll actually pay, not MSRP.',
++  },
++  {
++    id: 'tq-25', category: 'tmobile', difficulty: 3,
++    question: 'A customer says "I don\'t want to be in a contract." The correct T-Mobile response is:',
++    options: ['We do have contracts, but they\'re flexible', 'T-Mobile has no annual service contracts — you\'re free to leave anytime; device payment plans are separate from service', 'You\'re right, let\'s look at prepaid instead', 'Contracts protect you from price increases'],
++    correctIndex: 1,
++    explanation: 'T-Mobile\'s service has no annual contract. Device payment plans aren\'t contracts — they\'re financing. Clarifying this removes one of the biggest switching fears.',
++  },
++  {
++    id: 'tq-26', category: 'tmobile', difficulty: 2,
++    question: 'A customer says "My bill keeps creeping up every year." Which T-Mobile commitment directly addresses this?',
++    options: ['Un-carrier promise', 'Price Lock guarantee', 'Network Guarantee', 'AutoPay discount'],
++    correctIndex: 1,
++    explanation: 'Price Lock is the direct answer. T-Mobile guarantees your rate-plan price won\'t increase — and if it does, they\'ll pay your last bill to leave. That\'s the only carrier promise of its kind.',
++  },
++  {
++    id: 'tq-27', category: 'tmobile', difficulty: 3,
++    question: 'A business customer says "We have 20 lines at AT&T and are worried about switching disruption." Your strongest angle is:',
++    options: ['Offer a 10% discount', 'Walk through T-Mobile\'s business switching support, number porting process, and dedicated business rep', 'Say it\'s easy and fast', 'Tell them to try a few lines first'],
++    correctIndex: 1,
++    explanation: '"Worried about disruption" means they need a process, not a price. Lead with T-Mobile for Business\'s dedicated support, porting guarantee, and step-by-step migration — then close on savings.',
++  },
++  // --- NEW: Network facts ---
++  {
++    id: 'tq-28', category: 'tmobile', difficulty: 1,
++    question: 'T-Mobile\'s 5G network is described as the largest in the US because it covers:',
++    options: ['The most downtown city blocks', 'More square miles of geography than any other US carrier', 'The most stadiums', 'Every building indoors'],
++    correctIndex: 1,
++    explanation: 'T-Mobile\'s mid-band 5G covers more land area than competitors. This is the geographic breadth argument — important for rural and suburban customers who feel left out of 5G.',
++  },
++  {
++    id: 'tq-29', category: 'tmobile', difficulty: 2,
++    question: 'Why does T-Mobile\'s mid-band 5G (2.5 GHz) outperform Verizon\'s mmWave in most real-world scenarios?',
++    options: ['Mid-band is faster in every scenario', 'Mid-band travels farther and penetrates buildings better; mmWave is fast but only works in dense, short-range spots', 'mmWave is illegal in most states', 'T-Mobile simply has more towers'],
++    correctIndex: 1,
++    explanation: 'mmWave tops out on speed but can\'t penetrate walls or travel more than a block. Mid-band balances speed + coverage. That\'s why T-Mobile\'s 5G works inside buildings and in suburbs.',
++  },
++  {
++    id: 'tq-30', category: 'tmobile', difficulty: 1,
++    question: 'T-Mobile\'s Extended Range 5G (600 MHz band) is especially valuable for:',
++    options: ['Downtown skyscrapers', 'Rural areas and large buildings where signals need to travel far', 'Gaming latency', 'International roaming'],
++    correctIndex: 1,
++    explanation: 'Low-band 600 MHz travels long distances and penetrates walls — perfect for rural coverage and large venues. When a rural customer doubts T-Mobile\'s signal, this is your answer.',
++  },
++];
++
++const PRODUCT_QUESTIONS_EXTENDED: QuizQuestion[] = [
++  {
++    id: 'pq-11', category: 'products', difficulty: 2,
++    question: 'Protection 360 includes which benefit that standard insurance plans don\'t cover?',
++    options: ['Next-day replacement', 'McAfee Security and AppleCare services on eligible devices', 'International device replacement', 'Free screen protector every year'],
++    correctIndex: 1,
++    explanation: 'P360 bundles device protection + McAfee Security + AppleCare services on eligible Apple devices. Frame it as all-in-one peace of mind, not just "insurance."',
++  },
++  {
++    id: 'pq-12', category: 'products', difficulty: 1,
++    question: 'T-Mobile Home Internet (HINT) is best described as:',
++    options: ['A Wi-Fi extender for existing broadband', 'A 4G/5G home gateway that replaces cable or DSL internet with no cable tech visits needed', 'Satellite internet', 'A mobile hotspot you carry with you'],
++    correctIndex: 1,
++    explanation: 'HINT delivers 4G/5G internet via a gateway plug-in device — no cable installation, no annual contracts. The plug-and-play setup is itself a selling point versus cable companies.',
++  },
++  {
++    id: 'pq-13', category: 'products', difficulty: 2,
++    question: 'When selling HINT to a customer switching from cable, the most powerful comparison point is:',
++    options: ['Speed (HINT is always faster)', 'No annual contracts, no rental fees, and often lower monthly cost', 'It uses the same cable wiring', 'HINT includes live TV'],
++    correctIndex: 1,
++    explanation: 'Cable wins on legacy speed claims, but HINT wins on price and flexibility. No $10/mo modem rental, no 2-year lock-in, and often $20-40/mo cheaper. Run that math live.',
++  },
++  {
++    id: 'pq-14', category: 'products', difficulty: 2,
++    question: 'A customer buying a new iPhone should be offered a MagSafe charger because:',
++    options: ['It\'s required for iOS updates', 'It snaps magnetically for fast, aligned wireless charging and works with the MagSafe accessory ecosystem', 'Lightning cables no longer work', 'It charges 5x faster than wired'],
++    correctIndex: 1,
++    explanation: 'MagSafe is an ecosystem play — once a customer has the charger, they want the wallet, the case, the car mount. It\'s a natural add-on that grows the basket.',
++  },
++  {
++    id: 'pq-15', category: 'products', difficulty: 1,
++    question: 'The best opening question when selling a wireless earbuds add-on is:',
++    options: ['"Do you want earbuds?"', '"What do you listen to — music, podcasts, calls?"', '"These are on sale today."', '"Do you have a budget?"'],
++    correctIndex: 1,
++    explanation: 'Anchor to use case. Music fans want audio quality, gym-goers want fit and sweat resistance, remote workers want mic clarity. One discovery question positions the right buds.',
++  },
+ ];
+ 
+ const COMPETITOR_QUESTIONS: QuizQuestion[] = [
+@@ -312,6 +508,7 @@ const COMPETITOR_QUESTIONS: QuizQuestion[] = [
+ export const ALL_QUIZ_QUESTIONS: QuizQuestion[] = [
+   ...SALES_QUESTIONS,
+   ...PRODUCT_QUESTIONS,
++  ...PRODUCT_QUESTIONS_EXTENDED,
+   ...TMOBILE_QUESTIONS,
+   ...COMPETITOR_QUESTIONS,
+ ];
+diff --git a/src/data/devices.ts b/src/data/devices.ts
+index 4d2bf13..1dc8d6c 100644
+--- a/src/data/devices.ts
++++ b/src/data/devices.ts
+@@ -1,16 +1,24 @@
++import { DEVICE_IMAGE_PATHS } from './deviceImagePaths';
++
+ export interface Device {
+   name: string;
+   category: 'iphone' | 'samsung' | 'pixel' | 'other' | 'tablet' | 'watch' | 'hotspot';
+   startingPrice: number | string;
+   released: string;
+   keySpecs: string;
++  imageUrl?: string;
+   /** Deeper selling points — ecosystem hooks, comparison data, use cases */
+   sellingNotes?: string;
+   // Note: promos are NOT stored here — they come exclusively from weekly-update.json
+   // to prevent stale promo data. Only specs, price, and release info stay here.
+ }
+ 
+-export const PHONES: Device[] = [
++function withDeviceImage(device: Device): Device {
++  const imageUrl = DEVICE_IMAGE_PATHS[device.name];
++  return imageUrl ? { ...device, imageUrl } : device;
++}
++
++export const PHONES: Device[] = ([
+   // iPhone lineup
+   {
+     name: 'iPhone 17 Pro Max',
+@@ -92,9 +100,9 @@ export const PHONES: Device[] = [
+   { name: 'Motorola moto g 2026', category: 'other', startingPrice: 189.99, released: '2026', keySpecs: 'Budget device, solid for first-time smartphone users or kids' },
+   { name: 'T-Mobile REVVL 8 Pro', category: 'other', startingPrice: 249.99, released: '2025', keySpecs: '6.7" display. T-Mobile own-brand. Solid budget option — great for B2G1 third line, backup phones, or price-sensitive customers' },
+   { name: 'T-Mobile REVVL 8', category: 'other', startingPrice: 199.99, released: '2025', keySpecs: 'T-Mobile own-brand. Lowest cost option — kids phones, basic line adds, or backup devices' },
+-];
++] satisfies Device[]).map(withDeviceImage);
+ 
+-export const TABLETS: Device[] = [
++export const TABLETS: Device[] = ([
+   { name: 'iPad (A16)', category: 'tablet', startingPrice: 499.99, released: '2024', keySpecs: '10.9", A16 chip, USB-C, 128GB. Solid entry iPad for media, school, and light productivity.' },
+   { name: 'iPad mini (A17 Pro)', category: 'tablet', startingPrice: 499, released: '2024', keySpecs: '8.3", A17 Pro chip. Most portable iPad — great for reading, notes, and on-the-go productivity.' },
+   { name: 'iPad Air 11" (M4)', category: 'tablet', startingPrice: 599, released: 'March 2026', keySpecs: '11", M4 chip, Apple Pencil Pro support. Best balance of power and price.' },
+@@ -104,9 +112,9 @@ export const TABLETS: Device[] = [
+   { name: 'Samsung Galaxy Tab S10+ 5G', category: 'tablet', startingPrice: 999.99, released: '2025', keySpecs: '5G, Samsung DeX desktop mode multitasking. Pairs with Galaxy ecosystem.' },
+   { name: 'Samsung Galaxy Tab S10 FE 5G', category: 'tablet', startingPrice: 599.99, released: '2025', keySpecs: '5G tablet with S Pen included. Samsung DeX desktop mode. Pairs with Galaxy ecosystem.' },
+   { name: 'Samsung Galaxy Tab A11+ 5G', category: 'tablet', startingPrice: 289.99, released: '2026', keySpecs: 'Budget 5G tablet. Great for kids in the car, streaming, or as a second screen. FREE with S26 purchase + tablet line.' },
+-];
++] satisfies Device[]).map(withDeviceImage);
+ 
+-export const WATCHES: Device[] = [
++export const WATCHES: Device[] = ([
+   {
+     name: 'Apple Watch Series 11',
+     category: 'watch',
+@@ -186,14 +194,14 @@ export const WATCHES: Device[] = [
+     keySpecs: 'Real-time GPS, dual cameras, Bluetooth, LED flashlight. For kids who aren\'t ready for a phone.',
+     sellingNotes: 'Parents can track location in real time, set geofences, and kids can call/text approved contacts. Dual cameras let kids share photos. LED flashlight is a fun bonus. $174 + wearable line.',
+   },
+-];
++] satisfies Device[]).map(withDeviceImage);
+ 
+-export const HOTSPOTS: Device[] = [
++export const HOTSPOTS: Device[] = ([
+   { name: 'TCL LINKPORT IK511', category: 'hotspot', startingPrice: 96, released: 'Oct 2025', keySpecs: '5G RedCap, max 220Mbps down / 120Mbps up, OpenWrt OS, 256MB RAM, 1.01 oz, USB-C. Connects a single device (no Wi-Fi sharing). Bus-powered.' },
+   { name: 'Franklin T10', category: 'hotspot', startingPrice: 'Available', released: '2025', keySpecs: '4G LTE, Wi-Fi 5, connects up to 15 devices simultaneously. Traditional mobile hotspot.' },
+   { name: 'SyncUP DRIVE', category: 'hotspot', startingPrice: 108, released: '2025', keySpecs: 'OBD-II plug-in. Vehicle health diagnostics, 5G Wi-Fi hotspot (up to 5 devices), real-time GPS, trip history, speed/boundary alerts for teen drivers. FREE w/ 24 bill credits.' },
+   { name: 'SyncUP TRACKER 2', category: 'hotspot', startingPrice: 54, released: '2025', keySpecs: 'LTE/GPS tracking, IP67 weather-resistant, 890 mAh battery (up to 7 days). Real-time location via cellular — works anywhere, not just near phones like AirTag. FREE w/ 24 bill credits.' },
+-];
++] satisfies Device[]).map(withDeviceImage);
+ 
+ /** SyncUP tracker comparison data from Google NotebookLM research */
+ export const TRACKER_COMPARISON = [
+diff --git a/src/data/essentialAccessories.ts b/src/data/essentialAccessories.ts
+index 26370d6..f3a827b 100644
+--- a/src/data/essentialAccessories.ts
++++ b/src/data/essentialAccessories.ts
+@@ -5,6 +5,7 @@ export interface EssentialItem {
+   price: string;
+   bundle: string | null;
+   originalPrice?: string;
++  imageUrl?: string;
+   /** What makes this product good — specs, differentiators, review highlights */
+   why: string;
+   /** One-liner the rep can say out loud to the customer */
+@@ -27,6 +28,7 @@ export interface BigAddItem {
+   name: string;
+   price: string;
+   note: string;
++  imageUrl?: string;
+   /** What makes this product worth the price — specs, differentiators, standout features */
+   why: string;
+   /** One-liner the rep can say to pitch it */
+diff --git a/src/data/index.ts b/src/data/index.ts
+index 0be9b2b..12fb0be 100644
+--- a/src/data/index.ts
++++ b/src/data/index.ts
+@@ -15,6 +15,7 @@ import {
+   CPNI_REMINDERS,
+   SERVICE_TO_SALES,
+   BTS_IOT_VALUE_PROPS,
++  ONE_LINERS,
+ } from './salesMethodology';
+ import { getVocabulary } from '../services/vocabularyService';
+ 
+@@ -66,6 +67,11 @@ export function getTemplateScript(context: SalesContext): Partial<SalesScript> {
+   const primaryProduct = context.product[0] || 'No Specific Product';
+   const purchaseSteps = PURCHASE_STEPS[primaryProduct] || PURCHASE_STEPS['No Specific Product'];
+ 
++  // One-liners
++  const oneLiners = getVocabulary('oneLiners', context.purchaseIntent)
++    || ONE_LINERS[context.purchaseIntent]
++    || ONE_LINERS['exploring'];
++
+   // Coach's corner — support calls get service-to-sales tips
+   const rapportTips = RAPPORT_BY_AGE[context.age] || RAPPORT_BY_AGE['Not Specified'];
+   let coachsCorner = `Tone: ${rapportTips.tone} Good topics: ${rapportTips.topics.slice(0, 3).join(', ')}. Avoid: ${rapportTips.avoid[0]}.`;
+@@ -84,6 +90,7 @@ export function getTemplateScript(context: SalesContext): Partial<SalesScript> {
+     objectionHandling,
+     accessoryRecommendations: buildAccessoryRecommendations(context),
+     purchaseSteps,
++    oneLiners,
+     coachsCorner,
+     smallTalk: [], // AI will fill this
+     nearbyStores: [], // AI will fill this
+diff --git a/src/data/objectionPlaybook.ts b/src/data/objectionPlaybook.ts
+index f5119b5..e4da0a7 100644
+--- a/src/data/objectionPlaybook.ts
++++ b/src/data/objectionPlaybook.ts
+@@ -186,7 +186,7 @@ export const OBJECTION_PLAYBOOK: ObjectionCategory[] = [
+     id: 'hint-unavailable',
+     label: 'Home Internet Not Available',
+     description: 'Customer wants 5G Home Internet but it\'s not available in their area or slots are full. The mailer disappointment pivot.',
+-    icon: 'WifiOff',
++    icon: 'Wifi',
+     scenarios: [
+       {
+         id: 'hint-mailer-disappointment',
+diff --git a/src/index.css b/src/index.css
+index 86d8891..7fec7a9 100644
+--- a/src/index.css
++++ b/src/index.css
+@@ -65,7 +65,7 @@ html[data-theme="light"],
+   --shadow-surface-hover: 0 14px 28px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(226, 0, 116, 0.08);
+ 
+   --glass-bg: rgba(255, 255, 255, 0.36);
+-  --glass-bg-strong: rgba(255, 255, 255, 0.54);
++  --glass-bg-strong: rgba(255, 255, 255, 0.38);
+   --glass-bg-tinted: rgba(226, 0, 116, 0.04);
+   --glass-border: rgba(200, 200, 200, 0.50);
+   --glass-border-subtle: rgba(200, 200, 200, 0.30);
+@@ -177,8 +177,8 @@ html[data-theme="dark"],
+   --shadow-surface: 0 6px 18px rgba(0, 0, 0, 0.25);
+   --shadow-surface-hover: 0 14px 28px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(226, 0, 116, 0.15);
+ 
+-  --glass-bg: rgba(32, 32, 32, 0.55);
+-  --glass-bg-strong: rgba(38, 38, 38, 0.65);
++  --glass-bg: rgba(255, 255, 255, 0.10);
++  --glass-bg-strong: rgba(255, 255, 255, 0.14);
+   --glass-bg-tinted: rgba(226, 0, 116, 0.08);
+   --glass-border: rgba(255, 255, 255, 0.12);
+   --glass-border-subtle: rgba(255, 255, 255, 0.07);
+@@ -187,8 +187,8 @@ html[data-theme="dark"],
+   --glass-shadow-strong: 0 8px 24px rgba(0, 0, 0, 0.35);
+   --glass-shadow-elevated: 0 12px 32px rgba(0, 0, 0, 0.35), 0 2px 6px rgba(0, 0, 0, 0.18);
+   --glass-specular-top: rgba(255, 255, 255, 0.12);
+-  --glass-blur: blur(24px) saturate(1.15);
+-  --glass-blur-strong: blur(28px) saturate(1.2);
++  --glass-blur: blur(24px);
++  --glass-blur-strong: blur(28px);
+ 
+   /* Category tints for bingo cells — boosted for dark */
+   --cat-sales-bg: rgba(226, 0, 116, 0.16);
+@@ -307,6 +307,8 @@ body {
+   font-family: "Poppins", ui-sans-serif, system-ui, sans-serif;
+   -webkit-font-smoothing: antialiased;
+   text-rendering: optimizeLegibility;
++  overflow-wrap: break-word;
++  word-break: break-word;
+ }
+ 
+ button,
+@@ -361,16 +363,16 @@ a,
+ 
+ @utility glass-header {
+   background: var(--bg-header);
+-  backdrop-filter: blur(24px) saturate(1.1);
+-  -webkit-backdrop-filter: blur(24px) saturate(1.1);
++  backdrop-filter: blur(24px);
++  -webkit-backdrop-filter: blur(24px);
+   border-bottom: 1px solid var(--glass-border);
+   box-shadow: 0 1px 0 var(--glass-specular-top);
+ }
+ 
+ @utility glass-header-gradient {
+   background: var(--bg-header);
+-  backdrop-filter: blur(24px) saturate(1.1);
+-  -webkit-backdrop-filter: blur(24px) saturate(1.1);
++  backdrop-filter: blur(24px);
++  -webkit-backdrop-filter: blur(24px);
+   border-bottom: 1px solid var(--glass-border);
+   box-shadow: 0 1px 0 var(--glass-specular-top);
+ }
+@@ -406,6 +408,15 @@ a,
+   }
+ }
+ 
++@utility perspective-1000 {
++  perspective: 1000px;
++}
++
++@utility backface-hidden {
++  backface-visibility: hidden;
++  -webkit-backface-visibility: hidden;
++}
++
+ @utility subtle-panel {
+   background-color: color-mix(in srgb, var(--border-surface) 22%, transparent);
+   border-color: color-mix(in srgb, var(--border-surface) 72%, transparent);
+@@ -518,8 +529,8 @@ a,
+ 
+ /* Glass cell — for bingo cells and interactive tiles */
+ @utility glass-cell {
+-  backdrop-filter: blur(16px);
+-  -webkit-backdrop-filter: blur(16px);
++  backdrop-filter: blur(20px);
++  -webkit-backdrop-filter: blur(20px);
+   border: 1.5px solid var(--glass-border);
+   box-shadow:
+     0 2px 8px rgba(0, 0, 0, 0.04),
+diff --git a/src/services/teamConfigService.ts b/src/services/teamConfigService.ts
+index 0f4df00..9d8db04 100644
+--- a/src/services/teamConfigService.ts
++++ b/src/services/teamConfigService.ts
+@@ -1,16 +1,15 @@
+ /**
+  * Team Configuration Service
+  *
+- * Allows teams to customize:
+- * - Team name and mascot/avatar
+- * - Weekly focus areas
+- * - Custom goal text
+- *
+- * Data stored in localStorage. Can be imported/exported as JSON.
+- * No server dependency — designed for the pilot.
++ * Teams customize name, mascot, weekly focus, and goal text.
++ * Stored in localStorage; shared between devices via "Arcade Token"
++ * (copy-pasteable Base64 string — zero filesystem friction on mobile).
+  */
+ 
+ const TEAM_CONFIG_KEY = 'team-config-v1';
++export const TEAM_TOKEN_PREFIX = 'ARC1-';
++const TOKEN_SCHEMA_VERSION = 1;
++const MAX_TEAM_NAME_LENGTH = 40;
+ 
+ export const MASCOT_OPTIONS = [
+   { id: 'rocket', emoji: '\u{1F680}', label: 'Rocket' },
+@@ -73,35 +72,152 @@ export function getTeamConfig(): TeamConfig {
+   }
+ }
+ 
++type TeamConfigListener = (config: TeamConfig) => void;
++const listeners = new Set<TeamConfigListener>();
++
++function notifyListeners(config: TeamConfig): void {
++  listeners.forEach((fn) => {
++    try {
++      fn(config);
++    } catch {
++      // Listeners should not break the save flow.
++    }
++  });
++}
++
+ export function saveTeamConfig(config: TeamConfig): void {
+   try {
+     config.updatedAt = new Date().toISOString();
+     localStorage.setItem(TEAM_CONFIG_KEY, JSON.stringify(config));
++    notifyListeners(config);
+   } catch {
+     // Silently fail
+   }
+ }
+ 
++export function subscribeTeamConfig(fn: TeamConfigListener): () => void {
++  listeners.add(fn);
++  const onStorage = (event: StorageEvent) => {
++    if (event.key === TEAM_CONFIG_KEY) {
++      try {
++        fn(getTeamConfig());
++      } catch {
++        // Ignore
++      }
++    }
++  };
++  if (typeof window !== 'undefined') {
++    window.addEventListener('storage', onStorage);
++  }
++  return () => {
++    listeners.delete(fn);
++    if (typeof window !== 'undefined') {
++      window.removeEventListener('storage', onStorage);
++    }
++  };
++}
++
+ export function getMascotEmoji(mascotId: MascotId): string {
+   return MASCOT_OPTIONS.find((m) => m.id === mascotId)?.emoji ?? '\u{1F680}';
+ }
+ 
+-export function exportTeamConfigJSON(): string {
+-  return JSON.stringify(getTeamConfig(), null, 2);
++// ─────────────────────────────────────────────────────────────────────────────
++// Arcade Token — copy-pasteable team sync
++// ─────────────────────────────────────────────────────────────────────────────
++
++interface TokenPayload {
++  v: number;
++  n: string;   // teamName
++  m: string;   // mascotId
++  l: string | null; // customLogoUrl
++  f: string;   // weeklyFocus
++  g: string;   // goalText
++  mg: string;  // managerName
++}
++
++function toBase64Url(input: string): string {
++  // UTF-8 safe: encodeURIComponent → unescape → btoa
++  const utf8 = unescape(encodeURIComponent(input));
++  const b64 = btoa(utf8);
++  return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
++}
++
++function fromBase64Url(input: string): string {
++  const padded = input
++    .replace(/-/g, '+')
++    .replace(/_/g, '/');
++  const padLen = (4 - (padded.length % 4)) % 4;
++  const b64 = padded + '='.repeat(padLen);
++  const binary = atob(b64);
++  return decodeURIComponent(escape(binary));
++}
++
++export function encodeArcadeToken(config: TeamConfig): string {
++  const trimmedName = config.teamName.trim();
++  if (!trimmedName) {
++    throw new Error('Team name is required to generate an Arcade Token.');
++  }
++  if (trimmedName.length > MAX_TEAM_NAME_LENGTH) {
++    throw new Error(`Team name must be ${MAX_TEAM_NAME_LENGTH} characters or fewer.`);
++  }
++  const payload: TokenPayload = {
++    v: TOKEN_SCHEMA_VERSION,
++    n: trimmedName,
++    m: config.mascotId,
++    l: config.customLogoUrl,
++    f: config.weeklyFocus,
++    g: config.goalText,
++    mg: config.managerName,
++  };
++  return `${TEAM_TOKEN_PREFIX}${toBase64Url(JSON.stringify(payload))}`;
+ }
+ 
+-export function importTeamConfigJSON(json: string): TeamConfig | null {
++export type DecodeArcadeTokenResult =
++  | { ok: true; config: TeamConfig }
++  | { ok: false; error: 'format' | 'version' | 'payload' | 'name' };
++
++export function decodeArcadeToken(token: string): DecodeArcadeTokenResult {
++  const trimmed = token.trim();
++  if (!trimmed) return { ok: false, error: 'format' };
++
++  const body = trimmed.startsWith(TEAM_TOKEN_PREFIX)
++    ? trimmed.slice(TEAM_TOKEN_PREFIX.length)
++    : trimmed;
++
++  let decoded: string;
+   try {
+-    const parsed = JSON.parse(json) as Partial<TeamConfig>;
+-    if (!parsed.teamName) return null;
+-    const config: TeamConfig = {
+-      ...defaultTeamConfig(),
+-      ...parsed,
+-      updatedAt: new Date().toISOString(),
+-    };
+-    saveTeamConfig(config);
+-    return config;
++    decoded = fromBase64Url(body);
++  } catch {
++    return { ok: false, error: 'format' };
++  }
++
++  let parsed: Partial<TokenPayload>;
++  try {
++    parsed = JSON.parse(decoded) as Partial<TokenPayload>;
+   } catch {
+-    return null;
++    return { ok: false, error: 'payload' };
++  }
++
++  if (typeof parsed.v !== 'number' || parsed.v !== TOKEN_SCHEMA_VERSION) {
++    return { ok: false, error: 'version' };
+   }
++  if (!parsed.n || typeof parsed.n !== 'string' || !parsed.n.trim()) {
++    return { ok: false, error: 'name' };
++  }
++
++  const base = defaultTeamConfig();
++  const mascotId = MASCOT_OPTIONS.find((m) => m.id === parsed.m)?.id ?? base.mascotId;
++
++  const config: TeamConfig = {
++    ...base,
++    teamName: parsed.n.trim(),
++    mascotId,
++    customLogoUrl: typeof parsed.l === 'string' ? parsed.l : null,
++    weeklyFocus: typeof parsed.f === 'string' ? parsed.f : base.weeklyFocus,
++    goalText: typeof parsed.g === 'string' ? parsed.g : base.goalText,
++    managerName: typeof parsed.mg === 'string' ? parsed.mg : base.managerName,
++    updatedAt: new Date().toISOString(),
++  };
++
++  return { ok: true, config };
+ }
+diff --git a/src/types.ts b/src/types.ts
+index 693b327..4fdd204 100644
+--- a/src/types.ts
++++ b/src/types.ts
+@@ -1,3 +1,5 @@
++import { OrderSupportType } from './components/OrderSupportSelector';
++
+ export interface SalesContext {
+   age: '18-24' | '25-34' | '35-54' | '55+' | 'Not Specified';
+   region: 'New England' | 'Mid-Atlantic' | 'South Atlantic' | 'Southeast' | 'Deep South' | 'Mid-South' | 'Great Lakes' | 'Upper Midwest' | 'Great Plains' | 'Texas & Oklahoma' | 'Desert Southwest' | 'Rocky Mountains' | 'Pacific Northwest' | 'California' | 'Alaska' | 'Hawaii' | 'Not Specified';
+@@ -5,7 +7,16 @@ export interface SalesContext {
+   zipCode?: string;
+   product: ('Phone' | 'Home Internet' | 'BTS' | 'IOT' | 'No Specific Product')[];
+   purchaseIntent: 'exploring' | 'ready to buy' | 'upgrade / add a line' | 'order support' | 'tech support' | 'account support';
++  orderSupportType?: OrderSupportType;
++  plan?: string;
+   currentCarrier?: 'AT&T' | 'Verizon' | 'Spectrum' | 'Xfinity' | 'US Cellular' | 'Prepaid (Mint, Boost, etc.)' | 'Other' | 'Not Specified';
++  totalLines?: number;
++  familyCount?: number;
++  currentPlatform?: 'iOS' | 'Android' | 'Other' | 'Not Specified';
++  currentDeviceBrand?: string;
++  desiredPlatform?: 'iOS' | 'Android' | 'Other' | 'Not Specified';
++  hintAvailable?: boolean;
++  hintQualified?: 'Yes' | 'No' | 'Wait';
+ }
+ 
+ export interface StoreInfo {
+@@ -47,6 +58,7 @@ export interface SalesScript {
+   }[];
+   accessoryRecommendations: AccessoryRecommendation[];
+   purchaseSteps: string[];
++  oneLiners: string[];
+   coachsCorner: string;
+   nearbyStores?: StoreInfo[];
+   groundingSources?: GroundingSource[];
+@@ -64,3 +76,145 @@ export interface ObjectionAnalysis {
+   complianceNotes: string;
+   groundingSources?: GroundingSource[];
+ }
++
++// ─────────────────────────────────────────────────────────────────────────────
++// OFFER ENGINE TYPES — context-aware, workflow-driven offer system
++// ─────────────────────────────────────────────────────────────────────────────
++
++export type OfferWorkflow =
++  | 'explore'
++  | 'ready'
++  | 'upgrade'
++  | 'order-support'
++  | 'tech-support'
++  | 'account-support';
++
++export type PivotReason =
++  | 'too_expensive'
++  | 'already_has_one'
++  | 'different_style'
++  | 'keep_it_simple'
++  | 'keep_setup_intact'
++  | 'show_secondary';
++
++export type OfferItemKind = 'accessory' | 'protection' | 'wearable' | 'tracker' | 'service';
++
++export type CustomerSignalTag =
++  | 'storm-ready'
++  | 'commuter'
++  | 'outdoorsy'
++  | 'gym'
++  | 'parent'
++  | 'kids-safe'
++  | 'older-adult'
++  | 'privacy-minded'
++  | 'travel'
++  | 'battery-anxiety'
++  | 'simplicity-first'
++  | 'budget-sensitive'
++  | 'premium-leaning'
++  | 'family-coordination';
++
++export interface CustomerSignal {
++  tag: CustomerSignalTag;
++  strength: number; // 0–1
++  source: string;
++}
++
++export interface CatalogItem {
++  id: string;
++  sku?: string;
++  name: string;
++  kind: OfferItemKind;
++  category: 'p360' | 'case' | 'screen' | 'charger' | 'battery' | 'mount' | 'audio' | 'watch' | 'kids-watch' | 'tracker' | 'plan' | 'other';
++  role: 'protection' | 'power' | 'privacy' | 'convenience' | 'fitness' | 'family-safety' | 'secondary' | 'service';
++  ecosystem: 'apple' | 'samsung' | 'pixel' | 'android' | 'all';
++  compatibleDevices?: string[];
++  compatibleBrands?: string[];
++  /** IDs of qualifying promo sets this item counts toward */
++  qualifyingSetIds: string[];
++  /** Items in the same group are swappable pivots */
++  replacementGroup: string;
++  price?: number;
++  priceLabel?: string;
++  salePriceLabel?: string;
++  imageKey?: string;
++  styleTags: string[];
++  lifestyleTags: string[];
++  signalTags: string[];
++  workflowWeights: Partial<Record<OfferWorkflow, number>>;
++  backupIds?: string[];
++  cheaperAltIds?: string[];
++  premiumAltIds?: string[];
++  pitch: string;
++  why: string;
++}
++
++export interface PromoRule {
++  id: string;
++  label: string;
++  channel: 'vr' | 'store' | 'web';
++  qualifyingSetId: string;
++  requiredQty: number;
++  discountPct: number;
++  subtleLabel: string;
++  hardPromoLabel?: string;
++  combinable?: boolean;
++}
++
++export interface OfferSlot {
++  id: string;
++  role: 'anchor' | 'essential-a' | 'essential-b' | 'secondary';
++  item: CatalogItem | null;
++  backups: Partial<Record<PivotReason, CatalogItem[]>>;
++}
++
++export interface OfferSet {
++  id: string;
++  workflow: OfferWorkflow;
++  headline: string;
++  subhead: string;
++  contextTags: string[];
++  slots: OfferSlot[];
++  serviceNudges?: Array<{
++    id: string;
++    title: string;
++    why: string;
++    talkTrack: string;
++  }>;
++  qualifyingStatus: {
++    activeRuleId?: string;
++    qualifiesNow: boolean;
++    subtleLabel: string;
++    nextBestItemIds?: string[];
++  };
++}
++
++export interface OfferCardModel {
++  id: string;
++  headline: string;
++  frontTitle: string;
++  frontItems: CatalogItem[];
++  frontPitch: string;
++  backTitle: string;
++  backItems: CatalogItem[];
++  backPitch: string;
++  contextTags: string[];
++  quickPivots: PivotReason[];
++  qualifiesLabel?: string;
++}
++
++export interface OfferSessionState {
++  rejectedItemIds: string[];
++  rejectedGroups: string[];
++  acceptedItemIds: string[];
++  pivotHistory: Array<{ cardId: string; reason: PivotReason }>;
++}
++
++export interface ServiceNudge {
++  id: string;
++  title: string;
++  why: string;
++  talkTrack: string;
++  signalTags: string[];
++}

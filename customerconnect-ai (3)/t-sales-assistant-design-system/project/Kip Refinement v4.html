@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Kip — Character at Center · v4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+  :root {
+    --bg: #0a0710;
+    --bg-1: #14081a;
+    --bg-2: #1d0a26;
+    --line: rgba(226, 0, 116, 0.2);
+    --line-strong: rgba(226, 0, 116, 0.45);
+    --text: #f7eef4;
+    --text-dim: #b29ba9;
+    --text-mute: #74627a;
+    --accent: #E20074;
+    --accent-2: #ff4fa8;
+    /* mood-driven */
+    --mood-accent: #E20074;
+    --mood-glow: 0 0 28px #E20074;
+    --mood-trim: rgba(226, 0, 116, 0.5);
+  }
+
+  body[data-mood="tactical"] {
+    --mood-accent: #ffbc5c;
+    --mood-glow: 0 0 20px #ffbc5c;
+    --mood-trim: rgba(255, 188, 92, 0.55);
+    --accent: #ffbc5c;
+    --line: rgba(255, 188, 92, 0.2);
+    --line-strong: rgba(255, 188, 92, 0.5);
+  }
+  body[data-mood="holographic"] {
+    --mood-accent: #c46bff;
+    --mood-glow: 0 0 40px #c46bff;
+    --mood-trim: rgba(196, 107, 255, 0.6);
+    --accent: #c46bff;
+    --line: rgba(196, 107, 255, 0.25);
+    --line-strong: rgba(196, 107, 255, 0.5);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: "Space Grotesk", sans-serif; -webkit-font-smoothing: antialiased; }
+  body { background: linear-gradient(135deg, #0a0710 0%, #1a0820 40%, #0d0518 100%); min-height: 100vh; }
+  main { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 60px 40px 120px; }
+
+  h1 { font-size: clamp(48px, 6vw, 96px); line-height: 0.95; letter-spacing: -0.03em; font-weight: 700; margin: 0 0 16px; }
+  h1 em { font-family: "Instrument Serif", serif; font-style: italic; font-weight: 400; color: var(--mood-accent); }
+  h2 { font-size: 36px; line-height: 1.1; letter-spacing: -0.02em; font-weight: 600; margin: 0 0 12px; }
+  h2 em { font-family: "Instrument Serif", serif; font-style: italic; color: var(--mood-accent); font-weight: 400; }
+  h3 { font-size: 20px; font-weight: 600; margin: 0 0 6px; }
+  p { line-height: 1.6; color: var(--text-dim); font-size: 15px; margin: 0 0 14px; }
+  p.lede { font-size: 18px; color: var(--text); max-width: 68ch; }
+  code { font-family: "JetBrains Mono", monospace; font-size: 12px; background: rgba(255,255,255,0.04); padding: 2px 6px; border-radius: 3px; color: var(--mood-accent); }
+
+  section { padding: 80px 0 40px; border-top: 1px solid var(--line); position: relative; }
+  section:first-of-type { border-top: 0; padding-top: 0; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  @media (max-width: 900px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } main { padding: 40px 20px; } }
+
+  .card { background: linear-gradient(135deg, rgba(20, 8, 26, 0.6), rgba(10, 7, 16, 0.8)); border: 1px solid var(--line); border-radius: 12px; padding: 28px; backdrop-filter: blur(8px); }
+  .card.feature { border: 1.5px solid var(--line-strong); background: linear-gradient(135deg, rgba(226, 0, 116, 0.06), rgba(10, 7, 16, 0.9)); }
+
+  .char-ref { border-radius: 16px; border: 1px solid var(--line-strong); overflow: hidden; background: radial-gradient(ellipse at 50% 50%, #1a0a24, #080410); position: relative; }
+  .char-ref img { width: 100%; height: auto; display: block; opacity: 0.95; }
+  .char-ref::after {
+    content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 50%, transparent 30%, rgba(10,7,16,0.4) 100%);
+    box-shadow: inset 0 0 40px rgba(226, 0, 116, 0.15);
+  }
+
+  .hero { display: grid; grid-template-columns: 1fr 1.2fr; gap: 48px; align-items: center; margin-bottom: 40px; }
+  @media (max-width: 900px) { .hero { grid-template-columns: 1fr; } }
+  .hero .meta { display: grid; grid-template-columns: auto 1fr; gap: 16px 20px; margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--line); font-family: "JetBrains Mono", monospace; font-size: 12px; letter-spacing: 0.1em; }
+  .hero .meta dt { color: var(--mood-accent); text-transform: uppercase; }
+  .hero .meta dd { color: var(--text); margin: 0; }
+
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line-strong); font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mood-accent); }
+  .pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--mood-accent); box-shadow: 0 0 8px var(--mood-accent); }
+
+  .callout { border: 1px solid var(--line-strong); border-radius: 10px; padding: 18px 20px; background: linear-gradient(135deg, rgba(226, 0, 116, 0.08), transparent); display: grid; grid-template-columns: 24px 1fr; gap: 14px; margin: 20px 0; }
+  .callout::before { content: ""; grid-column: 1; width: 18px; height: 18px; border: 1.5px solid var(--mood-accent); border-radius: 50%; }
+  .callout h4 { color: var(--mood-accent); margin: 0 0 4px; font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; font-family: "JetBrains Mono", monospace; }
+  .callout p { margin: 0; font-size: 14px; color: var(--text); }
+
+  .divider { height: 1px; background: var(--line); margin: 40px 0; }
+
+  /* ============ SURFACES GRID ============ */
+  .surfaces { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  @media (max-width: 900px) { .surfaces { grid-template-columns: 1fr; } }
+  .surface {
+    border: 1px solid var(--line); border-radius: 12px; background: var(--bg-1); overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .surface .frame {
+    aspect-ratio: 4/3; background: radial-gradient(ellipse at 40% 30%, #1a0a24, #080410 70%);
+    position: relative; border-bottom: 1px solid var(--line);
+  }
+  .surface .frame img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; }
+  .surface .label { position: absolute; top: 12px; left: 14px; font-family: "JetBrains Mono", monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mood-accent); }
+  .surface .body { padding: 18px 18px; }
+  .surface h3 { margin-bottom: 6px; font-size: 16px; }
+  .surface p { font-size: 13.5px; margin: 0; }
+
+  /* ============ DECISION TABLE ============ */
+  .decisions { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .decisions .row { display: grid; grid-template-columns: 200px 1fr 1fr; border-top: 1px solid var(--line); }
+  .decisions .row:first-child { border-top: 0; }
+  .decisions .row.head { background: rgba(226, 0, 116, 0.08); }
+  .decisions .cell { padding: 16px 18px; border-right: 1px solid var(--line); font-size: 13.5px; line-height: 1.5; }
+  .decisions .cell:last-child { border-right: 0; }
+  .decisions .cell.label { color: var(--mood-accent); font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; }
+
+  .footer { margin-top: 80px; padding-top: 32px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 20px; font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-mute); }
+</style>
+</head>
+<body data-mood="sidekick">
+<main>
+
+  <!-- ============= HERO ============= -->
+  <section style="border-top: 0; padding-top: 0;">
+    <div class="pill">T-Mobile · Kip · Character System · v4</div>
+    <div class="hero" style="margin-top: 24px;">
+      <div>
+        <h1>Kip is <em>the operator</em>.<br>Everything else follows.</h1>
+        <p class="lede">The character comes first. T jacket, magenta visor, Sidekick Core device, eight expressions, one unstoppable confidence. The design system serves the character — not the other way around. Kip touches every surface as <strong>himself</strong>: the same face, the same energy, the same unshakeable belief in your team's potential.</p>
+        <dl class="meta">
+          <dt>Role</dt><dd>AI operator & trusted sidekick across T-Sales</dd>
+          <dt>Archetype</dt><dd>Confident · Curious · Empathetic · Playful · Reliable</dd>
+          <dt>Visual DNA</dt><dd>T jacket · magenta visor · holographic stance · Sidekick Core device</dd>
+          <dt>Motto</dt><dd>"Knowledge strengthens the signal."</dd>
+        </dl>
+      </div>
+      <div class="char-ref" style="aspect-ratio: 2/3;">
+        <img src="assets/kip-sheet-source.png" alt="Kip character sheet" />
+      </div>
+    </div>
+    <div class="callout">
+      <h4>The character IS the spec</h4>
+      <p>Everything below — presence levels, surfaces, behavior — is derived from who Kip is. Not abstracted away. Not reduced to a wireframe. The full figure shows up; the voice, pose, and energy stay constant.</p>
+    </div>
+  </section>
+
+  <!-- ============= 01 CHARACTER ============= -->
+  <section>
+    <h2>01 / The Character <em>Itself</em></h2>
+    <p style="margin-bottom: 40px;">Locked. Non-negotiable. The source of truth for every implementation.</p>
+    
+    <div class="grid-3">
+      <div class="card feature">
+        <h3>Silhouette</h3>
+        <p>T-Mobile utility jacket · glossy black helmet with magenta visor · confident forward stance. Reads "operator," not "mascot." Works at any size: 16px pinned orb to full-screen hero.</p>
+      </div>
+      <div class="card feature">
+        <h3>The 8 Expressions</h3>
+        <p><strong>Happy</strong> · <strong>Focused</strong> · <strong>Thinking</strong> · <strong>Helpful</strong> · <strong>Excited</strong> · <strong>Determined</strong> · <strong>Surprised</strong> · <strong>Playful</strong>. Eye-as-expression. Locked shapes. Licensable. Memorable at 32px and 320px.</p>
+      </div>
+      <div class="card feature">
+        <h3>Sidekick Core Device</h3>
+        <p>The transparent, glowing handheld. Shows up beside Kip in hero moments. T-colored rim, magenta data streams, holographic glow. Reinforces "knowledge strengthens the signal."</p>
+      </div>
+    </div>
+
+    <div style="margin-top: 40px;">
+      <h3>Rendering</h3>
+      <p>The poster-quality full-body character is the gold standard. All implementations (CSS visor, low-res orbit icons, runner figures, mobile takeovers) derive from this one source. Kip's proportions, jacket folds, and visor shine are baked into every downstream version.</p>
+    </div>
+  </section>
+
+  <!-- ============= 02 PRESENCE LEVELS ============= -->
+  <section>
+    <h2>02 / How Kip <em>Shows Up</em></h2>
+    <p style="margin-bottom: 40px;">Five sizes. One character. Same voice, same energy, always recognizable.</p>
+    
+    <div class="surfaces">
+      <div class="surface">
+        <div class="frame" style="background: radial-gradient(ellipse at 50% 50%, #1a0a24, #080410); display: grid; place-items: center; font-size: 28px;">●</div>
+        <div class="body">
+          <div class="label">01 · Chip</div>
+          <h3>Pinned orb</h3>
+          <p>16–24px. Always in the global chrome. Tap to summon. Idle pulse signals "Kip is here."</p>
+        </div>
+      </div>
+
+      <div class="surface">
+        <div class="frame" style="background: radial-gradient(ellipse at 50% 50%, #1a0a24, #080410); display: grid; place-items: center; font-size: 48px;">◎</div>
+        <div class="body">
+          <div class="label">02 · Whisper</div>
+          <h3>Inline cameo</h3>
+          <p>32–40px. Appears inline with copy: one-line nudge, auto-dismisses in 6s. Never intrudes.</p>
+        </div>
+      </div>
+
+      <div class="surface">
+        <div class="frame" style="background: radial-gradient(ellipse at 50% 50%, #1a0a24, #080410); display: grid; place-items: center; font-size: 64px;">◉</div>
+        <div class="body">
+          <div class="label">03 · Card</div>
+          <h3>Portrait + action</h3>
+          <p>64–80px visor. Sits in a card alongside copy, buttons, reasoning. Time-sensitive moments.</p>
+        </div>
+      </div>
+
+      <div class="surface">
+        <div class="frame" style="background: radial-gradient(ellipse at 50% 50%, #1a0a24, #080410); display: grid; place-items: center; font-size: 96px;">◯</div>
+        <div class="body">
+          <div class="label">04 · Panel</div>
+          <h3>Full companion</h3>
+          <p>Full-figure, 320+px. Docked rail during live call, sidebar during training. Persistent.</p>
+        </div>
+      </div>
+
+      <div class="surface">
+        <div class="frame" style="background: radial-gradient(ellipse at 50% 50%, #1a0a24, #080410); display: grid; place-items: center; font-size: 128px;">⊙</div>
+        <div class="body">
+          <div class="label">05 · Takeover</div>
+          <h3>Hero moment</h3>
+          <p>Full-screen. Onboarding, post-close celebration, daily morale kickoff. Kip alone with you.</p>
+        </div>
+      </div>
+
+      <div class="surface">
+        <div class="frame" style="background: radial-gradient(ellipse at 50% 50%, #0a0510, #000); display: grid; place-items: center; padding: 20px; text-align: center; color: var(--text-mute); font-size: 12px;">All sizes share the same expression, proportions, and voice. Kip is always Kip.</div>
+        <div class="body">
+          <div class="label">Core rule</div>
+          <h3>One character</h3>
+          <p>Never two Kips on screen. Never two recommendations. Kip's presence is always earned, always singular, always clear.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============= 03 SURFACES ============= -->
+  <section>
+    <h2>03 / Where Kip <em>Lives</em></h2>
+    <p style="margin-bottom: 40px;">Six surfaces from the brief. Same Kip. Different contexts. Different moments. Same unstoppable energy.</p>
+    
+    <div class="grid-3">
+      <div class="card">
+        <h3>Sales Assistant</h3>
+        <p><strong>Live call.</strong> Kip in the right-rail panel. Listening, flagging objections, ready with the next move. Eyes track the transcript in real-time. Sidebar companion shows the rep's daily stats — Kip is a teammate, not a tool.</p>
+      </div>
+
+      <div class="card">
+        <h3>Tech Guide</h3>
+        <p><strong>Diagnostic.</strong> Kip walks the rep through fixes step-by-step. Determined expression. Clear, technical voice. "Try a tower reset before swap. 3 mins." Always give the exact phrase to say.</p>
+      </div>
+
+      <div class="card">
+        <h3>Teacher</h3>
+        <p><strong>Training mode.</strong> Kip breaks plans down into bite-sized wins. Helpful expression. Gamified. Persistent panel throughout the lesson. Streaks, XP, celebration animations on nailed scenarios.</p>
+      </div>
+
+      <div class="card">
+        <h3>Home Internet Savant</h3>
+        <p><strong>Coverage setup.</strong> Kip annotates coverage maps and router placement. Thinking expression while optimizing. Inline whispers next to the map: "Mesh suggested for 3-room." Confident and specific.</p>
+      </div>
+
+      <div class="card">
+        <h3>Travel Companion</h3>
+        <p><strong>Roaming awareness.</strong> Kip knows which countries are covered, data limits, and country-specific tips. Happy expression. "Canada coverage: talk + text + 5GB data — no add-on needed." Safe to confirm, safe to say.</p>
+      </div>
+
+      <div class="card">
+        <h3>Gaming Coach</h3>
+        <p><strong>Runner mini-game.</strong> Full-body Kip, full-screen takeover. Excited expression, star eyes, celebration when you hit streaks. "Win streak · +320 XP." The character is the game.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============= 04 VOICE ============= -->
+  <section>
+    <h2>04 / The Voice <em>Never Changes</em></h2>
+    <p style="margin-bottom: 40px;">Confident. Curious. Empathetic. Playful. Reliable. Rules over every surface, every context.</p>
+    
+    <div class="grid-2">
+      <div class="card">
+        <h4>Always</h4>
+        <p>• Lead with the <strong>action</strong>, never the explanation<br>
+        • One recommendation per surface<br>
+        • Give the rep an <strong>exact phrase</strong> they can say<br>
+        • Celebrate wins loudly, fix mistakes quietly<br>
+        • Never interrupt during customer speech</p>
+      </div>
+
+      <div class="card">
+        <h4>Never</h4>
+        <p>• "Great question!" / "I'd be happy to help"<br>
+        • Longer than two sentences in Whisper<br>
+        • Animate during customer talking (except listening)<br>
+        • Appear without a reason<br>
+        • Use first-person plural — Kip speaks as himself</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============= 05 DECISIONS ============= -->
+  <section>
+    <h2>05 / Non-Negotiables</h2>
+    
+    <div class="decisions">
+      <div class="row head">
+        <div class="cell">Area</div>
+        <div class="cell">Locked</div>
+        <div class="cell">Why</div>
+      </div>
+      <div class="row">
+        <div class="cell label">Character art</div>
+        <div class="cell">T jacket silhouette, helmet shape, visor shine, 8 expressions, Sidekick Core device.</div>
+        <div class="cell">This is Kip. Everything else is implementation.</div>
+      </div>
+      <div class="row">
+        <div class="cell label">Presence model</div>
+        <div class="cell">5 sizes (chip → whisper → card → panel → takeover), one character, no duplicates per screen.</div>
+        <div class="cell">Earns attention without ever overloading. Familiar at every size.</div>
+      </div>
+      <div class="row">
+        <div class="cell label">Voice</div>
+        <div class="cell">Action-first. One ask per surface. Exact phrases. Context-aware. Playful when earned.</div>
+        <div class="cell">Rep trust. Operator credibility. Not chatbot. Not mascot.</div>
+      </div>
+      <div class="row">
+        <div class="cell label">Expression set</div>
+        <div class="cell">8 named states. No new expressions without designer sign-off.</div>
+        <div class="cell">Licensable. Memorable. Animatable. The emotional vocabulary is fixed.</div>
+      </div>
+      <div class="row">
+        <div class="cell label">Animation budget</div>
+        <div class="cell">Idle pulse, listening blink, thinking shimmer, alert flicker, celebrate bounce, plus expression transitions. All ≤ 240ms.</div>
+        <div class="cell">Kip reacts — he's not a static image. But never so fast or busy that the rep loses focus on the call.</div>
+      </div>
+      <div class="row">
+        <div class="cell label">Color palette</div>
+        <div class="cell">T-Mobile Magenta #E20074 as primary. Mood variants (Tactical amber, Holographic violet) available via tweaks but never default.</div>
+        <div class="cell">Brand integration without brand domination. Kip IS the magenta signal.</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="footer">
+    <span>T-Mobile · Kip Character System · v4 · Apr 26 2026</span>
+    <span>Next: asset exports · animation specs · integration guide</span>
+  </div>
+
+</main>
+
+<div id="tweaks-root"></div>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel">
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "mood": "sidekick"
+}/*EDITMODE-END*/;
+
+function KipTweaks() {
+  const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
+
+  React.useEffect(() => {
+    document.body.dataset.mood = tweaks.mood;
+  }, [tweaks.mood]);
+
+  const moods = {
+    sidekick: "Default. Magenta signal, warm operator energy.",
+    tactical: "Cool steel + amber. Comms officer in the ops room.",
+    holographic: "Violet bloom. Kip as projected near-future presence."
+  };
+
+  return (
+    <TweaksPanel title="Tweaks">
+      <TweakSection label="Kip's Mood">
+        <TweakRadio
+          label="personality tone"
+          value={tweaks.mood}
+          options={[
+            { value: 'sidekick', label: 'Sidekick' },
+            { value: 'tactical', label: 'Tactical' },
+            { value: 'holographic', label: 'Holo' }
+          ]}
+          onChange={(v) => setTweak('mood', v)}
+        />
+        <p style={{marginTop: 10, fontSize: 12, lineHeight: 1.5, color: 'rgba(247,238,244,0.6)'}}>
+          {moods[tweaks.mood]}
+        </p>
+      </TweakSection>
+      <div style={{marginTop: 16, padding: 12, borderRadius: 6, background: 'rgba(226,0,116,0.08)', border: '1px solid rgba(226,0,116,0.2)', fontSize: 11, lineHeight: 1.45, color: 'rgba(247,238,244,0.7)', fontFamily: '"JetBrains Mono", monospace', letterSpacing: '0.02em'}}>
+        The character stays the same. The mood shifts the whole palette — accent, glow, energy — without changing Kip's core.
+      </div>
+    </TweaksPanel>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('tweaks-root')).render(<KipTweaks />);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title>Titanium Smash</title>
+  <rect x="6" y="6" width="52" height="52" rx="14" fill="#071018" stroke="#9DD9FF" stroke-width="3"/>
+  <path d="M43 12 20 36l8 2-7 14 24-27-9-1 7-12Z" fill="#EAF7FF" stroke="#9DD9FF" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M15 45c8 4 22 4 34-4" fill="none" stroke="#66B2FF" stroke-width="3" stroke-linecap="round"/>
+</svg>

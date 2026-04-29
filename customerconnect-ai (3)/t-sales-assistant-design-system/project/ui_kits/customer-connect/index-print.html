@@ -1,0 +1,1461 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<title>T-Sales Assistant — UI Kit</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+/* UI Kit styles for T-Sales Assistant — Liquid Glass refresh.
+   All surfaces pull from colors_and_type.css glass tokens. No
+   hardcoded rgba() glass recipes live here — edit the tokens to
+   shift the whole kit. */
+/* =================================================================
+   T-Sales Assistant (CustomerConnect AI) — design tokens
+   Extracted from src/index.css in distractedhare/improved-robot.
+   Light theme is the default; dark theme lives under [data-theme="dark"].
+   ================================================================= */
+
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700;800;900&display=swap");
+
+/* ---------- BRAND COLORS (invariant) ---------- */
+:root {
+  --t-magenta: #E20074;        /* T-Mobile primary */
+  --t-magenta-hover: #C70066;
+  --t-magenta-pressed: #A00050;
+  --t-berry: #861B54;          /* Deep magenta, used for text-pitch + gradients */
+  --t-magenta-hot: #FF2D8A;    /* Dark-mode magenta */
+
+  /* Prize tiers */
+  --prize-daily: #00A550;
+  --prize-weekly: #E20074;
+  --prize-monthly: #D4A017;
+}
+
+/* ---------- LIGHT THEME ---------- */
+:root,
+[data-theme="light"] {
+  /* Surfaces */
+  --bg-page: #F2F2F3;
+  --bg-page-secondary: #E8E8EB;
+  --bg-surface: rgba(255, 255, 255, 0.98);
+  --bg-surface-elevated: rgba(255, 255, 255, 0.98);
+
+  /* Borders */
+  --border-surface: #E8E8E8;
+  --border-surface-strong: rgba(226, 0, 116, 0.22);
+
+  /* Text */
+  --text-primary: #141414;
+  --text-secondary: #6A6A6A;  /* t-dark-gray — default body copy color */
+  --text-tertiary: #767676;
+  --text-muted: #757575;
+  --text-on-magenta: #FFFFFF;
+  --text-accent: #E20074;
+  --text-pitch: #861B54;
+
+  /* Page ambient shadows (box) */
+  --shadow-surface: 0 6px 18px rgba(0, 0, 0, 0.05);
+  --shadow-surface-hover: 0 14px 28px rgba(0, 0, 0, 0.08),
+                          0 0 0 1px rgba(226, 0, 116, 0.08);
+  --shadow-cta: 0 10px 22px rgba(226, 0, 116, 0.24);
+
+  /* ==== LIQUID GLASS — light ====
+     The recipe Apple uses: heavy backdrop-blur + saturate,
+     a visible but translucent fill, and layered inset shadows
+     that simulate light refracting off the top edge and a
+     faint dark base edge. Tokens below drive .glass, .glass-magenta,
+     .glass-elevated — the three core surface variants. */
+  --glass-bg: rgba(255, 255, 255, 0.55);
+  --glass-bg-strong: rgba(255, 255, 255, 0.72);
+  --glass-bg-tinted: rgba(226, 0, 116, 0.09);
+  --glass-border: rgba(200, 200, 200, 0.50);
+  --glass-border-subtle: rgba(200, 200, 200, 0.30);
+  --glass-border-hover: rgba(226, 0, 116, 0.25);
+  --glass-blur: blur(32px) saturate(180%);
+  --glass-blur-strong: blur(40px) saturate(200%);
+
+  /* Specular edges — what makes Liquid Glass look like glass.
+     Top: bright inner highlight (refraction).
+     Bottom: faint dark inner hairline (defined base edge).
+     Ring: subtle white 1px outer, subtle black 1.5px outer. */
+  --glass-specular-top: rgba(255, 255, 255, 0.95);
+  --glass-specular-bottom: rgba(20, 20, 20, 0.05);
+  --glass-ring-light: rgba(255, 255, 255, 0.60);
+  --glass-ring-dark: rgba(0, 0, 0, 0.04);
+
+  --glass-shadow:
+    0 12px 32px rgba(20, 20, 20, 0.10),
+    0 2px 6px rgba(20, 20, 20, 0.05),
+    inset 0 1px 0 0 var(--glass-specular-top),
+    inset 0 -1px 0 0 var(--glass-specular-bottom),
+    inset 0 0 0 1px var(--glass-ring-light),
+    inset 0 0 0 1.5px var(--glass-ring-dark);
+
+  --glass-shadow-elevated:
+    0 24px 50px rgba(20, 20, 20, 0.14),
+    0 4px 10px rgba(20, 20, 20, 0.06),
+    inset 0 1px 0 0 rgba(255, 255, 255, 1),
+    inset 0 -1px 0 0 rgba(20, 20, 20, 0.06),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.70),
+    inset 0 0 0 1.5px rgba(0, 0, 0, 0.04);
+
+  --glass-shadow-magenta:
+    0 14px 34px rgba(226, 0, 116, 0.22),
+    0 2px 6px rgba(20, 20, 20, 0.06),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.75),
+    inset 0 -1px 0 0 rgba(226, 0, 116, 0.12),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.40),
+    inset 0 0 0 1.5px rgba(226, 0, 116, 0.10);
+
+  /* Legacy alias for older components */
+  --glass-shadow-strong: var(--glass-shadow-elevated);
+
+  /* Semantic — info (uses magenta, not blue) */
+  --sem-info-surface: rgba(226, 0, 116, 0.06);
+  --sem-info-border: rgba(226, 0, 116, 0.16);
+  --sem-info-foreground: #861B54;
+  --sem-info-accent: #E20074;
+
+  --sem-success-surface: rgba(0, 165, 80, 0.08);
+  --sem-success-border: rgba(0, 165, 80, 0.18);
+  --sem-success-foreground: #006D36;
+  --sem-success-accent: #00A550;
+
+  --sem-warning-surface: rgba(134, 27, 84, 0.08);
+  --sem-warning-border: rgba(134, 27, 84, 0.16);
+  --sem-warning-foreground: #861B54;
+  --sem-warning-accent: #861B54;
+
+  --sem-error-surface: rgba(211, 47, 47, 0.08);
+  --sem-error-border: rgba(211, 47, 47, 0.18);
+  --sem-error-foreground: #8B1E1E;
+  --sem-error-accent: #D32F2F;
+
+  --sem-support-surface: rgba(232, 232, 232, 0.5);
+  --sem-support-border: rgba(106, 106, 106, 0.14);
+  --sem-support-foreground: #6A6A6A;
+
+  /* Body background — near-white grayscale with soft magenta & gray
+     blobs. Gives Liquid Glass something to refract against. */
+  --page-bg:
+    radial-gradient(ellipse 55% 45% at 12% 12%, rgba(226, 0, 116, 0.10) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 45% at 90% 25%, rgba(134, 27, 84, 0.07) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 55% at 75% 92%, rgba(226, 0, 116, 0.08) 0%, transparent 52%),
+    radial-gradient(ellipse 45% 40% at 8% 85%, rgba(60, 60, 70, 0.10) 0%, transparent 55%),
+    linear-gradient(180deg, #F2F2F3 0%, #E8E8EB 60%, #F2F2F3 100%);
+
+  color-scheme: light;
+}
+
+/* ---------- DARK THEME ---------- */
+[data-theme="dark"],
+.dark {
+  --bg-page: #0D0D0D;
+  --bg-page-secondary: #161616;
+  --bg-surface: rgba(22, 22, 22, 0.98);
+  --bg-surface-elevated: rgba(30, 30, 30, 0.98);
+
+  --border-surface: #2A2A2A;
+  --border-surface-strong: rgba(226, 0, 116, 0.30);
+
+  --text-primary: #F0F0F0;
+  --text-secondary: #9A9A9A;
+  --text-tertiary: #858585;
+  --text-muted: #858585;
+  --text-on-magenta: #FFFFFF;
+  --text-accent: #FF2D8A;
+  --text-pitch: #F0A0C8;
+
+  --shadow-surface: 0 6px 18px rgba(0, 0, 0, 0.25);
+  --shadow-surface-hover: 0 14px 28px rgba(0, 0, 0, 0.35),
+                          0 0 0 1px rgba(226, 0, 116, 0.15);
+  --shadow-cta: 0 10px 22px rgba(226, 0, 116, 0.30);
+
+  /* ==== LIQUID GLASS — dark ====
+     Same recipe, flipped: translucent white-on-black fill,
+     bright top highlight, soft under-glow bottom. */
+  --glass-bg: rgba(255, 255, 255, 0.08);
+  --glass-bg-strong: rgba(255, 255, 255, 0.14);
+  --glass-bg-tinted: rgba(226, 0, 116, 0.14);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-border-subtle: rgba(255, 255, 255, 0.07);
+  --glass-border-hover: rgba(226, 0, 116, 0.35);
+  --glass-blur: blur(32px) saturate(180%);
+  --glass-blur-strong: blur(40px) saturate(200%);
+
+  --glass-specular-top: rgba(255, 255, 255, 0.45);
+  --glass-specular-bottom: rgba(255, 255, 255, 0.08);
+  --glass-ring-light: rgba(255, 255, 255, 0.10);
+  --glass-ring-dark: rgba(0, 0, 0, 0.00);
+
+  --glass-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.35),
+    0 2px 8px rgba(0, 0, 0, 0.20),
+    inset 0 1px 0 0 var(--glass-specular-top),
+    inset 0 -1px 0 0 var(--glass-specular-bottom),
+    inset 0 0 0 1px var(--glass-ring-light);
+
+  --glass-shadow-elevated:
+    0 24px 60px rgba(0, 0, 0, 0.45),
+    0 4px 12px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.55),
+    inset 0 -1px 0 0 rgba(255, 255, 255, 0.10),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.16);
+
+  --glass-shadow-magenta:
+    0 16px 40px rgba(226, 0, 116, 0.28),
+    0 2px 8px rgba(0, 0, 0, 0.20),
+    inset 0 1px 0 0 rgba(255, 180, 220, 0.55),
+    inset 0 -1px 0 0 rgba(226, 0, 116, 0.18),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+
+  --glass-shadow-strong: var(--glass-shadow-elevated);
+
+  --sem-info-surface: rgba(226, 0, 116, 0.10);
+  --sem-info-border: rgba(226, 0, 116, 0.22);
+  --sem-info-foreground: #F0A0C8;
+  --sem-info-accent: #FF2D8A;
+
+  --sem-success-surface: rgba(0, 165, 80, 0.12);
+  --sem-success-border: rgba(0, 165, 80, 0.24);
+  --sem-success-foreground: #4ADE80;
+  --sem-success-accent: #22C55E;
+
+  --sem-warning-surface: rgba(134, 27, 84, 0.14);
+  --sem-warning-border: rgba(134, 27, 84, 0.24);
+  --sem-warning-foreground: #F0A0C8;
+  --sem-warning-accent: #C74B8A;
+
+  --sem-error-surface: rgba(211, 47, 47, 0.12);
+  --sem-error-border: rgba(211, 47, 47, 0.24);
+  --sem-error-foreground: #FCA5A5;
+  --sem-error-accent: #EF4444;
+
+  --sem-support-surface: rgba(42, 42, 42, 0.5);
+  --sem-support-border: rgba(106, 106, 106, 0.20);
+  --sem-support-foreground: #9A9A9A;
+
+  /* Body background — near-black with magenta-infused blobs.
+     The saturated substrate is what makes Liquid Glass pop. */
+  --page-bg:
+    radial-gradient(ellipse 60% 50% at 15% 10%, rgba(255, 45, 138, 0.55) 0%, transparent 55%),
+    radial-gradient(ellipse 55% 50% at 90% 30%, rgba(226, 0, 116, 0.50) 0%, transparent 50%),
+    radial-gradient(ellipse 70% 60% at 70% 95%, rgba(134, 27, 84, 0.55) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 50% at 10% 85%, rgba(160, 0, 80, 0.50) 0%, transparent 55%),
+    linear-gradient(180deg, #0D0D0D 0%, #1A0912 60%, #0D0D0D 100%);
+
+  color-scheme: dark;
+}
+
+/* ---------- TYPE SYSTEM ----------
+   Poppins is the only family. Weights that actually ship:
+     300 (light, rare), 400 (body), 500 (medium UI), 700 (bold),
+     800 (extrabold), 900 (black — the hero weight).
+   The app leans on 700–900 + uppercase + wide tracking for headings
+   and micro-labels; body copy stays at 400–500.
+*/
+:root {
+  --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
+
+  /* Sizes — mobile-first, tight because phone-screen-first product */
+  --fs-micro: 9px;   /* micro-label, section eyebrows ([9px] uppercase tracking-widest) */
+  --fs-2xs: 10px;    /* helper text, tiny caption */
+  --fs-xs: 11px;     /* dense UI labels, buttons */
+  --fs-sm: 12px;     /* secondary body */
+  --fs-base: 13px;   /* base body */
+  --fs-md: 14px;     /* primary body (text-sm in Tailwind lingo) */
+  --fs-lg: 16px;     /* larger body */
+  --fs-xl: 18px;     /* card headings */
+  --fs-2xl: 20px;    /* section headings (text-xl) */
+  --fs-3xl: 24px;    /* page title */
+  --fs-4xl: 30px;    /* hero H1 mobile */
+  --fs-5xl: 36px;    /* hero H1 tablet+ */
+  --fs-6xl: 48px;    /* hero H1 desktop */
+
+  --lh-tight: 1.1;
+  --lh-snug: 1.25;
+  --lh-normal: 1.4;
+  --lh-relaxed: 1.6;
+
+  --tracking-tight: -0.01em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.08em;
+  --tracking-wider: 0.14em;
+  --tracking-widest: 0.2em;   /* the signature eyebrow tracking */
+  --tracking-cta: 0.18em;     /* uppercase CTA buttons */
+}
+
+/* ---------- SEMANTIC TYPE RULES ----------
+   These mirror the in-app patterns so you can write
+     <p class="eyebrow">Today's Hot</p>
+   without rebuilding the Tailwind chain every time.
+*/
+body {
+  font-family: var(--font-sans);
+  font-size: var(--fs-md);
+  line-height: var(--lh-normal);
+  color: var(--text-primary);
+  background: var(--page-bg);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Hero — gradient magenta display text */
+.h-display {
+  font-size: var(--fs-5xl);
+  font-weight: 900;
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tracking-tight);
+  background: linear-gradient(135deg, #E20074 0%, #861B54 50%, #E20074 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* Page H1 — "Your Game Plan" style */
+.h1,
+h1 {
+  font-size: var(--fs-3xl);
+  font-weight: 900;
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tracking-tight);
+  text-transform: uppercase;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* Card H2 — "Customer Context" style */
+.h2,
+h2 {
+  font-size: var(--fs-xl);
+  font-weight: 900;
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tracking-tight);
+  text-transform: uppercase;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* Section title — Card interior heading */
+.h3,
+h3 {
+  font-size: var(--fs-sm);
+  font-weight: 900;
+  line-height: var(--lh-snug);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-tight);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Eyebrow — the ubiquitous magenta/gray micro-label */
+.eyebrow {
+  font-size: var(--fs-micro);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--text-accent);
+}
+
+.eyebrow--muted { color: var(--text-secondary); }
+.eyebrow--on-magenta { color: rgba(255, 255, 255, 0.7); }
+
+/* Body copy */
+p,
+.body {
+  font-size: var(--fs-md);
+  line-height: var(--lh-normal);
+  font-weight: 400;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Dense UI label — form fields, button text */
+.label {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  line-height: var(--lh-tight);
+  color: var(--text-secondary);
+}
+
+/* Talk track — the bold magenta "say this" copy that sits in
+   a tinted card. Used everywhere in InstantPlays. */
+.talk-track {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  line-height: var(--lh-relaxed);
+  color: var(--text-accent);
+  font-style: normal;
+}
+
+/* Pill — the rounded tag used for badges like "Demo Ready" */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: var(--fs-micro);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-widest);
+  background: var(--t-magenta);
+  color: #FFFFFF;
+}
+
+/* CTA button text */
+.cta-text {
+  font-size: var(--fs-xs);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-cta);
+}
+
+/* Monospace — we don't have a branded mono, use system */
+code,
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: var(--fs-sm);
+  background: var(--bg-page-secondary);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+/* ---------- SPACING + RADII ---------- */
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  --radius-xs: 4px;
+  --radius-sm: 6px;    /* scrollbar thumb */
+  --radius-md: 8px;
+  --radius-lg: 12px;   /* rounded-xl — compact cards, input fields */
+  --radius-xl: 16px;   /* rounded-2xl — standard card */
+  --radius-2xl: 20px;  /* rounded-3xl — primary containers */
+  --radius-full: 999px;
+}
+
+
+/* =================================================================
+   LIQUID GLASS — utility classes
+   Use these on any element that should render as the Apple-style
+   glass material. Three variants:
+     .glass            — default translucent material
+     .glass-magenta    — magenta-tinted (for CTAs, warnings, HINTs)
+     .glass-elevated   — heavier blur + stronger sheen (modals, sheets)
+   All three work identically in light and dark themes; the tokens
+   above rewrite themselves when [data-theme="dark"] is set.
+   ================================================================= */
+.glass,
+.glass-magenta,
+.glass-elevated {
+  border-radius: var(--radius-2xl);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+}
+.glass {
+  background: var(--glass-bg);
+  box-shadow: var(--glass-shadow);
+}
+.glass-magenta {
+  background: var(--glass-bg-tinted);
+  box-shadow: var(--glass-shadow-magenta);
+}
+.glass-elevated {
+  background: var(--glass-bg-strong);
+  -webkit-backdrop-filter: var(--glass-blur-strong);
+  backdrop-filter: var(--glass-blur-strong);
+  box-shadow: var(--glass-shadow-elevated);
+}
+
+/* Floating capsule — Apple's toolbar/tab-bar idiom.
+   Use for nav, tab bars, and any floating chrome. */
+.glass-capsule {
+  display: inline-flex;
+  padding: 6px;
+  border-radius: var(--radius-full);
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow);
+}
+
+
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0;
+  font-family: var(--font-sans);
+  background: var(--page-bg);
+  background-attachment: fixed;
+  color: var(--text-primary);
+  min-height: 100vh;
+}
+
+.app-shell {
+  max-width: 440px;
+  margin: 0 auto;
+  padding: 20px 16px 100px;
+}
+
+/* ---------- HEADER — glass capsule ---------- */
+.app-header { margin-bottom: 16px; }
+.app-header-inner {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px;
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow);
+  border-radius: var(--radius-2xl);
+}
+.brand { display:flex; align-items:center; gap: 10px; }
+.brand img { width: 30px; height: 30px; border-radius: 6px; }
+.brand-title { font-size: 13px; font-weight: 900; letter-spacing: -0.01em; }
+.brand-text .eyebrow { color: var(--text-secondary); margin-bottom: 2px; }
+.header-ctx { text-align: right; }
+.header-ctx-val { font-size: 11px; font-weight: 700; color: var(--text-primary); margin-top: 3px; }
+
+/* Persistent "New Call" — always visible in the header. Magenta-tinted
+   glass pill so it reads as a primary action without being a loud CTA.
+   Tapping it resets ctx + HINT check and returns to the context form. */
+.new-call-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 14px 8px 8px; border: 0;
+  background: var(--glass-bg-tinted);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow-magenta);
+  border-radius: 999px;
+  color: var(--text-primary);
+  font-family: inherit; font-size: 10px; font-weight: 900;
+  text-transform: uppercase; letter-spacing: 0.14em;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.25s ease;
+}
+.new-call-btn:hover { transform: translateY(-1px); }
+.new-call-btn:active { transform: scale(0.97); }
+.new-call-ico {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--t-magenta);
+  display: inline-flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 10px rgba(226, 0, 116, 0.32), inset 0 1px 0 0 rgba(255,255,255,0.35);
+}
+.new-call-ico svg { width: 14px; height: 14px; stroke: #fff; stroke-width: 2.25; }
+.new-call-label { white-space: nowrap; }
+
+.app-title-row {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 12px;
+  margin: 18px 4px 12px;
+}
+.app-title-row h1 { font-size: 24px; }
+.app-title-row .header-ctx-val {
+  flex-shrink: 0;
+  margin-top: 0;
+  padding: 5px 10px;
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow);
+  border-radius: 999px;
+  font-size: 10px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.12em;
+  color: var(--text-secondary);
+}
+
+/* Glass ghost CTA — matches preview/buttons.html */
+.cta-ghost {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow);
+  color: var(--text-primary);
+  font-family: inherit; font-size: 10px; font-weight: 900;
+  text-transform: uppercase; letter-spacing: 0.14em;
+  padding: 10px 16px; border-radius: 999px;
+  border: 0; cursor: pointer;
+}
+
+/* ---------- TAB BAR — floating glass capsule ---------- */
+.tab-bar {
+  position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+  width: calc(100% - 32px); max-width: 420px;
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 4px; padding: 6px;
+  background: var(--glass-bg-strong);
+  -webkit-backdrop-filter: var(--glass-blur-strong);
+  backdrop-filter: var(--glass-blur-strong);
+  box-shadow: var(--glass-shadow-elevated);
+  border-radius: 28px;
+  z-index: 10;
+}
+.tab {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 9px 4px;
+  background: transparent; border: 0; border-radius: 22px;
+  color: var(--text-secondary);
+  font-family: inherit; font-size: 9px; font-weight: 900;
+  text-transform: uppercase; letter-spacing: 0.14em;
+  cursor: pointer;
+}
+.tab svg { width: 18px; height: 18px; stroke-width: 2; }
+.tab--active {
+  background: var(--t-magenta);
+  color: #fff;
+  box-shadow:
+    0 8px 18px rgba(226, 0, 116, 0.30),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.38);
+}
+
+/* ---------- FORM / CONTEXT ---------- */
+.form-card {
+  padding: 20px;
+  border-radius: var(--radius-2xl);
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow);
+}
+.form-card h2 { margin: 4px 0 18px; font-size: 20px; }
+.field { margin-bottom: 16px; }
+.field .label { margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.14em; }
+
+.chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  min-height: 40px; padding: 10px 14px;
+  border-radius: 999px;
+  border: 0;
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow);
+  font-family: inherit; font-size: 10px; font-weight: 900;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--text-secondary); cursor: pointer;
+  transition: transform 0.12s ease;
+}
+.chip:active { transform: scale(0.97); }
+.chip--active {
+  background: var(--t-magenta);
+  color: #fff;
+  box-shadow:
+    0 8px 16px rgba(226, 0, 116, 0.28),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.38);
+}
+
+/* ---------- INTENT CARDS ----------
+   Each intent is a glass tile showing its symbol, label, and
+   one-line description at rest. Selected = solid magenta fill.
+   With 6 cards the grid is a clean 3×2; the span rule below is kept as
+   a safety net in case we add/remove a card in future. */
+.intent-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.intent-grid .intent-card:last-child:nth-child(odd) {
+  grid-column: 1 / -1; /* final card spans full row when count is odd */
+}
+.intent-card {
+  position: relative;
+  min-height: 96px;
+  padding: 14px;
+  border: 0;
+  border-radius: 18px;
+  cursor: pointer;
+  font-family: inherit;
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow);
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  grid-template-areas:
+    "ico  label"
+    "desc desc";
+  column-gap: 10px;
+  row-gap: 6px;
+  align-items: center;
+  text-align: left;
+  transition: transform 180ms cubic-bezier(0.22, 0.9, 0.3, 1),
+              box-shadow 180ms ease;
+}
+.intent-card:hover { transform: translateY(-2px); }
+.intent-card:active { transform: scale(0.985); }
+.intent-ico {
+  grid-area: ico;
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  background: var(--glass-bg-tinted);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.45),
+    inset 0 0 0 1px rgba(226, 0, 116, 0.14);
+  color: var(--t-magenta);
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.intent-ico svg { width: 22px; height: 22px; display: block; }
+.intent-ico[data-kind] {
+  color: #fff;
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.5),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.06),
+    0 4px 10px rgba(0, 0, 0, 0.14);
+}
+.intent-ico[data-kind="exploring"] { background: linear-gradient(145deg, #6B8CFF, #3A5BD9); }
+.intent-ico[data-kind="upgrade"]   { background: linear-gradient(145deg, #2FB57A, #1A8453); }
+.intent-ico[data-kind="addline"]   { background: linear-gradient(145deg, #F5A623, #D87C00); }
+.intent-ico[data-kind="tech"]      { background: linear-gradient(145deg, #8E8FA3, #4A4C66); }
+.intent-ico[data-kind="account"]   { background: linear-gradient(145deg, #B57BFF, #7A3CE0); }
+.intent-ico[data-kind="order"]     { background: linear-gradient(145deg, #FF6F91, #E20074); }
+.intent-label {
+  grid-area: label;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-primary);
+}
+.intent-desc {
+  grid-area: desc;
+  font-size: 10.5px;
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--text-secondary);
+  letter-spacing: 0.01em;
+}
+
+/* SELECTED — solid magenta fill */
+.intent-card.is-selected {
+  background: var(--t-magenta);
+  box-shadow:
+    0 10px 22px rgba(226, 0, 116, 0.32),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.38),
+    inset 0 -1px 0 0 rgba(0, 0, 0, 0.10);
+}
+.intent-card.is-selected .intent-label { color: #fff; }
+.intent-card.is-selected .intent-desc  { color: rgba(255, 255, 255, 0.88); }
+.intent-card.is-selected .intent-ico {
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.45),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+}
+
+/* ---------- PRIMARY CTA ---------- */
+.cta-primary {
+  width: 100%; margin-top: 8px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 15px 22px; border-radius: 999px;
+  border: 0;
+  background: var(--t-magenta);
+  color: #fff;
+  font-family: inherit; font-size: 11px; font-weight: 900;
+  text-transform: uppercase; letter-spacing: 0.18em;
+  box-shadow:
+    0 12px 26px rgba(226, 0, 116, 0.30),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.35),
+    inset 0 -1px 0 0 rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: transform 0.1s ease, background 0.15s ease;
+}
+.cta-primary svg { width: 14px; height: 14px; stroke-width: 2.5; }
+.cta-primary:hover { background: var(--t-magenta-hover); }
+.cta-primary:active { transform: scale(0.98); }
+
+/* ---------- SECTION HEAD ---------- */
+.section-head { display: flex; align-items: flex-end; justify-content: space-between; margin: 22px 4px 10px; }
+.section-head h2 { margin-top: 2px; font-size: 18px; }
+.section-count {
+  min-width: 24px; height: 24px; padding: 0 8px;
+  border-radius: 999px;
+  background: var(--glass-bg-tinted);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow: inset 0 1px 0 0 rgba(255,255,255,0.45), inset 0 0 0 1px rgba(226,0,116,0.14);
+  color: var(--t-magenta); font-size: 10px; font-weight: 900;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+
+/* ---------- PLAY CARD ---------- */
+.play-grid { display: flex; flex-direction: column; gap: 10px; }
+.play-card {
+  padding: 16px; border-radius: var(--radius-2xl);
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow);
+}
+.play-card-head { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+.play-badge {
+  width: 32px; height: 32px; border-radius: 10px;
+  background: var(--glass-bg-tinted);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow: inset 0 1px 0 0 rgba(255,255,255,0.50), inset 0 0 0 1px rgba(226,0,116,0.12);
+  color: var(--t-magenta);
+  display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.play-badge svg { width: 16px; height: 16px; stroke-width: 2.25; }
+.play-title { font-size: 14px; font-weight: 900; letter-spacing: -0.01em; color: var(--text-primary); margin-top: 2px; }
+.play-desc { font-size: 12px; line-height: 1.5; color: var(--text-secondary); margin: 6px 0 0 42px; }
+
+/* Talk-track well — tinted glass, magenta accent rail */
+.tt-well {
+  margin: 10px 0 0 42px;
+  background: var(--glass-bg-tinted);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.45),
+    inset 0 0 0 1px rgba(226, 0, 116, 0.12);
+  border-radius: 14px;
+  padding: 10px 12px;
+  position: relative;
+}
+.tt-well::before {
+  content:''; position: absolute; left: -2px; top: 50%; transform: translateY(-50%);
+  width: 3px; height: 18px; background: var(--t-magenta); border-radius: 3px;
+}
+.talk-track { font-size: 12px; font-weight: 700; line-height: 1.55; color: var(--text-accent); }
+
+/* ---------- BANNERS ----------
+   HINT check is an always-on interactive reminder. Reps MUST run the
+   address for Home Internet on every call — the banner is a tappable
+   checklist item, not a decorative nag. Two states:
+     .is-open  — pulsing magenta dot, "do this" posture
+     .is-done  — checkmark, dimmed, satisfied posture */
+.hint-banner {
+  width: 100%;
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px; border-radius: 18px;
+  background: var(--glass-bg-tinted);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow-magenta);
+  color: var(--text-primary);
+  margin-bottom: 14px;
+  border: 0;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.25s ease, background 0.3s ease;
+}
+.hint-banner:hover { transform: translateY(-1px); }
+.hint-banner:active { transform: scale(0.995); }
+.hint-banner.is-done {
+  background: var(--glass-bg);
+  box-shadow: var(--glass-shadow);
+  opacity: 0.82;
+}
+
+/* left status indicator: hollow dot when open, check when done */
+.hint-check {
+  width: 28px; height: 28px; border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,0.55);
+  box-shadow: inset 0 0 0 1.5px var(--t-magenta);
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+}
+.hint-banner.is-done .hint-check {
+  background: var(--t-magenta);
+  box-shadow: 0 4px 10px rgba(226, 0, 116, 0.32), inset 0 1px 0 0 rgba(255,255,255,0.35);
+}
+.hint-check svg { width: 16px; height: 16px; stroke: #fff; stroke-width: 3; }
+.hint-check-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--t-magenta);
+  box-shadow: 0 0 0 0 rgba(226, 0, 116, 0.55);
+  animation: hint-pulse 1.6s ease-out infinite;
+}
+@keyframes hint-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(226, 0, 116, 0.55); }
+  70%  { box-shadow: 0 0 0 8px rgba(226, 0, 116, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(226, 0, 116, 0); }
+}
+
+/* body: tiny uppercase eyebrow + one-line instruction */
+.hint-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.hint-eyebrow {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 9px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.14em;
+  color: var(--t-magenta);
+}
+.hint-banner.is-done .hint-eyebrow { color: var(--text-muted); }
+.hint-eyebrow-label { white-space: nowrap; }
+.hint-pulse {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--t-magenta);
+  animation: hint-pulse 1.6s ease-out infinite;
+}
+.hint-text {
+  font-size: 12px; font-weight: 600; line-height: 1.35;
+  color: var(--text-primary);
+}
+.hint-banner.is-done .hint-text { color: var(--text-secondary); }
+
+/* right-side wifi glyph, subdued — just a semantic anchor */
+.hint-ico {
+  width: 28px; height: 28px; border-radius: 10px;
+  background: rgba(255,255,255,0.45);
+  display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+  box-shadow: inset 0 1px 0 0 rgba(255,255,255,0.5);
+}
+.hint-ico svg { width: 15px; height: 15px; stroke: var(--t-magenta); stroke-width: 2.25; }
+.hint-banner.is-done .hint-ico svg { stroke: var(--text-muted); }
+
+.coach-banner {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow);
+  border-radius: 16px; padding: 12px 14px;
+  margin: 14px 0;
+}
+.coach-banner p { font-size: 11px; font-weight: 600; color: var(--text-secondary); line-height: 1.5; margin: 0; }
+.coach-banner span { color: var(--text-accent); font-weight: 900; }
+
+/* ---------- OBJECTIONS ---------- */
+.obj-list { display: flex; flex-direction: column; gap: 10px; }
+.obj-card {
+  padding: 16px; border-radius: var(--radius-2xl);
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow);
+}
+.obj-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+.obj-quote { font-size: 13px; font-weight: 900; color: var(--text-primary); }
+
+/* Glass pill — same material, just smaller */
+.pill--soft {
+  background: var(--glass-bg-tinted);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow: inset 0 1px 0 0 rgba(255,255,255,0.45), inset 0 0 0 1px rgba(226,0,116,0.14);
+  color: var(--text-accent);
+}
+.obj-reframe { font-size: 12px; font-weight: 500; color: var(--text-secondary); line-height: 1.5; margin: 0 0 10px; }
+
+/* ---------- EYEBROW ---------- */
+.eyebrow { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.2em; color: var(--text-accent); display: inline-block; }
+.eyebrow--muted { color: var(--text-secondary); }
+
+/* ---------------- PRINT STYLES ---------------- */
+/* Render every screen as its own labelled page. Each .print-screen is
+   a page-break boundary; the floating tab bar and new-call button are
+   hidden since they're interactive chrome. Backgrounds are forced so
+   the magenta substrate + glass cards actually appear. */
+@page { size: letter portrait; margin: 0.4in; }
+@media print {
+  html, body {
+    background: #0D0D14 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  body::before {
+    /* print substrate mimics dark theme radial glow */
+    background:
+      radial-gradient(ellipse 60% 40% at 20% 15%, rgba(226, 0, 116, 0.32), transparent 70%),
+      radial-gradient(ellipse 50% 50% at 85% 70%, rgba(133, 27, 84, 0.26), transparent 65%),
+      radial-gradient(ellipse 70% 55% at 50% 100%, rgba(226, 0, 116, 0.18), transparent 70%),
+      linear-gradient(180deg, #0D0D14 0%, #14121C 100%) !important;
+  }
+  .print-shell {
+    max-width: none;
+    padding: 0;
+    margin: 0;
+  }
+  .print-screen {
+    break-before: page;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    min-height: 9.5in;
+    padding: 0.2in 0.4in 0.4in;
+    max-width: 100%;
+    margin: 0 auto;
+  }
+  .print-screen:first-child { break-before: auto; }
+  .print-screen-inner {
+    max-width: 440px;
+    margin: 0 auto;
+  }
+  .print-screen-label {
+    display: block !important;
+    font-family: "Poppins", system-ui, sans-serif;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.55);
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.18);
+  }
+  .tab-bar {
+    position: static !important;
+    transform: none !important;
+    margin: 20px auto 0 !important;
+    width: 100% !important;
+    max-width: 420px !important;
+  }
+  .intent-card {
+    transform: none !important;
+  }
+  .intent-back { display: none !important; }
+  .intent-front {
+    backface-visibility: visible !important;
+    -webkit-backface-visibility: visible !important;
+    transform: none !important;
+    position: static !important;
+  }
+  .intent-card { height: auto !important; min-height: 118px; transform-style: flat !important; }
+  .intent-card.is-open, .intent-card { transform: none !important; }
+  .new-call-btn { display: none !important; }
+  /* prevent animation spin */
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  .hint-pulse, .hint-check-dot { animation: none !important; box-shadow: none !important; }
+}
+/* Screen view of the print page: stack the 5 screens as a scrollable
+   preview so the designer can eyeball before printing. */
+.print-screen-label {
+  display: block;
+  font-family: "Poppins", system-ui, sans-serif;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  margin: 28px 0 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.18);
+}
+.print-screen-inner { max-width: 440px; margin: 0 auto; }
+.print-screen:first-child .print-screen-label { margin-top: 0; }
+
+</style>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" data-presets="react">
+const { useState, useEffect } = React;
+
+// ---------- INTENT GLYPHS ----------
+// Bold, filled, shape-distinct SVG symbols. Each renders at 22px on
+// a colored rounded-tile (.intent-ico[data-kind]). Stronger read than
+// line icons at small sizes, and the color coding doubles as affordance.
+function IntentGlyph({ kind }) {
+  switch (kind) {
+    case "exploring":
+      return (
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M10.5 3a7.5 7.5 0 0 1 5.94 12.1l4.23 4.23a1.5 1.5 0 0 1-2.12 2.12l-4.23-4.23A7.5 7.5 0 1 1 10.5 3Zm0 3a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9Z"/>
+        </svg>
+      );
+    case "upgrade":
+      return (
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 3a1.5 1.5 0 0 1 1.06.44l6 6a1.5 1.5 0 0 1-2.12 2.12L13.5 8.12V19.5a1.5 1.5 0 0 1-3 0V8.12l-3.44 3.44a1.5 1.5 0 0 1-2.12-2.12l6-6A1.5 1.5 0 0 1 12 3Z"/>
+        </svg>
+      );
+    case "addline":
+      return (
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <circle cx="9" cy="7.5" r="3.75"/>
+          <path d="M3 20.25a6 6 0 0 1 12 0v.75a.75.75 0 0 1-.75.75H3.75a.75.75 0 0 1-.75-.75v-.75Z"/>
+          <path d="M19.5 9.75a1.25 1.25 0 0 1 1.25 1.25v2h2a1.25 1.25 0 0 1 0 2.5h-2v2a1.25 1.25 0 0 1-2.5 0v-2h-2a1.25 1.25 0 0 1 0-2.5h2v-2a1.25 1.25 0 0 1 1.25-1.25Z"/>
+        </svg>
+      );
+    case "tech":
+      return (
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M20.3 5.4a1 1 0 0 1 1.7.5 6 6 0 0 1-7.6 7l-6.8 6.8a2.83 2.83 0 0 1-4-4l6.8-6.8a6 6 0 0 1 7-7.6 1 1 0 0 1 .5 1.7l-2.4 2.4a1.5 1.5 0 0 0 0 2.1l1 1a1.5 1.5 0 0 0 2.1 0l2.4-2.4ZM6.5 18.5a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"/>
+        </svg>
+      );
+    case "account":
+      return (
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M6 3h8.17a2 2 0 0 1 1.42.59l3.83 3.82A2 2 0 0 1 20 8.83V19a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm8 1.5V8a1 1 0 0 0 1 1h3.5L14 4.5ZM8 13h8a1 1 0 0 1 0 2H8a1 1 0 0 1 0-2Zm0 4h5a1 1 0 0 1 0 2H8a1 1 0 0 1 0-2Z"/>
+        </svg>
+      );
+    case "order":
+      return (
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M3 6.5A1.5 1.5 0 0 1 4.5 5H14a1.5 1.5 0 0 1 1.5 1.5v2h2.38a2 2 0 0 1 1.7.95l1.87 3.04a2 2 0 0 1 .3 1.05v3.46a1.5 1.5 0 0 1-1.5 1.5h-1.2a3 3 0 1 1-5.6 0H10.3a3 3 0 1 1-5.6 0H4.5A1.5 1.5 0 0 1 3 17V6.5Zm14 6h3.5l-1.62-2.64a.5.5 0 0 0-.42-.24H17v2.88ZM7.5 19.5a1.25 1.25 0 1 0 0-2.5 1.25 1.25 0 0 0 0 2.5Zm8.5 0a1.25 1.25 0 1 0 0-2.5 1.25 1.25 0 0 0 0 2.5Z"/>
+        </svg>
+      );
+    default:
+      return null;
+  }
+}
+
+// ---------- HEADER ----------
+function Header({ title, subtitle, onNewCall }) {
+  return (
+    <header className="app-header">
+      <div className="app-header-inner">
+        <div className="brand">
+          <img src="data:image/svg+xml;base64,PHN2ZyB4PSIwcHgiIHk9IjBweCIgdmlld0JveD0iMCAwIDUyLjAwMDAwMSA1Mi4wMDAwMDEiIHhtbDpzcGFjZT0icHJlc2VydmUiIHdpZHRoPSI1MiIgaGVpZ2h0PSI1MiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cGF0aCBmaWxsPSIjZTIwMDc0IiBkPSJNMCAwaDUydjUySDB6Ij48L3BhdGg+CiAgPHBhdGggZD0iTTE3LjgzMTIgMzEuOTQxNTVoLTcuNDI4NTh2LTcuNDI4NTdoNy40MTU0N3Y3LjQyODU3ek0xMC40MDI2MSA3LjQyODU3djEyLjYyOTg4aDIuMjI3MjZ2LS4zNjY4NGMwLTUuOTQ4MSAzLjM0MDktOS42NTU4MyA5LjY1NTgzLTkuNjU1ODNoLjM2Njg1VjM2Ljc3NmMwIDMuNzA3NzQtMS40ODA0OCA1LjIwMTMxLTUuMjAxMzEgNS4yMDEzMWgtMS4xMTM2M3YyLjU5NDFoMTkuMzExNjZ2LTIuNTk0MWgtMS4xMTM2M2MtMy43MDc3MyAwLTUuMjAxMy0xLjQ4MDQ3LTUuMjAxMy01LjIwMTNWMTAuMDIyNjdoLjM2NjgzYzYuMzE0OTUgMCA5LjY1NTg0IDMuNzA3NzMgOS42NTU4NCA5LjY1NTgzdi4zNjY4NGgyLjIyNzI2VjcuNDI4NTdabTIzLjc2NjE5IDI0LjUxMjk4aDcuNDI4NTd2LTcuNDI4NTdoLTcuNDE1NDd2Ny40Mjg1N3oiIGZpbGw9IiNmZmYiPjwvcGF0aD4KPC9zdmc+" alt="T-Mobile" />
+          <div className="brand-text">
+            <div className="eyebrow">CustomerConnect AI</div>
+            <div className="brand-title">T-Sales Assistant</div>
+          </div>
+        </div>
+        <button type="button" className="new-call-btn" onClick={onNewCall} title="Start a new call · resets HINT + context">
+          <span className="new-call-ico"><i data-lucide="phone-incoming"></i></span>
+          <span className="new-call-label">New Call</span>
+        </button>
+      </div>
+      <div className="app-title-row">
+        <h1>{title}</h1>
+        {subtitle && <div className="header-ctx-val">{subtitle}</div>}
+      </div>
+    </header>
+  );
+}
+
+function TabBar({ active, onChange }) {
+  const tabs = [
+    { id: "live", label: "Live", icon: "zap" },
+    { id: "objections", label: "Flip", icon: "message-square" },
+    { id: "learn", label: "Learn", icon: "book-open" },
+    { id: "level", label: "Level Up", icon: "trophy" },
+  ];
+  return (
+    <nav className="tab-bar">
+      {tabs.map(t => (
+        <button key={t.id} className={`tab ${active === t.id ? 'tab--active' : ''}`} onClick={() => onChange(t.id)}>
+          <i data-lucide={t.icon}></i>
+          <span>{t.label}</span>
+        </button>
+      ))}
+    </nav>
+  );
+}
+
+// ---------- CONTEXT FORM ----------
+function CustomerContextForm({ value, onChange, onSubmit }) {
+  const intents = [
+    { id: "exploring", label: "Exploring",       desc: "Just looking. Low pressure, discovery mode." },
+    { id: "upgrade",   label: "Upgrade",         desc: "Has a line. Wants a new device." },
+    { id: "addline",   label: "Add a Line",      desc: "Existing customer. New phone, new line." },
+    { id: "tech",      label: "Tech Support",    desc: "Something's broken. Service, signal, device issue." },
+    { id: "account",   label: "Account Support", desc: "Billing, plan change, login, profile details." },
+    { id: "order",     label: "Order Support",   desc: "Ordered already. Where is it, when does it arrive?" },
+  ];
+  const ages = ["18-24", "25-34", "35-54", "55+"];
+
+  return (
+    <section className="form-card">
+      <div className="eyebrow">Customer Context</div>
+      <h2>Who's on the line?</h2>
+
+      <div className="field">
+        <div className="label">Call intent</div>
+        <div className="intent-grid">
+          {intents.map(i => {
+            const selected = value.intent === i.id;
+            return (
+              <button
+                key={i.id}
+                type="button"
+                className={`intent-card ${selected ? 'is-selected' : ''}`}
+                onClick={() => onChange({ ...value, intent: i.id })}
+              >
+                <span className="intent-ico" data-kind={i.id}><IntentGlyph kind={i.id} /></span>
+                <span className="intent-label">{i.label}</span>
+                <span className="intent-desc">{i.desc}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="field">
+        <div className="label">Age range</div>
+        <div className="chip-row">
+          {ages.map(a => (
+            <button key={a} className={`chip ${value.age === a ? 'chip--active' : ''}`} onClick={() => onChange({ ...value, age: a })}>
+              {a}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <button className="cta-primary" onClick={onSubmit}>
+        Build Live Plan <i data-lucide="arrow-right"></i>
+      </button>
+    </section>
+  );
+}
+
+// ---------- SHARED ----------
+function HintBanner() {
+  const [done, setDone] = React.useState(() => {
+    try { return localStorage.getItem('cc-hint-checked') === '1'; } catch { return false; }
+  });
+  const toggle = () => {
+    const next = !done;
+    setDone(next);
+    try { localStorage.setItem('cc-hint-checked', next ? '1' : '0'); } catch {}
+  };
+  React.useEffect(() => { if (window.lucide) window.lucide.createIcons(); }, [done]);
+  React.useEffect(() => {
+    const reset = () => setDone(false);
+    window.addEventListener('cc-new-call', reset);
+    return () => window.removeEventListener('cc-new-call', reset);
+  }, []);
+
+  return (
+    <button
+      type="button"
+      className={`hint-banner ${done ? 'is-done' : 'is-open'}`}
+      onClick={toggle}
+      aria-pressed={done}
+    >
+      <span className="hint-check" aria-hidden="true">
+        {done
+          ? <i data-lucide="check"></i>
+          : <span className="hint-check-dot" />}
+      </span>
+      <div className="hint-body">
+        <div className="hint-eyebrow">
+          <span className="hint-eyebrow-label">HINT check · every call</span>
+          {!done && <span className="hint-pulse" />}
+        </div>
+        <div className="hint-text">
+          {done
+            ? "Nice. Address checked for Home Internet."
+            : "Run the address for Home Internet. Slip it in — don't pitch it."}
+        </div>
+      </div>
+      <span className="hint-ico"><i data-lucide="wifi"></i></span>
+    </button>
+  );
+}
+
+function CoachBanner({ children }) {
+  return (
+    <aside className="coach-banner"><p><span>Coach:</span> {children}</p></aside>
+  );
+}
+
+function SectionHead({ eyebrow, title, count }) {
+  return (
+    <div className="section-head">
+      <div>
+        <div className="eyebrow">{eyebrow}</div>
+        <h2>{title}</h2>
+      </div>
+      {count != null && <div className="section-count">{count}</div>}
+    </div>
+  );
+}
+
+function PlayCard({ icon, eyebrow, title, desc, talkTrack }) {
+  return (
+    <article className="play-card">
+      <header className="play-card-head">
+        <span className="play-badge"><i data-lucide={icon}></i></span>
+        <div>
+          <div className="eyebrow eyebrow--muted">{eyebrow}</div>
+          <div className="play-title">{title}</div>
+        </div>
+      </header>
+      {desc && <p className="play-desc">{desc}</p>}
+      {talkTrack && <div className="tt-well"><div className="talk-track">"{talkTrack}"</div></div>}
+    </article>
+  );
+}
+
+// ---------- GAME PLAN ----------
+function GamePlan({ context }) {
+  return (
+    <div className="game-plan">
+      <HintBanner />
+      <SectionHead eyebrow="Open Strong" title="First 30 Seconds" count={2} />
+      <div className="play-grid">
+        <PlayCard icon="message-square" eyebrow="Low-Pressure Open" title="Lower the stakes"
+          desc="Acknowledge they might just be looking. Gets them off the defensive."
+          talkTrack="Hey! No pressure at all — are you just exploring what's out there today, or did something specific catch your eye?" />
+        <PlayCard icon="target" eyebrow="Bill-Check Lead" title="Anchor on the bill"
+          desc="Money is the doorway in — especially if they're 35+."
+          talkTrack="Mind if I pull up your current bill real quick? I want to make sure whatever we do today actually makes sense for you." />
+      </div>
+
+      <SectionHead eyebrow="Dig Deeper" title="What's Really Going On?" count={2} />
+      <div className="play-grid">
+        <PlayCard icon="sparkles" eyebrow="One More Question" title="Ask one more than you think you need to"
+          desc="The real objection usually lives on the second 'why.'"
+          talkTrack="Got it — when you say the battery's rough, is it the mid-day slump, or are you making it to bedtime on a charge?" />
+        <PlayCard icon="home" eyebrow="HINT Door Opener" title="Slip the address check in"
+          desc="Phrase it as doing THEM a favor, not a pitch."
+          talkTrack="While I've got you — what's the address? I want to see if we can knock out that cable bill too." />
+      </div>
+
+      <CoachBanner>Slow down. Match their energy for the first 20 seconds before you try to lead.</CoachBanner>
+
+      <SectionHead eyebrow="Close It Out" title="Make It Easy to Say Yes" count={2} />
+      <div className="play-grid">
+        <PlayCard icon="shield" eyebrow="Non-Negotiable" title="P360 isn't an accessory"
+          desc="Treat it as a given. One sentence, move on."
+          talkTrack="I'm setting you up with P360 — that's your protection through the whole phone life. Standard on every upgrade." />
+        <PlayCard icon="smartphone" eyebrow="Perfect Upgrade Cycle" title="Keep the bill flat"
+          desc="Trade-in + Keep & Switch beats a raw upgrade for credit-sensitive callers."
+          talkTrack="Keep & Switch is the smarter move — we bring your old phone over, no credit hit, bill stays flat." />
+      </div>
+    </div>
+  );
+}
+
+// ---------- OBJECTIONS ----------
+function Objections() {
+  const items = [
+    { label: "Too expensive", reframe: "Anchor on their current bill, not our price.",
+      talkTrack: "Totally fair — what are you paying right now? Let me see if we can actually shrink that before we talk about anything new." },
+    { label: "I'm not ready to switch", reframe: "Agree with them. Don't push. Ask one more question.",
+      talkTrack: "Yeah, switching's a hassle — I get it. If I could make the switching part disappear, would the rest actually make sense?" },
+    { label: "I need to talk to my spouse", reframe: "Offer to hold the deal. Real deadline, no pressure.",
+      talkTrack: "Smart move. I'll hold these numbers on my side through tonight. Loop them in, call me back, we pick right up." },
+  ];
+  return (
+    <div className="objections">
+      <HintBanner />
+      <SectionHead eyebrow="Getting Pushback?" title="Let's Flip It" count={items.length} />
+      <div className="obj-list">
+        {items.map((o, i) => (
+          <div key={i} className="obj-card">
+            <div className="obj-head">
+              <span className="obj-quote">"{o.label}"</span>
+              <span className="pill pill--soft">Flip it</span>
+            </div>
+            <p className="obj-reframe">{o.reframe}</p>
+            <div className="tt-well"><div className="talk-track">"{o.talkTrack}"</div></div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ---------- LEARN / LEVEL ----------
+function Learn() {
+  const cards = [
+    { title: "The Perfect Upgrade Cycle", desc: "Why flat bills beat big upgrades.", icon: "smartphone" },
+    { title: "Credit-Sensitive Selling", desc: "When Keep & Switch beats a finance.", icon: "credit-card" },
+    { title: "HINT in 3 Questions", desc: "Slip the address check in without pitching.", icon: "wifi" },
+    { title: "P360 Framing", desc: "Stop selling it. Start including it.", icon: "shield" },
+  ];
+  return (
+    <div>
+      <SectionHead eyebrow="Learn" title="Core Plays" count={cards.length} />
+      <div className="play-grid">
+        {cards.map((c, i) => (
+          <article key={i} className="play-card">
+            <header className="play-card-head">
+              <span className="play-badge"><i data-lucide={c.icon}></i></span>
+              <div>
+                <div className="eyebrow eyebrow--muted">5 min read</div>
+                <div className="play-title">{c.title}</div>
+              </div>
+            </header>
+            <p className="play-desc">{c.desc}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ---------- APP (PRINT) ----------
+const DEFAULT_CTX = { intent: "exploring", age: "25-34" };
+
+function Screen({ label, title, subtitle, children }) {
+  return (
+    <section className="print-screen">
+      <span className="print-screen-label">{label}</span>
+      <div className="print-screen-inner">
+        <Header title={title} subtitle={subtitle} onNewCall={() => {}} />
+        {children}
+      </div>
+    </section>
+  );
+}
+
+function App() {
+  const ctx = { intent: "exploring", age: "25-34" };
+  const subtitle = `${ctx.intent[0].toUpperCase()+ctx.intent.slice(1)} · ${ctx.age}`;
+
+  useEffect(() => {
+    if (window.lucide) window.lucide.createIcons();
+  });
+
+  return (
+    <div className="app-shell print-shell">
+      <Screen label="01 · Context form" title="Start Here">
+        <CustomerContextForm value={ctx} onChange={() => {}} onSubmit={() => {}} />
+      </Screen>
+
+      <Screen label="02 · Game plan (Live)" title="Your Game Plan" subtitle={subtitle}>
+        <GamePlan context={ctx} />
+        <TabBar active="live" onChange={() => {}} />
+      </Screen>
+
+      <Screen label="03 · Flip It (Objections)" title="Flip It" subtitle={subtitle}>
+        <Objections />
+        <TabBar active="objections" onChange={() => {}} />
+      </Screen>
+
+      <Screen label="04 · Learn" title="Learn" subtitle={subtitle}>
+        <Learn />
+        <TabBar active="learn" onChange={() => {}} />
+      </Screen>
+
+      <Screen label="05 · Level Up" title="Level Up" subtitle={subtitle}>
+        <div className="play-card" style={{padding:24, textAlign:'center'}}>
+          <div className="eyebrow" style={{color:'#E20074'}}>Level Up</div>
+          <h2 style={{margin:'8px 0 8px'}}>Today's Challenge</h2>
+          <p style={{color:'var(--text-secondary)', fontSize:12, lineHeight:1.5}}>Flip 3 "too expensive" objections without quoting a price. Daily win = $5 card.</p>
+          <button className="cta-primary" style={{marginTop:14}}>Start Round <i data-lucide="play"></i></button>
+        </div>
+        <TabBar active="level" onChange={() => {}} />
+      </Screen>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+
+// Auto-print after fonts + JSX settle
+(async () => {
+  try { if (document.fonts && document.fonts.ready) await document.fonts.ready; } catch {}
+  setTimeout(() => {
+    if (window.lucide) window.lucide.createIcons();
+    setTimeout(() => window.print(), 500);
+  }, 600);
+})();
+</script>
+</body>
+</html>

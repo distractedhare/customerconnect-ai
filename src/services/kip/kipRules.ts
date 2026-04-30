@@ -114,7 +114,7 @@ export function buildLearnKipNote({ section }: LearnKipNoteInput): KipMessage {
       mode: 'learn',
       tone: 'tip',
       headline: 'Kip’s read',
-      body: 'Grab one fresh briefing item. Translate it into one sentence a customer can use. That’s your call-ready talk track.',
+      body: 'Knowledge strengthens the signal. Grab one fresh briefing item. Translate it into one sentence a customer can use. That’s your call-ready talk track.',
       sourceReason: 'Briefing should shorten the path from weekly intel to a usable line.',
     },
     devices: {

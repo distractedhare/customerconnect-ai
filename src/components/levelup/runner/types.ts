@@ -97,7 +97,13 @@ export interface CharacterStats {
   agility: number;
   power: number;
   durability: number;
-  tech: number;
+  tech?: number;
+  versatility?: number;
+  mobility?: number;
+  intelligence?: number;
+  adaptability?: number;
+  defense?: number;
+  utility?: number;
 }
 
 export interface NativeCharacterStats {
@@ -106,6 +112,13 @@ export interface NativeCharacterStats {
   defense: number;
   utility: number;
   max: 10;
+  // Brand specific primary stats from sheets
+  agility?: number;
+  durability?: number;
+  versatility?: number;
+  mobility?: number;
+  intelligence?: number;
+  adaptability?: number;
 }
 
 export interface CharacterAbility {
@@ -165,8 +178,6 @@ export interface BossDefinition {
   id: string;
   name: string;
   title: string;
-  // 'HiddenArchitect' is reserved for lore-only entities (e.g. Bell Sovereign)
-  // that exist as content stubs but are not wired into the level progression.
   threatLevel: 'MiniBoss' | 'Boss' | 'FinalBoss' | 'HiddenArchitect';
   progressionEligible?: boolean;
   faction: string;
@@ -179,6 +190,13 @@ export interface BossDefinition {
   mechanics: string[];
   counterplay: string[];
   milestoneLevel: number;
+  stats?: {
+    power: number;
+    speed: number;
+    defense: number;
+    control: number;
+    disruption: number;
+  };
 }
 
 export type PowerUpType = 'MAGNET' | 'SHIELD' | 'BATTERY' | 'OVERCLOCK' | 'MULTIPLIER' | 'SCANNER';

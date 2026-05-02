@@ -61,8 +61,7 @@ export const KIP_MOORE: AmbassadorProfile = {
   ],
 };
 
-/** Plain-text block suitable for injection into an AI system prompt. */
-export function kipMooreContextBlock(): string {
+const KIP_MOORE_CONTEXT = ((): string => {
   const { name, role, bio, musicHighlights, albums, keyDemographic, repTalkingPoints, repAvoid } = KIP_MOORE;
 
   const albumLines = albums
@@ -93,4 +92,9 @@ export function kipMooreContextBlock(): string {
     'Rep — avoid:',
     avoid,
   ].join('\n');
+})();
+
+/** Plain-text block suitable for injection into an AI system prompt. */
+export function kipMooreContextBlock(): string {
+  return KIP_MOORE_CONTEXT;
 }

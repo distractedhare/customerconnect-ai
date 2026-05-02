@@ -125,12 +125,14 @@ function buildWeeklySummary(weeklyData: WeeklyUpdate | null): string {
   ].filter(Boolean).join('\n\n');
 }
 
+const SYSTEM_PROMPT = [
+  'You are a T-Mobile virtual retail sales coach. Return valid JSON only with no markdown or extra narration.',
+  '',
+  kipMooreContextBlock(),
+].join('\n');
+
 function buildSystemPrompt(): string {
-  return [
-    'You are a T-Mobile virtual retail sales coach. Return valid JSON only with no markdown or extra narration.',
-    '',
-    kipMooreContextBlock(),
-  ].join('\n');
+  return SYSTEM_PROMPT;
 }
 
 function buildScriptMessages(context: SalesContext, weeklyData: WeeklyUpdate | null): ChatMessage[] {

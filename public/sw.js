@@ -1,4 +1,5 @@
-const CACHE_NAME = 'customerconnect-v12';
+const CACHE_NAME = 'customerconnect-v15';
+const IMAGE_ASSET_PATTERN = /\.(png|webp|svg|jpe?g)$/i;
 const KIP_AVATAR_ASSETS = [
   '/assets/kip/kip_16_idle.svg',
   '/assets/kip/kip_16_listening.svg',
@@ -29,40 +30,54 @@ const KIP_AVATAR_ASSETS = [
   '/assets/kip/kip_128_loading.svg',
   '/assets/kip/kip_128_speaking.svg',
 ];
-const RUNNER_FACTION_ASSETS = [
-  '/assets/factions/apple/cutout_transparent.png',
-  '/assets/factions/apple/hud_portrait.png',
-  '/assets/factions/apple/avatar_small.png',
-  '/assets/factions/apple/abilities/smash.svg',
-  '/assets/factions/apple/abilities/blast.svg',
-  '/assets/factions/apple/abilities/core.svg',
-  '/assets/factions/samsung/cutout_transparent.png',
-  '/assets/factions/samsung/hud_portrait.png',
-  '/assets/factions/samsung/avatar_small.png',
-  '/assets/factions/samsung/abilities/smash.svg',
-  '/assets/factions/samsung/abilities/blast.svg',
-  '/assets/factions/samsung/abilities/core.svg',
-  '/assets/factions/tcl/cutout_transparent.png',
-  '/assets/factions/tcl/hud_portrait.png',
-  '/assets/factions/tcl/avatar_small.png',
-  '/assets/factions/tcl/abilities/smash.svg',
-  '/assets/factions/tcl/abilities/blast.svg',
-  '/assets/factions/tcl/abilities/core.svg',
-  '/assets/factions/motorola/cutout_transparent.png',
-  '/assets/factions/motorola/hud_portrait.png',
-  '/assets/factions/motorola/avatar_small.png',
-  '/assets/factions/motorola/abilities/smash.svg',
-  '/assets/factions/motorola/abilities/blast.svg',
-  '/assets/factions/motorola/abilities/core.svg',
-  '/assets/factions/pixel/cutout_transparent.png',
-  '/assets/factions/pixel/hud_portrait.png',
-  '/assets/factions/pixel/avatar_small.png',
-  '/assets/factions/pixel/abilities/smash.svg',
-  '/assets/factions/pixel/abilities/blast.svg',
-  '/assets/factions/pixel/abilities/core.svg',
-  '/assets/factions/pixel/abilities/swarm.svg',
-  '/assets/factions/pixel/abilities/laser.svg',
-  '/assets/factions/pixel/abilities/protocol.svg',
+const RUNNER_CHARACTER_SLUGS = [
+  'apple_titanium_duelist',
+  'samsung_foldwing_warrior',
+  'tcl_display_brawler',
+  'motorola_flip_rider',
+  'pixel_scout',
+];
+const RUNNER_CHARACTER_ASSETS = RUNNER_CHARACTER_SLUGS.flatMap((slug) =>
+  [
+    `cards/${slug}_card`,
+    `heroes/${slug}_hero`,
+    `portraits/${slug}_portrait`,
+    `avatars/${slug}_avatar`,
+    `banners/${slug}_banner`,
+    `mobile/${slug}_mobile`,
+  ].flatMap((path) => [`/levelup/runner/${path}.png`, `/levelup/runner/${path}.webp`])
+);
+const RUNNER_ABILITY_ASSETS = ['apple', 'samsung', 'tcl', 'motorola', 'pixel', 'kip'].flatMap((runner) =>
+  ['smash', 'blast', 'core'].flatMap((slot) => [
+    `/levelup/runner/abilities/${runner}-${slot}.png`,
+    `/levelup/runner/abilities/${runner}-${slot}.webp`,
+  ])
+);
+const RUNNER_BOSS_ASSETS = [
+  'atlas-backbone',
+  'redline-commander',
+  'patchwork-hydra',
+  'throttle-maw',
+  'dead-zone-titan',
+  'bell',
+  'bell-encounter',
+].flatMap((boss) =>
+  ['avatar', 'banner', 'portrait'].flatMap((slot) => [
+    `/levelup/runner/bosses/${boss}-${slot}.png`,
+    `/levelup/runner/bosses/${boss}-${slot}.webp`,
+  ])
+);
+const RUNNER_SIDEKICK_ASSETS = [
+  '/levelup/runner/cards/tmobile_sidekick_core_command_card_v2.png',
+  '/levelup/runner/cards/tmobile_sidekick_core_command_card_v2.webp',
+  '/levelup/runner/portraits/tmobile_sidekick_core_portrait.png',
+  '/levelup/runner/portraits/tmobile_sidekick_core_portrait.webp',
+];
+const RUNNER_ART_ASSETS = [
+  ...RUNNER_CHARACTER_ASSETS,
+  ...RUNNER_ABILITY_ASSETS,
+  ...RUNNER_BOSS_ASSETS,
+  ...RUNNER_SIDEKICK_ASSETS,
 ];
 const APP_SHELL_ASSETS = [
   '/',
@@ -75,8 +90,33 @@ const APP_SHELL_ASSETS = [
   '/icon-192.png',
   '/icon-512.png',
   ...KIP_AVATAR_ASSETS,
-  ...RUNNER_FACTION_ASSETS,
+  ...RUNNER_ART_ASSETS,
 ];
+
+const isValidAssetResponse = (response, pathname) => {
+  if (!response || !response.ok) return false;
+  const contentType = response.headers.get('Content-Type') || '';
+  if (IMAGE_ASSET_PATTERN.test(pathname)) return contentType.startsWith('image/');
+  return !contentType.includes('text/html');
+};
+
+const fetchAndCacheAsset = (request, pathname) =>
+  fetch(request).then((response) => {
+    if (isValidAssetResponse(response, pathname)) {
+      const clone = response.clone();
+      caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+    }
+    return response;
+  });
+
+const networkFirstAsset = (request, pathname) =>
+  fetchAndCacheAsset(request, pathname).catch(() =>
+    caches.match(request).then((cached) =>
+      isValidAssetResponse(cached, pathname)
+        ? cached
+        : new Response('', { status: 503 })
+    )
+  );
 
 self.addEventListener('message', (event) => {
   if (event.data?.type === 'SKIP_WAITING') {
@@ -201,20 +241,9 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Native runner selection cards must be available offline before gameplay.
-  if (url.pathname.startsWith('/assets/factions/')) {
-    event.respondWith(
-      caches.match(event.request).then((cached) => {
-        if (cached) return cached;
-        return fetch(event.request).then((response) => {
-          if (response.ok) {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-          }
-          return response;
-        }).catch(() => new Response('', { status: 503 }));
-      })
-    );
+  // Runner art must never serve a stale app shell from cache under an image URL.
+  if (url.pathname.startsWith('/levelup/runner/')) {
+    event.respondWith(networkFirstAsset(event.request, url.pathname));
     return;
   }
 

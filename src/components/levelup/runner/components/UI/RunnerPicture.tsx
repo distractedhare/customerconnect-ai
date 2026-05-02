@@ -1,6 +1,14 @@
 import type { ImgHTMLAttributes } from 'react';
 
 const rasterPattern = /\.(png|jpe?g)$/i;
+const runnerArtRoots = ['/levelup/runner/'];
+const runnerArtVersion = '20260430c';
+
+function getVersionedAssetSrc(src?: string | null) {
+  if (!src) return undefined;
+  if (!runnerArtRoots.some((root) => src.startsWith(root))) return src;
+  return `${src}${src.includes('?') ? '&' : '?'}v=${runnerArtVersion}`;
+}
 
 export function getWebpVariant(src?: string | null) {
   if (!src || !rasterPattern.test(src)) return null;
@@ -20,15 +28,17 @@ export function RunnerPicture({
   alt,
   ...imgProps
 }: RunnerPictureProps) {
-  const webpSrc = getWebpVariant(src);
-  const mobileWebpSrc = getWebpVariant(mobileSrc);
+  const imgSrc = getVersionedAssetSrc(src);
+  const mobileImgSrc = getVersionedAssetSrc(mobileSrc);
+  const webpSrc = getVersionedAssetSrc(getWebpVariant(src));
+  const mobileWebpSrc = getVersionedAssetSrc(getWebpVariant(mobileSrc));
 
   return (
     <picture className={pictureClassName}>
       {mobileSrc && mobileWebpSrc ? <source media="(max-width: 520px)" srcSet={mobileWebpSrc} type="image/webp" /> : null}
-      {mobileSrc ? <source media="(max-width: 520px)" srcSet={mobileSrc} /> : null}
+      {mobileImgSrc ? <source media="(max-width: 520px)" srcSet={mobileImgSrc} /> : null}
       {webpSrc ? <source srcSet={webpSrc} type="image/webp" /> : null}
-      <img src={src} alt={alt} {...imgProps} />
+      <img src={imgSrc} alt={alt} {...imgProps} />
     </picture>
   );
 }

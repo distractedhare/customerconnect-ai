@@ -137,8 +137,8 @@ function RunnerFallback({
 }
 
 const HOW_TO_PLAY = [
-  { title: 'Swipe lanes', copy: 'Guide Kip through the Signal Grid.', icon: Route },
-  { title: 'Collect T-LIFE', copy: 'Grab letters, charge Battery, and unlock boosts.', icon: BatteryCharging },
+  { title: 'Swipe lanes', copy: 'Guide your runner through the Signal Grid.', icon: Route },
+  { title: 'Collect T-LIFE', copy: 'Grab Signal Keys, charge Battery, and unlock boosts.', icon: BatteryCharging },
   { title: 'Crash → challenge', copy: 'Answer fast to shield up and keep running.', icon: Satellite },
 ];
 

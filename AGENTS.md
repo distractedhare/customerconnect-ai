@@ -1,11 +1,11 @@
-# AGENTS.md — T-Mobile CustomerConnect AI (improved-robot)
+# AGENTS.md — T-Mobile CustomerConnect AI (customerconnect-ai)
 
 _This file is the canonical instruction set for AI tools working in this repo.
 Claude Code, Claude Cowork, Claude Desktop, Codex, Cursor, Gemini CLI, and any
 other coding agent should READ THIS FIRST before modifying files. If you are
 Claude Code, note that `CLAUDE.md` in this repo defers to this file._
 
-**Last updated:** 2026-04-19
+**Last updated:** 2026-04-30
 **Maintained by:** B (certorian@gmail.com)
 
 ---
@@ -13,38 +13,62 @@ Claude Code, note that `CLAUDE.md` in this repo defers to this file._
 ## 1. What this repo is
 
 This is the live T-Mobile CustomerConnect AI sales assistant — a React/TypeScript
-PWA that helps virtual retail reps during calls. This repo (`improved-robot`) is
-the **singular master** for the web app code. There are no other active forks.
+PWA that helps virtual retail reps during calls. This folder (`customerconnect-ai/`)
+is the **singular canonical master** for the web app code. There are no other
+active forks or working copies.
 
-GitHub: https://github.com/distractedhare/improved-robot
+GitHub: https://github.com/distractedhare/customerconnect-ai
 
 ### Hard rule: one repo, one master
 
-Do not create another fork, copy, or "improved-robot-v2". Do not nest a second
-copy of this codebase inside `T-Mobile Sales Assistant/`. Do not clone this repo
-into any sibling folder. If you need a scratch copy to experiment, use a branch
-— not a new folder.
+Do not create another fork, copy, or "-v2" folder. Do not nest a second copy of
+this codebase inside `T-Mobile Sales Assistant/`. If you need to experiment, use
+a git branch — not a new folder.
 
-A previous fork (`customerconnect-ai` / the old `pwa/` folder) was retired on
-2026-04-19 because the split was confusing every AI tool. Don't bring it back.
+> **Note on `improved-robot/`:** A sibling folder named `improved-robot/` exists
+> on the Desktop but has been retired (it contains a `RETIRED.md`). Do not edit
+> it, import from it, or treat it as current. It is staged for deletion.
 
-### Shared canon — know the three sibling folders
+### PERSONAL CONTENT ISOLATION RULE
+
+**AI tools working in this repo MUST NOT:**
+- Load, reference, or surface content from `T-Mobile Personal/`
+- Include personal career, status, performance, or employment information in any
+  component, service, data file, API response, or user-facing feature
+- Use personal context to influence app behavior, copy, or data
+
+This is a sales tool for external use. Personal owner info stays completely out.
+
+### Shared canon — the full T-Mobile workspace
 
 ```
-mnt/
-├── improved-robot/            ← YOU ARE HERE — the web app code (this repo)
+~/Desktop/
+├── customerconnect-ai/        ← YOU ARE HERE — the web app (canonical)
 ├── T-Mobile Sales Assistant/  ← native apps + docs + sales materials
 │   ├── ios/                   ← SwiftUI companion app
-│   ├── android/               ← Android app
+│   ├── android/               ← Android app (scaffold)
 │   ├── docs/                  ← project documentation
-│   └── sales-materials/       ← decks, flyers, sales assets
-└── T-Mobile Toolkit/          ← long-term knowledge base (reference only)
-    ├── philosophy/            ← Magenta Pulse design philosophy
-    ├── presentations/         ← pitch decks, flyers
-    ├── sales-reference/       ← HINT quick-picks, playbook, value summaries
-    ├── promo-assets/          ← QR cards, promo graphics
-    ├── design-system/         ← UI design system from Claude Design (uniform across app)
-    └── archive/               ← old handoff prompts, deprecated specs
+│   └── sales-materials/       ← decks, flyers, HINT guides, sales assets
+└── _TO-DELETE/                ← staging area for retired folders (do not reference)
+
+~/Documents/Claude/Projects/
+├── T-Mobile Toolkit/          ← long-term knowledge base (reference only)
+│   ├── philosophy/            ← Magenta Pulse design philosophy
+│   ├── presentations/         ← pitch decks, flyers
+│   ├── sales-reference/       ← HINT quick-picks, playbook, value summaries
+│   ├── promo-assets/          ← QR cards, promo graphics
+│   ├── design-system/         ← UI design system (uniform across all apps)
+│   ├── gemini-handoff/        ← Gemini AI Studio reference exports
+│   ├── scraper/               ← T-Mobile data pipeline (promotions, plans, devices)
+│   └── archive/               ← old handoff prompts, deprecated specs
+└── T-Mobile Personal/         ← owner personal info (career, status, notes)
+    ╔══════════════════════════════════════════════════════╗
+    ║  ISOLATION: Never reference from this app folder.    ║
+    ║  Personal context only. Not for sales tools or app.  ║
+    ╚══════════════════════════════════════════════════════╝
+
+For the complete ecosystem map, see:
+~/Documents/Claude/Projects/T-Mobile Toolkit/T-MOBILE-ECOSYSTEM.md
 ```
 
 ---
@@ -62,7 +86,7 @@ mnt/
 ## 3. Folder layout inside this repo
 
 ```
-improved-robot/
+customerconnect-ai/
 ├── src/
 │   ├── App.tsx                ← top-level shell, lazy-loads feature panels
 │   ├── components/            ← UI components (one per file, PascalCase)
@@ -136,19 +160,25 @@ improved-robot/
 
 ## 5. Things AI tools have tripped over before
 
-- **Two remotes on the same repo.** The old pwa folder had both
-  `origin → improved-robot` and `neworigin → customerconnect-ai` set.
-  This repo has exactly one remote: `origin → improved-robot.git`. Keep it that way.
+- **The improved-robot / customerconnect-ai split.** There used to be two app folders
+  on the Desktop with similar code. `improved-robot/` is retired. This folder
+  (`customerconnect-ai/`) is the only one that matters. If you see `improved-robot/`
+  referenced anywhere, that reference is stale — update it.
 
-- **GitHub branch pollution.** The `customerconnect-ai` repo accumulated many
-  `claude/*` feature branches. If you create a branch here, prefer meaningful
-  names and delete after merge.
+- **GitHub remote:** This repo's only remote is `origin → customerconnect-ai.git`.
+  Do not add a second remote.
+
+- **GitHub branch pollution.** If you create a branch, use a meaningful name and
+  delete after merge. Avoid accumulating `claude/*` branches.
 
 - **Duplicate `2.ts` files.** Google Drive / Finder sometimes creates filename
-  duplicates with " 2.ts" suffix. These are not real files — delete.
+  duplicates with " 2.ts" suffix. These are not real files — delete on sight.
 
 - **Google Drive sync deadlocks.** This folder is synced via Drive. If `rm` fails
   with "Operation not permitted", use `mv` to `.deprecated/` instead.
+
+- **Personal content.** Never pull from `T-Mobile Personal/`. If you're unsure
+  whether something is personal, err on the side of leaving it out.
 
 ---
 

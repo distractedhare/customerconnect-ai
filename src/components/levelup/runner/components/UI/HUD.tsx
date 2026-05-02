@@ -181,12 +181,43 @@ const getAbilityIconMap = (character: CharacterDefinition): Partial<Record<Runne
     return icons;
   }, {}) ?? {};
 
+const CHARACTER_ART_SLUGS: Partial<Record<CharacterId, string>> = {
+  apple: 'apple_titanium_duelist',
+  samsung: 'samsung_foldwing_warrior',
+  tcl: 'tcl_display_brawler',
+  motorola: 'motorola_flip_rider',
+  pixel: 'pixel_scout',
+};
+
+const getRunnerAsset = (folder: string, slug: string | undefined, suffix: string) =>
+  slug ? `/levelup/runner/${folder}/${slug}_${suffix}.png` : undefined;
+
 const getCharacterAssets = (character: CharacterDefinition) => ({
-  fullCard: character.assets?.fullCard ?? character.assets?.cutout ?? character.cardImage,
-  heroBanner: character.assets?.heroBanner ?? character.assets?.cutout ?? character.heroImage ?? character.cardImage,
-  hudPortrait: character.assets?.hudPortrait ?? character.portraitImage ?? character.cardImage,
-  avatarSmall: character.assets?.avatarSmall ?? character.assets?.avatar ?? character.portraitImage ?? character.cardImage,
-  mobileFallback: character.assets?.mobileFallback ?? character.assets?.cutout ?? character.assets?.heroBanner ?? character.heroImage ?? character.cardImage,
+  fullCard: character.assets?.fullCard ?? getRunnerAsset('cards', CHARACTER_ART_SLUGS[character.id], 'card') ?? character.cardImage,
+  heroBanner:
+    character.assets?.heroBanner
+    ?? getRunnerAsset('banners', CHARACTER_ART_SLUGS[character.id], 'banner')
+    ?? character.heroImage
+    ?? character.assets?.cutout
+    ?? character.cardImage,
+  hudPortrait:
+    character.assets?.hudPortrait
+    ?? getRunnerAsset('portraits', CHARACTER_ART_SLUGS[character.id], 'portrait')
+    ?? character.portraitImage
+    ?? character.cardImage,
+  avatarSmall:
+    character.assets?.avatarSmall
+    ?? getRunnerAsset('avatars', CHARACTER_ART_SLUGS[character.id], 'avatar')
+    ?? character.assets?.avatar
+    ?? character.portraitImage
+    ?? character.cardImage,
+  mobileFallback:
+    character.assets?.mobileFallback
+    ?? getRunnerAsset('mobile', CHARACTER_ART_SLUGS[character.id], 'mobile')
+    ?? character.assets?.heroBanner
+    ?? character.heroImage
+    ?? character.assets?.cutout
+    ?? character.cardImage,
   abilityIcons: getAbilityIconMap(character),
 });
 

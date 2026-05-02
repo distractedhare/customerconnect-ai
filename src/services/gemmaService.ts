@@ -1,6 +1,7 @@
 import { ObjectionAnalysis, SalesContext, SalesScript } from '../types';
 import { isAbortError, withTimeoutSignal } from './networkUtils';
 import { WeeklyUpdate } from './weeklyUpdateSchema';
+import { kipMooreContextBlock } from '../data/kipMooreData';
 
 export type GemmaLoadingState = 'idle' | 'loading' | 'ready' | 'error' | 'unsupported';
 
@@ -124,6 +125,14 @@ function buildWeeklySummary(weeklyData: WeeklyUpdate | null): string {
   ].filter(Boolean).join('\n\n');
 }
 
+function buildSystemPrompt(): string {
+  return [
+    'You are a T-Mobile virtual retail sales coach. Return valid JSON only with no markdown or extra narration.',
+    '',
+    kipMooreContextBlock(),
+  ].join('\n');
+}
+
 function buildScriptMessages(context: SalesContext, weeklyData: WeeklyUpdate | null): ChatMessage[] {
   const products = context.product.join(', ');
   const carrier = context.currentCarrier || 'Unknown';
@@ -131,7 +140,7 @@ function buildScriptMessages(context: SalesContext, weeklyData: WeeklyUpdate | n
   return [
     {
       role: 'system',
-      content: 'You are a T-Mobile virtual retail sales coach. Return valid JSON only with no markdown or extra narration.',
+      content: buildSystemPrompt(),
     },
     {
       role: 'user',
@@ -177,7 +186,7 @@ function buildObjectionMessages(
   return [
     {
       role: 'system',
-      content: 'You are a T-Mobile virtual retail sales coach. Return valid JSON only with no markdown or extra narration.',
+      content: buildSystemPrompt(),
     },
     {
       role: 'user',

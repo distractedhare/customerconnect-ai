@@ -1,7 +1,7 @@
 import type { ImgHTMLAttributes } from 'react';
 
 const rasterPattern = /\.(png|jpe?g)$/i;
-const runnerArtRoots = ['/levelup/runner/'];
+const runnerArtRoots = ['/levelup/runner/', '/assets/'];
 const runnerArtVersion = '20260430c';
 
 function getVersionedAssetSrc(src?: string | null) {
@@ -12,6 +12,10 @@ function getVersionedAssetSrc(src?: string | null) {
 
 export function getWebpVariant(src?: string | null) {
   if (!src || !rasterPattern.test(src)) return null;
+  // Only attempt WebP if we know it exists (legacy runner paths).
+  // Faction assets in /assets/factions/ currently only have PNGs.
+  // This prevents SPA fallback (200 OK index.html) from blocking PNG fallback.
+  if (!src.startsWith('/levelup/runner/')) return null;
   return src.replace(rasterPattern, '.webp');
 }
 

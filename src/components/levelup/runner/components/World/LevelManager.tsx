@@ -39,7 +39,7 @@ import {
   TLIFE_COLORS,
   type PowerUpType,
 } from '../../types';
-import { LEVEL_PALETTES, T_LIFE_WORD } from '../../content';
+import { LEVEL_PALETTES, T_LIFE_WORD, getHazardLabels } from '../../content';
 import { audio } from '../System/Audio';
 
 const OBSTACLE_HEIGHT = 1.6;
@@ -103,7 +103,63 @@ const makeBurst = (position: [number, number, number], color: string, count = 32
   window.dispatchEvent(new CustomEvent('particle-burst', { detail: { position, color, count } }));
 };
 
-const hazardLabelPool = ['BILL SHOCK', 'DATA CAP', 'HIDDEN FEES', 'DROP CALL', 'PORTING FRICTION', 'FINE PRINT', 'SCAM FLOOD'];
+// ---------------------------------------------------------------------------
+// Level-specific enemy-type probability tables
+// Each entry is [ObjectType, cumulativeProbability] — values must sum to 1.0
+// ---------------------------------------------------------------------------
+const HAZARD_TYPE_WEIGHTS: Record<number, [ObjectType, number][]> = {
+  // Level 0 (pre-boss / default) — equal distribution
+  0: [
+    [ObjectType.OBSTACLE, 0.25],
+    [ObjectType.BARRIER,  0.50],
+    [ObjectType.TOWER,    0.75],
+    [ObjectType.ALIEN,    1.00],
+  ],
+  // Level 1 — Atlas Backbone: tower-heavy grid walls
+  1: [
+    [ObjectType.TOWER,    0.40],
+    [ObjectType.BARRIER,  0.75],
+    [ObjectType.OBSTACLE, 0.95],
+    [ObjectType.ALIEN,    1.00],
+  ],
+  // Level 2 — Redline Commander: aggressive aliens + fast obstacles
+  2: [
+    [ObjectType.ALIEN,    0.30],
+    [ObjectType.OBSTACLE, 0.70],
+    [ObjectType.BARRIER,  0.90],
+    [ObjectType.TOWER,    1.00],
+  ],
+  // Level 3 — Patchwork Hydra: chaotic mix, lots of aliens and obstacles
+  3: [
+    [ObjectType.OBSTACLE, 0.30],
+    [ObjectType.ALIEN,    0.55],
+    [ObjectType.BARRIER,  0.80],
+    [ObjectType.TOWER,    1.00],
+  ],
+  // Level 4 — Throttle Maw: alien-dominant with stagger obstacles
+  4: [
+    [ObjectType.ALIEN,    0.35],
+    [ObjectType.OBSTACLE, 0.65],
+    [ObjectType.BARRIER,  0.85],
+    [ObjectType.TOWER,    1.00],
+  ],
+  // Level 5 — Dead Zone Titan: towers + aliens, menacing silhouette
+  5: [
+    [ObjectType.TOWER,    0.30],
+    [ObjectType.BARRIER,  0.55],
+    [ObjectType.ALIEN,    0.80],
+    [ObjectType.OBSTACLE, 1.00],
+  ],
+};
+
+const getWeightedHazardType = (level: number): ObjectType => {
+  const weights = HAZARD_TYPE_WEIGHTS[level] ?? HAZARD_TYPE_WEIGHTS[0];
+  const roll = Math.random();
+  for (const [type, cumulative] of weights) {
+    if (roll < cumulative) return type;
+  }
+  return ObjectType.OBSTACLE;
+};
 
 const getPickupSpec = (type: PowerUpType) => {
   switch (type) {
@@ -136,9 +192,10 @@ const createPickup = (type: PowerUpType, lane: number, z: number): GameObject =>
 };
 
 const createHazard = (lane: number, z: number, level: number, type?: ObjectType): GameObject => {
-  const palette = LEVEL_PALETTES[level] || LEVEL_PALETTES[1];
-  const objectType = type || [ObjectType.OBSTACLE, ObjectType.BARRIER, ObjectType.TOWER, ObjectType.ALIEN][Math.floor(Math.random() * 4)];
+  const palette = LEVEL_PALETTES[level] ?? LEVEL_PALETTES[1];
+  const objectType = type ?? getWeightedHazardType(level);
   const color = palette[Math.floor(Math.random() * palette.length)];
+  const labelPool = getHazardLabels(level);
   let y = OBSTACLE_HEIGHT / 2;
   if (objectType === ObjectType.BARRIER) y = BARRIER_HEIGHT / 2;
   if (objectType === ObjectType.TOWER) y = TOWER_HEIGHT / 2;
@@ -150,7 +207,7 @@ const createHazard = (lane: number, z: number, level: number, type?: ObjectType)
     position: [lane * LANE_WIDTH, y, z],
     active: true,
     color,
-    label: objectType === ObjectType.ALIEN ? 'BIG CARRIER' : hazardLabelPool[Math.floor(Math.random() * hazardLabelPool.length)],
+    label: objectType === ObjectType.ALIEN ? 'BIG CARRIER' : labelPool[Math.floor(Math.random() * labelPool.length)],
   };
 };
 

@@ -33,19 +33,19 @@ export const KIP_ASSETS = {
     usage: 'Large mascot moments: Home, onboarding, major recovery or celebration states.',
   },
   portrait: {
-    png: '/kip/mobile.png',
+    png: '/kip/portrait.png',
     alt: 'Kip',
     minSize: 64,
     usage: 'Coach cards, Live guidance, Learn notes, and medium helper panels.',
   },
   avatar: {
-    png: '/kip/avatar.png',
+    png: '/kip/orb.png',
     alt: 'Kip',
     minSize: 32,
     usage: 'Compact assistant badge and runner Sidekick Core identity.',
   },
   orb: {
-    png: '/kip/avatar.png',
+    png: '/kip/orb.png',
     alt: 'Kip',
     minSize: 32,
     usage: 'Compact assistant badge and runner Sidekick Core identity.',
@@ -119,11 +119,17 @@ export function getKipBadgeAsset(
   _size: number,
   state: KipAssetState = "idle"
 ) {
+  // Restore the 3D head for the idle state as requested.
+  // The vector SVGs are great for states, but the 3D orb is the premium face of the app.
+  if (state === "idle") {
+    return KIP_ASSETS.avatar as KipAssetEntry;
+  }
+
   // Use the state-specific SVG if it exists in the KIP_ASSETS.states object
   const stateAsset = KIP_ASSETS.states[state as keyof typeof KIP_ASSETS.states];
   if (stateAsset) return stateAsset as KipAssetEntry;
   
-  // Fallback to avatar PNG
+  // Fallback to 3D avatar
   return KIP_ASSETS.avatar as KipAssetEntry;
 }
 

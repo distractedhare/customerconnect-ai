@@ -37,12 +37,211 @@ export const T_MOBILE_PALETTE = [
 ];
 
 export const LEVEL_PALETTES: Record<number, string[]> = {
-  1: [T_MOBILE_MAGENTA, T_MOBILE_WHITE],
-  2: [T_MOBILE_MAGENTA, T_MOBILE_SILVER, T_MOBILE_GREY],
-  3: [T_MOBILE_MAGENTA, '#A10052', '#FF5CAD'],
-  4: [T_MOBILE_MAGENTA, '#6E34FF', '#00D9FF', T_MOBILE_WHITE],
-  5: [T_MOBILE_MAGENTA, '#FF5CAD', '#A10052', '#6E34FF', '#00D9FF', T_MOBILE_WHITE],
+  // Level colors now match each boss's accent palette
+  1: ['#2D9CFF', '#B7DCFF', '#4488FF', T_MOBILE_WHITE],                              // Atlas Backbone — blue steel
+  2: ['#FF3030', '#FF8A8A', '#CC0000', '#FF5533'],                                     // Redline Commander — crimson
+  3: ['#FFC400', '#FF7A18', '#FFE066', '#FF9500'],                                     // Patchwork Hydra — neon yellow
+  4: ['#C653FF', '#FF5CFF', '#9B3FCC', '#FF88FF'],                                     // Throttle Maw — purple overload
+  5: ['#8CE34A', '#FF3FB7', '#66CC22', '#AEFF66'],                                     // Dead Zone Titan — toxic green
 };
+// ─────────────────────────────────────────────────────────────────────────────
+// WORLD THEMES — one visual identity per boss milestone level
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface WorldTheme {
+  id: string;
+  // Sky dome
+  skyZenith: string;
+  skyMid: string;
+  skyHorizon: string;
+  skyFloor: string;
+  // Environment
+  gridColor: string;
+  buildingFill: string;
+  buildingWireframe: string;
+  floorReflectorColor: string;
+  // Sun / horizon pulse
+  sunTop: string;
+  sunBottom: string;
+  horizonPulseBase: string;
+  horizonPulsePeak: string;
+  // Lane dashes
+  laneLineColor: string;
+  // Fog
+  fogColor: string;
+  fogNear: number;
+  fogFar: number;
+  // Lights
+  ambientColor: string;
+  directionalColor: string;
+  pointColor: string;
+}
+
+export const WORLD_THEMES: Record<number, WorldTheme> = {
+  // ── 0 / default — T-Mobile Magenta ────────────────────────────────────────
+  0: {
+    id: 'tmobile',
+    skyZenith: '#02000a',
+    skyMid: '#3a0540',
+    skyHorizon: '#E20074',
+    skyFloor: '#1a0420',
+    gridColor: '#E20074',
+    buildingFill: '#0b0512',
+    buildingWireframe: '#00ffff',
+    floorReflectorColor: '#1a0b2e',
+    sunTop: '#FFFFFF',
+    sunBottom: '#E20074',
+    horizonPulseBase: '#E20074',
+    horizonPulsePeak: '#FF8CC6',
+    laneLineColor: '#E20074',
+    fogColor: '#1a0420',
+    fogNear: 40,
+    fogFar: 130,
+    ambientColor: '#E20074',
+    directionalColor: '#E20074',
+    pointColor: '#E20074',
+  },
+  // ── 1 — Atlas Backbone · AT&T Deep Blue Steel ────────────────────────────
+  1: {
+    id: 'atlas',
+    skyZenith: '#000814',
+    skyMid: '#001a35',
+    skyHorizon: '#2D9CFF',
+    skyFloor: '#001020',
+    gridColor: '#2D9CFF',
+    buildingFill: '#020a14',
+    buildingWireframe: '#2D9CFF',
+    floorReflectorColor: '#001428',
+    sunTop: '#B7DCFF',
+    sunBottom: '#2D9CFF',
+    horizonPulseBase: '#2D9CFF',
+    horizonPulsePeak: '#B7DCFF',
+    laneLineColor: '#2D9CFF',
+    fogColor: '#000d1a',
+    fogNear: 40,
+    fogFar: 130,
+    ambientColor: '#2D9CFF',
+    directionalColor: '#2D9CFF',
+    pointColor: '#2D9CFF',
+  },
+  // ── 2 — Redline Commander · Crimson Military ─────────────────────────────
+  2: {
+    id: 'redline',
+    skyZenith: '#0d0000',
+    skyMid: '#2a0000',
+    skyHorizon: '#FF3030',
+    skyFloor: '#1a0000',
+    gridColor: '#FF3030',
+    buildingFill: '#0f0000',
+    buildingWireframe: '#FF3030',
+    floorReflectorColor: '#1a0000',
+    sunTop: '#FF8A8A',
+    sunBottom: '#FF3030',
+    horizonPulseBase: '#FF3030',
+    horizonPulsePeak: '#FF8A8A',
+    laneLineColor: '#FF3030',
+    fogColor: '#150000',
+    fogNear: 35,
+    fogFar: 120,
+    ambientColor: '#FF3030',
+    directionalColor: '#FF3030',
+    pointColor: '#FF3030',
+  },
+  // ── 3 — Patchwork Hydra · Neon Yellow Chaos ──────────────────────────────
+  3: {
+    id: 'patchwork',
+    skyZenith: '#0d0a00',
+    skyMid: '#1f1400',
+    skyHorizon: '#FFC400',
+    skyFloor: '#0d0800',
+    gridColor: '#FFC400',
+    buildingFill: '#100c00',
+    buildingWireframe: '#FFC400',
+    floorReflectorColor: '#1a1000',
+    sunTop: '#FFEF99',
+    sunBottom: '#FF7A18',
+    horizonPulseBase: '#FF7A18',
+    horizonPulsePeak: '#FFC400',
+    laneLineColor: '#FFC400',
+    fogColor: '#0d0800',
+    fogNear: 40,
+    fogFar: 125,
+    ambientColor: '#FFC400',
+    directionalColor: '#FF7A18',
+    pointColor: '#FFC400',
+  },
+  // ── 4 — Throttle Maw · Neon Purple Overload ──────────────────────────────
+  4: {
+    id: 'throttle',
+    skyZenith: '#08000f',
+    skyMid: '#1a0030',
+    skyHorizon: '#C653FF',
+    skyFloor: '#0f0018',
+    gridColor: '#C653FF',
+    buildingFill: '#0a0012',
+    buildingWireframe: '#FF5CFF',
+    floorReflectorColor: '#120020',
+    sunTop: '#E8AAFF',
+    sunBottom: '#C653FF',
+    horizonPulseBase: '#C653FF',
+    horizonPulsePeak: '#FF5CFF',
+    laneLineColor: '#C653FF',
+    fogColor: '#0d0018',
+    fogNear: 38,
+    fogFar: 125,
+    ambientColor: '#C653FF',
+    directionalColor: '#C653FF',
+    pointColor: '#FF5CFF',
+  },
+  // ── 5 — Dead Zone Titan · Toxic Green Void ───────────────────────────────
+  5: {
+    id: 'deadzone',
+    skyZenith: '#000800',
+    skyMid: '#001200',
+    skyHorizon: '#8CE34A',
+    skyFloor: '#000d00',
+    gridColor: '#8CE34A',
+    buildingFill: '#030800',
+    buildingWireframe: '#8CE34A',
+    floorReflectorColor: '#001000',
+    sunTop: '#CCFF88',
+    sunBottom: '#8CE34A',
+    horizonPulseBase: '#8CE34A',
+    horizonPulsePeak: '#FF3FB7',
+    laneLineColor: '#8CE34A',
+    fogColor: '#000800',
+    fogNear: 35,
+    fogFar: 115,
+    ambientColor: '#8CE34A',
+    directionalColor: '#8CE34A',
+    pointColor: '#FF3FB7',
+  },
+};
+
+export const getWorldTheme = (level: number): WorldTheme =>
+  WORLD_THEMES[level] ?? WORLD_THEMES[0];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LEVEL PALETTES — hazard/obstacle colors per level (boss accent tones)
+// ─────────────────────────────────────────────────────────────────────────────
+// (replaces the original LEVEL_PALETTES export)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// HAZARD LABELS — boss-themed enemy label pools per level
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const HAZARD_LABELS_BY_LEVEL: Record<number, string[]> = {
+  0: ['BILL SHOCK', 'DATA CAP', 'HIDDEN FEES', 'DROP CALL', 'PORTING FRICTION', 'FINE PRINT', 'SCAM FLOOD'],
+  1: ['TOWER WALL', 'AT&T LOCK', 'LEGACY GRID', 'BACKBONE', 'STEEL TRAP', 'SIGNAL BLOCK', 'DEAD ZONE'],
+  2: ['RED ALERT', 'MISSILE LOCK', 'FIRE ZONE', 'DOMINION', 'RATE LOCK', 'COMBAT ZONE', 'OVERRIDE'],
+  3: ['GLITCH', 'FAKE SIGNAL', 'CHAOS NODE', 'PATCHWORK', 'BAIT TRAP', 'SIGNAL SPLIT', 'OVERLOAD'],
+  4: ['THROTTLED', 'CONGESTION', 'BANDWIDTH CAP', 'DRONE SWARM', 'DATA JAM', 'SLOWDOWN', 'OVERLOAD'],
+  5: ['DEAD SIGNAL', 'VOID ZONE', 'BLACKOUT', 'JAM PULSE', 'NULL FIELD', 'DARK ZONE', 'SIGNAL DEAD'],
+};
+
+export const getHazardLabels = (level: number): string[] =>
+  HAZARD_LABELS_BY_LEVEL[level] ?? HAZARD_LABELS_BY_LEVEL[0];
+
 
 export interface CharacterAbility {
   slot: number;

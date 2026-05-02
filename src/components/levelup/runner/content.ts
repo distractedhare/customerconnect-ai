@@ -62,6 +62,7 @@ export interface RunnerCharacter {
     hud: string;
     avatar: string;
   };
+  fullCard?: string;
   stats: { power: number; speed: number; defense: number; utility: number; };
   abilities: CharacterAbility[];
 }
@@ -78,6 +79,7 @@ export const PLAYABLE_RUNNERS: RunnerCharacter[] = [
       hud: '/levelup/runner/portraits/tcl_display_brawler_portrait.png',
       avatar: '/levelup/runner/avatars/tcl_display_brawler_avatar.png',
     },
+    fullCard: '/levelup/runner/cards/tcl_display_brawler_card.png',
     stats: { power: 8, speed: 6, defense: 8, utility: 7 },
     abilities: [
       { slot: 1, label: 'Equalizer Blast', description: 'Wide area shockwave.', path: '/levelup/runner/abilities/tcl-blast.png' },
@@ -96,6 +98,7 @@ export const PLAYABLE_RUNNERS: RunnerCharacter[] = [
       hud: '/levelup/runner/portraits/pixel_scout_portrait.png',
       avatar: '/levelup/runner/avatars/pixel_scout_avatar.png',
     },
+    fullCard: '/levelup/runner/cards/pixel_scout_card.png',
     stats: { power: 6, speed: 9, defense: 5, utility: 10 },
     abilities: [
       { slot: 1, label: 'Data Swarm', description: 'Hacks nearby obstacles.', path: '/levelup/runner/abilities/pixel-smash.png' },
@@ -114,6 +117,7 @@ export const PLAYABLE_RUNNERS: RunnerCharacter[] = [
       hud: '/levelup/runner/portraits/apple_titanium_duelist_portrait.png',
       avatar: '/levelup/runner/avatars/apple_titanium_duelist_avatar.png',
     },
+    fullCard: '/levelup/runner/cards/apple_titanium_duelist_card.png',
     stats: { power: 7, speed: 9, defense: 8, utility: 10 },
     abilities: [
       { slot: 1, label: 'MagSafe Core', description: 'Pulls nearby rewards.', path: '/levelup/runner/abilities/apple-blast.png' },
@@ -132,6 +136,7 @@ export const PLAYABLE_RUNNERS: RunnerCharacter[] = [
       hud: '/levelup/runner/portraits/samsung_foldwing_warrior_portrait.png',
       avatar: '/levelup/runner/avatars/samsung_foldwing_warrior_avatar.png',
     },
+    fullCard: '/levelup/runner/cards/samsung_foldwing_warrior_card.png',
     stats: { power: 10, speed: 8, defense: 8, utility: 10 },
     abilities: [
       { slot: 1, label: 'Lens Burst', description: 'Wide lens pulse.', path: '/levelup/runner/abilities/samsung-smash.png' },
@@ -150,6 +155,7 @@ export const PLAYABLE_RUNNERS: RunnerCharacter[] = [
       hud: '/levelup/runner/portraits/motorola_flip_rider_portrait.png',
       avatar: '/levelup/runner/avatars/motorola_flip_rider_avatar.png',
     },
+    fullCard: '/levelup/runner/cards/motorola_flip_rider_card.png',
     stats: { power: 7, speed: 10, defense: 6, utility: 8 },
     abilities: [
       { slot: 1, label: 'Speed Dash', description: 'Bursts through trouble.', path: '/levelup/runner/abilities/motorola-blast.png' },

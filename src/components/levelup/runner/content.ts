@@ -88,27 +88,7 @@ export const PLAYABLE_RUNNERS: RunnerCharacter[] = [
       { slot: 3, label: 'Core Sync', description: 'Steady battery regen.', path: '/levelup/runner/abilities/nokia-core.png' },
     ],
   },
-  // ── Kip: AI Operator / Sidekick ───────────────────────────────────────────
-  {
-    id: 'kip' as CharacterId,
-    name: 'Kip',
-    role: 'AI Operator',
-    trait: 'Always On — Knowledge Strengthens the Signal',
-    color: '#E20074',
-    assets: {
-      cutout: '/kip/hero.png',
-      hud: '/kip/portrait.png',
-      avatar: '/kip/orb.png',
-    },
-    fullCard: '/levelup/runner/cards/tmobile_sidekick_core_command_card_v2.png',
-    stats: { power: 5, speed: 7, defense: 6, utility: 10 },
-    abilities: [
-      { slot: 1, label: 'Signal Check', description: 'Reveals safe lane paths.', path: '/levelup/runner/abilities/kip-smash.png' },
-      { slot: 2, label: 'Bonus Round', description: 'Activates a score burst.', path: '/levelup/runner/abilities/kip-blast.png' },
-      { slot: 3, label: 'KIP Challenge', description: 'Risk/reward trivia play.', path: '/levelup/runner/abilities/kip-core.png' },
-    ],
-  },
-  // ── Device faction runners ────────────────────────────────────────────────
+  // ── Device faction runners (Kip is not playable — it's the guide/operator) ─
   {
     id: 'tcl',
     name: 'TCL NXTVISION',

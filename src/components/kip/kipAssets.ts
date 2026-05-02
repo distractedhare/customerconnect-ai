@@ -65,59 +65,51 @@ export const KIP_ASSETS = {
   },
   states: {
     idle: {
-      svg: '/kip/states/kip-idle.svg',
+      svg: '/assets/kip/kip_32_idle.svg',
       alt: 'Kip idle',
-      minSize: 16,
-      maxRecommendedSize: 64,
-      usage: 'Default tiny Kip state.',
+      minSize: 32,
+      usage: 'Default Kip state.',
     },
     listening: {
-      svg: '/kip/states/kip-listening.svg',
+      svg: '/assets/kip/kip_32_listening.svg',
       alt: 'Kip listening',
-      minSize: 24,
-      maxRecommendedSize: 64,
+      minSize: 32,
       usage: 'Listening or live-readiness state.',
     },
     tip: {
-      svg: '/kip/states/kip-tip.svg',
+      svg: '/assets/kip/kip_32_tip.svg',
       alt: 'Kip tip',
-      minSize: 24,
-      maxRecommendedSize: 64,
+      minSize: 32,
       usage: 'Suggestion, coaching, or next-best-action state.',
     },
     alert: {
-      svg: '/kip/states/kip-alert.svg',
+      svg: '/assets/kip/kip_32_alert.svg',
       alt: 'Kip alert',
-      minSize: 24,
-      maxRecommendedSize: 64,
+      minSize: 32,
       usage: 'Warning, blocked flow, or attention-needed state.',
     },
     success: {
-      svg: '/kip/states/kip-success.svg',
+      svg: '/assets/kip/kip_32_success.svg',
       alt: 'Kip success',
-      minSize: 24,
-      maxRecommendedSize: 64,
+      minSize: 32,
       usage: 'Completed, saved, or celebratory state.',
     },
     loading: {
-      svg: '/kip/states/kip-loading.svg',
+      svg: '/assets/kip/kip_32_loading.svg',
       alt: 'Kip loading',
-      minSize: 24,
-      maxRecommendedSize: 64,
+      minSize: 32,
       usage: 'Loading, thinking, or work-in-progress state.',
     },
     speaking: {
-      svg: '/kip/states/kip-speaking.svg',
+      svg: '/assets/kip/kip_32_speaking.svg',
       alt: 'Kip speaking',
-      minSize: 24,
-      maxRecommendedSize: 64,
+      minSize: 32,
       usage: 'Kip guidance or spoken-coach state.',
     },
     notification: {
-      svg: '/kip/states/kip-notification.svg',
+      svg: '/assets/kip/kip_32_alert.svg', // Fallback to alert for notification if specific one missing
       alt: 'Kip notification',
-      minSize: 24,
-      maxRecommendedSize: 64,
+      minSize: 32,
       usage: 'Notification badge or small count moment.',
     },
   },
@@ -125,16 +117,18 @@ export const KIP_ASSETS = {
 
 export function getKipBadgeAsset(
   _size: number,
-  _state: "idle" | "listening" | "tip" | "alert" | "success" | "loading" | "speaking" | "notification" = "idle"
+  state: KipAssetState = "idle"
 ) {
-  // State-specific SVGs reference an external `<image href>` that browsers
-  // sandbox and refuse to load when the parent SVG in an <img>. Plus
-  // KIP_ASSETS.orb and KIP_ASSETS.portrait don't exist on this object.
-  // Return the transparent avatar PNG for every size/state. State distinction
-  // is carried by the breathing/glow/pulse animation in <KipAvatar />.
+  // Use the state-specific SVG if it exists in the KIP_ASSETS.states object
+  const stateAsset = KIP_ASSETS.states[state as keyof typeof KIP_ASSETS.states];
+  if (stateAsset) return stateAsset as KipAssetEntry;
+  
+  // Fallback to avatar PNG
   return KIP_ASSETS.avatar as KipAssetEntry;
 }
 
-export function getKipStateAsset(_state: string) {
+export function getKipStateAsset(state: string) {
+  const stateAsset = KIP_ASSETS.states[state as keyof typeof KIP_ASSETS.states];
+  if (stateAsset) return stateAsset as KipAssetEntry;
   return KIP_ASSETS.avatar as KipAssetEntry;
 }

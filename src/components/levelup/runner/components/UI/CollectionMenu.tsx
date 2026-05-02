@@ -1,34 +1,12 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
-import { PLAYABLE_RUNNERS, type RunnerCharacter } from '../../content';
+import { PLAYABLE_RUNNERS } from '../../content';
 import { useStore } from '../../store';
 import type { CharacterId } from '../../types';
 import CharacterCard from './CharacterCard';
 import { KipAvatar } from '../../../../kip';
 
-const KIP_CHARACTER: RunnerCharacter = {
-  id: 'kip' as CharacterId,
-  name: 'Kip',
-  role: 'AI Operator',
-  trait: 'Signal Support',
-  color: '#E20074',
-  assets: {
-    cutout: '/kip/hero.png',
-    hud: '/kip/mobile.png',
-    avatar: '/kip/avatar.png',
-  },
-  stats: {
-    power: 5,
-    speed: 5,
-    defense: 5,
-    utility: 10,
-  },
-  abilities: [
-    { slot: 1, label: 'Signal Check', description: 'Scans safe lanes.', path: '/kip/abilities/smash.png' },
-    { slot: 2, label: 'Bonus Round', description: 'Triggers bonuses.', path: '/kip/abilities/blast.png' },
-    { slot: 3, label: 'KIP Challenge', description: 'Risk/reward play.', path: '/kip/abilities/core.png' },
-  ],
-};
+import type { RunnerCharacter } from '../../content';
 
 interface CollectionMenuProps {
   characters?: RunnerCharacter[];
@@ -40,7 +18,7 @@ interface CollectionMenuProps {
 const toCharacterId = (id: string): CharacterId => id as CharacterId;
 
 export function CollectionMenu({
-  characters = [KIP_CHARACTER, ...PLAYABLE_RUNNERS],
+  characters = PLAYABLE_RUNNERS,
   selectedRunnerId,
   onDeploy,
   onBack,

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { UserCircle, CreditCard, FileText, KeyRound, ArrowUpRight, Sparkles, Headphones, CheckCircle2 } from 'lucide-react';
+import { KipAvatar } from './kip';
 import { SalesContext, SupportFocus } from '../types';
 
 interface AccountSupportPanelProps {
@@ -82,7 +83,10 @@ export default function AccountSupportPanel({ context, setContext }: AccountSupp
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="glass-stage rounded-3xl p-5 shadow-sm">
+      <div className="glass-stage rounded-3xl p-5 shadow-sm relative pl-16">
+        <div className="absolute left-3 top-5">
+          <KipAvatar size="small" state="idle" />
+        </div>
         <div className="flex items-start gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-t-magenta/10">
             <UserCircle className="h-5 w-5 text-t-magenta" />

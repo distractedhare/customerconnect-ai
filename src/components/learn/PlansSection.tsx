@@ -3,6 +3,7 @@ import { DollarSign, Zap, Crown, ChevronDown, ChevronRight, Star, Users, Briefca
 import { AnimatePresence, motion } from 'motion/react';
 import { POSTPAID_PLANS, SPECIALIZED_PLANS, RETIRED_PLANS } from '../../data/plans';
 import LearnSectionHeader from './LearnSectionHeader';
+import { KipAvatar } from '../kip';
 
 type Section = 'phone' | 'connected' | 'specialized' | 'why-premium';
 
@@ -102,14 +103,19 @@ export default function PlansSection() {
       />
 
       <div className="rounded-[1.8rem] glass-reading-strong p-4">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-          <div className="max-w-xl">
-            <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta mb-1 flex items-center gap-1.5">
-              <Zap className="w-3 h-3" /> Premium value rail
-            </p>
-            <p className="text-[12px] font-semibold leading-relaxed text-foreground">
-              Lead with Beyond or More first. Use one value proof, show the per-line math, and only fall to Essentials when budget is the real blocker.
-            </p>
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div className="flex flex-1 gap-4">
+            <div className="shrink-0 mt-1">
+              <KipAvatar size="medium" state="listening" showGlow />
+            </div>
+            <div className="max-w-xl">
+              <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta mb-1 flex items-center gap-1.5">
+                <Zap className="w-3 h-3" /> Kip's Premium Value Rail
+              </p>
+              <p className="text-[14px] font-bold leading-relaxed text-foreground">
+                "Lead with Beyond or More first. Use one value proof, show the per-line math, and only fall to Essentials when budget is the real blocker."
+              </p>
+            </div>
           </div>
           <div className="grid gap-2 sm:grid-cols-2 lg:max-w-2xl">
             {QUICK_FACTS.slice(0, 4).map((fact, i) => (

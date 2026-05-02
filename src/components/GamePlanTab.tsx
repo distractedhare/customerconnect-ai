@@ -16,6 +16,8 @@ import DynamicAccessoryFlow from './DynamicAccessoryFlow';
 import { PHONES } from '../data/devices';
 import AccessoryImageSlot from './AccessoryImageSlot';
 import { getAccessoryImageUrl } from '../data/accessoryImagePaths';
+import { KipAvatar } from './kip';
+import { useKipStore } from '../hooks/useKipStore';
 
 interface GamePlanTabProps {
   context: SalesContext;
@@ -142,8 +144,14 @@ export function GamePlanResults({
       animate={{ opacity: 1, scale: 1 }}
       className="space-y-6"
     >
-      <div className="flex items-center justify-between mb-2">
-        <h2 className="text-2xl font-black tracking-tight">Your Game Plan</h2>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <KipAvatar size="small" state="idle" onClick={() => useKipStore.getState().toggleKip()} />
+          <div>
+            <h2 className="text-2xl font-black tracking-tight">Your Game Plan</h2>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-t-magenta">KIP: Signal is locked. Let's close.</p>
+          </div>
+        </div>
         <button
           type="button"
           onClick={onReset}
@@ -382,10 +390,16 @@ export function GamePlanResults({
 
       {/* Coach's Corner */}
       {script.coachsCorner && (
-        <div className="glass-feature rounded-xl px-4 py-3">
-          <p className="text-xs text-t-dark-gray font-semibold leading-relaxed">
-            <span className="text-t-magenta font-black">Coach:</span> {script.coachsCorner}
-          </p>
+        <div className="glass-feature flex items-start gap-4 rounded-2xl px-5 py-4">
+          <div className="mt-1 shrink-0">
+            <KipAvatar size="small" state="idle" showGlow />
+          </div>
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-t-magenta mb-1">KIP COACHING</p>
+            <p className="text-sm text-white font-medium leading-relaxed italic">
+              "{script.coachsCorner}"
+            </p>
+          </div>
         </div>
       )}
 

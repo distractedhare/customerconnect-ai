@@ -4,6 +4,31 @@ import { PLAYABLE_RUNNERS, type RunnerCharacter } from '../../content';
 import { useStore } from '../../store';
 import type { CharacterId } from '../../types';
 import CharacterCard from './CharacterCard';
+import { KipAvatar } from '../../../../kip';
+
+const KIP_CHARACTER: RunnerCharacter = {
+  id: 'kip' as CharacterId,
+  name: 'Kip',
+  role: 'AI Operator',
+  trait: 'Signal Support',
+  color: '#E20074',
+  assets: {
+    cutout: '/kip/hero.png',
+    hud: '/kip/mobile.png',
+    avatar: '/kip/avatar.png',
+  },
+  stats: {
+    power: 5,
+    speed: 5,
+    defense: 5,
+    utility: 10,
+  },
+  abilities: [
+    { slot: 1, label: 'Signal Check', description: 'Scans safe lanes.', path: '/kip/abilities/smash.png' },
+    { slot: 2, label: 'Bonus Round', description: 'Triggers bonuses.', path: '/kip/abilities/blast.png' },
+    { slot: 3, label: 'KIP Challenge', description: 'Risk/reward play.', path: '/kip/abilities/core.png' },
+  ],
+};
 
 interface CollectionMenuProps {
   characters?: RunnerCharacter[];
@@ -15,7 +40,7 @@ interface CollectionMenuProps {
 const toCharacterId = (id: string): CharacterId => id as CharacterId;
 
 export function CollectionMenu({
-  characters = PLAYABLE_RUNNERS,
+  characters = [KIP_CHARACTER, ...PLAYABLE_RUNNERS],
   selectedRunnerId,
   onDeploy,
   onBack,
@@ -96,9 +121,14 @@ export function CollectionMenu({
     <section className="relative min-h-[100dvh] overflow-hidden bg-[#0F0F14] py-6 text-white sm:rounded-[1.85rem] sm:border sm:border-white/10">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(226,0,116,0.18),transparent_42%)]" />
       <div className="relative z-10 mx-auto flex max-w-5xl items-start justify-between gap-4 px-5 sm:px-8">
-        <div className="min-w-0">
+        <div className="min-w-0 text-left">
           <p className="text-[10px] font-black uppercase tracking-[0.28em] text-[#ff8cc6]">Runner collection</p>
-          <h2 className="mt-2 text-3xl font-black uppercase leading-none tracking-wide text-white sm:text-4xl">Choose your signal</h2>
+          <div className="flex items-center gap-3">
+            <h2 className="mt-2 text-3xl font-black uppercase leading-none tracking-wide text-white sm:text-4xl">Choose your signal</h2>
+            <div className="mt-1">
+              <KipAvatar size="small" state="idle" showGlow />
+            </div>
+          </div>
         </div>
         {onBack ? (
           <button

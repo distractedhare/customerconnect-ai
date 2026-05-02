@@ -216,15 +216,12 @@ function RunnerLanding({ onLaunch, onStartLiveCall }: RunnerLandingProps) {
 
         <div className="min-w-0">
           <div className="relative mx-auto max-w-[23rem] overflow-hidden rounded-[1.7rem] border border-[#E20074]/35 bg-black shadow-[0_30px_80px_rgba(226,0,116,0.22)]">
-            <picture>
-              <source srcSet={KIP_ASSETS.hero.webp} type="image/webp" />
-              <img
-                src={KIP_ASSETS.hero.png}
-                alt="Kip"
-                className="aspect-[4/5] h-full w-full object-cover object-top"
-                loading="eager"
-              />
-            </picture>
+            <img
+              src={KIP_ASSETS.hero.png}
+              alt="Kip"
+              className="aspect-[4/5] h-full w-full object-cover object-top"
+              loading="eager"
+            />
             <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0)_48%,rgba(0,0,0,0.82)_100%)]" />
             <div className="absolute inset-x-0 bottom-0 p-4">
               <p className="text-[10px] font-black uppercase tracking-[0.24em] text-[#ff8cc6]">AI operator online</p>

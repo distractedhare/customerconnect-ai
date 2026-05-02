@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'motion/react';
 import { Calculator, CheckCircle2, XCircle, Info, TrendingDown, Gift, Zap } from 'lucide-react';
+import { KipAvatar } from './kip';
 import { POSTPAID_PLANS } from '../data/plans';
 
 interface PlanMathVisualizerProps {
@@ -130,7 +131,10 @@ export default function PlanMathVisualizer({ lineCount = 3 }: PlanMathVisualizer
         </div>
       </div>
 
-      <div className="p-4 rounded-2xl bg-t-dark-gray text-white">
+      <div className="p-4 rounded-2xl bg-t-dark-gray text-white relative pl-16 min-h-[5rem] flex flex-col justify-center">
+        <div className="absolute left-3 top-1/2 -translate-y-1/2">
+          <KipAvatar size="small" state="tip" />
+        </div>
         <p className="text-[10px] font-black text-t-magenta uppercase mb-2 tracking-widest flex items-center gap-2">
           <TrendingDown className="w-4 h-4" />
           The "Beyond" Advantage

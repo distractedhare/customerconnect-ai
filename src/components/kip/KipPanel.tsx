@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ChevronDown, ChevronUp, Lightbulb, MessageSquare, ShieldAlert, Sparkles } from 'lucide-react';
 import type { KipRecommendation } from '../../types/kip';
 import KipBadge from './KipBadge';
+import KipAvatar from './KipAvatar';
 
 interface KipPanelProps {
   recommendation: KipRecommendation;
@@ -26,9 +27,17 @@ export default function KipPanel({ recommendation }: KipPanelProps) {
               {recommendation.headline}
             </h3>
             {recommendation.sayThis ? (
-              <div className="mt-3 rounded-2xl bg-white/74 px-4 py-3 shadow-sm">
-                <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-magenta">Say this</p>
-                <p className="mt-1 text-sm font-bold leading-relaxed text-foreground">"{recommendation.sayThis}"</p>
+              <div className="mt-4 flex items-start gap-4">
+                <div className="mt-1 shrink-0">
+                  <KipAvatar size="small" state="speaking" showGlow />
+                </div>
+                <div className="relative flex-1 rounded-2xl bg-white/74 px-4 py-3 shadow-sm border border-t-magenta/10">
+                  {/* Speech bubble tail */}
+                  <div className="absolute -left-1.5 top-5 h-3 w-3 rotate-45 border-b border-l border-t-magenta/10 bg-white/74" />
+                  
+                  <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-magenta">Kip says:</p>
+                  <p className="mt-1 text-sm font-bold leading-relaxed text-foreground italic">"{recommendation.sayThis}"</p>
+                </div>
               </div>
             ) : null}
           </div>

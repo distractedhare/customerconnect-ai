@@ -15,6 +15,7 @@ import {
 import { SalesContext } from '../types';
 import CustomerContextForm from './CustomerContextForm';
 import { getSupportOptionsForIntent } from '../constants/supportFocus';
+import { KipAvatar } from './kip';
 
 interface LiveRefinePanelProps {
   open: boolean;
@@ -102,12 +103,15 @@ export default function LiveRefinePanel({ open, context, onClose, onApply }: Liv
             className="glass-modal flex max-h-[88dvh] w-full flex-col overflow-hidden rounded-t-[2rem] md:h-[calc(100dvh-2rem)] md:max-h-none md:max-w-[34rem] md:rounded-[2rem]"
           >
             <div className="flex items-start justify-between gap-4 border-b border-white/10 px-5 py-4">
-              <div>
-                <p className="type-micro text-t-magenta">Refine Plan</p>
-                <h2 className="mt-1 text-xl font-black tracking-tight text-foreground">Tune the live context</h2>
-                <p className="mt-1 text-xs font-medium leading-relaxed text-t-dark-gray">
-                  Keep the call surface clean. Add details here, then apply once.
-                </p>
+              <div className="flex items-start gap-3">
+                <KipAvatar size="small" state="idle" />
+                <div>
+                  <p className="type-micro text-t-magenta">Refine Plan</p>
+                  <h2 className="mt-1 text-xl font-black tracking-tight text-foreground">Tune the live context</h2>
+                  <p className="mt-1 text-xs font-medium leading-relaxed text-t-dark-gray">
+                    Keep the call surface clean. Add details here, then apply once.
+                  </p>
+                </div>
               </div>
               <button
                 type="button"

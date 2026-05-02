@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { MapPin, Shield, Wifi, Zap, ChevronRight, Home } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { REGIONAL_DATA, getStateTalkingPoints, RegionKey } from '../data/regionalData';
+import { KipAvatar } from './kip';
 
 interface RegionalInsightsProps {
   region: string;
@@ -43,7 +44,10 @@ export default function RegionalInsights({ region, state, currentCarrier }: Regi
         className="space-y-3"
       >
         {/* Network edge — the headline */}
-        <div className="glass-stage-quiet rounded-2xl p-4 shadow-sm">
+        <div className="glass-stage-quiet relative rounded-2xl p-4 shadow-sm pl-12">
+          <div className="absolute left-3 top-4">
+            <KipAvatar size="tiny" state="idle" />
+          </div>
           <div className="flex items-start gap-2.5">
             <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-t-magenta text-white">
               <Zap className="h-3.5 w-3.5" />
@@ -126,7 +130,10 @@ export default function RegionalInsights({ region, state, currentCarrier }: Regi
         </div>
 
         {/* Home Internet note */}
-        <div className="glass-feature rounded-xl px-4 py-3 flex items-center gap-3">
+        <div className="glass-feature relative rounded-xl px-4 py-3 flex items-center gap-3 pl-12">
+          <div className="absolute left-3 top-3">
+            <KipAvatar size="tiny" state="idle" />
+          </div>
           <Home className="w-4 h-4 text-white shrink-0" />
           <p className="text-[11px] font-bold text-white leading-relaxed">{data.homeInternetNote}</p>
         </div>

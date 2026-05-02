@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
 import { motion } from 'motion/react';
+import { KipAvatar } from '../kip';
+import { useKipStore } from '../../hooks/useKipStore';
 
 interface LearnSectionHeaderProps {
   eyebrow: string;
@@ -71,9 +73,17 @@ export default function LearnSectionHeader({
           }`}>
             {title}
           </h2>
-          <p className="mt-2 max-w-3xl text-[13px] font-medium leading-relaxed text-t-dark-gray sm:text-sm">
-            {description}
-          </p>
+          <div className="mt-3 flex items-start gap-3">
+            <div className="mt-1 shrink-0">
+              <KipAvatar size="tiny" state="idle" onClick={() => useKipStore.getState().toggleKip()} />
+            </div>
+            <p className="max-w-3xl text-[13px] font-medium leading-relaxed text-t-dark-gray sm:text-sm">
+              {description}
+              <span className="ml-2 inline-block text-[11px] italic text-t-magenta/60">
+                “KIP: I’ve indexed everything in this track. Let’s study up.”
+              </span>
+            </p>
+          </div>
         </div>
 
         {chips.length > 0 ? (

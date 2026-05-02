@@ -15,6 +15,7 @@ import {
   getSuggestedCategories,
 } from '../data/objectionPlaybook';
 import GroundingSources from './GroundingSources';
+import { KipAvatar } from './kip';
 
 // ---------------------------------------------------------------------------
 // Icon map — maps string icon names from playbook to lucide components
@@ -166,9 +167,12 @@ function ScenarioCard({ scenario, isExpanded, onToggle, isSelected, onSelect }: 
 	              </div>
 
 	              {/* Coaching Tip */}
-	              <div className="rounded-xl border border-t-light-gray bg-t-light-gray/25 p-3">
+	              <div className="relative rounded-xl border border-t-light-gray bg-t-light-gray/25 p-3 pl-12">
+                  <div className="absolute left-3 top-3.5">
+                    <KipAvatar size="tiny" state="idle" />
+                  </div>
 	                <p className="mb-1.5 flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-t-berry">
-	                  <Lightbulb className="w-2.5 h-2.5" /> Coach's Tip
+	                  Kip's Tip
 	                </p>
 	                <p className="text-xs text-t-dark-gray font-medium leading-relaxed">
 	                  {scenario.tip}
@@ -318,13 +322,16 @@ export default function ObjectionTab({
       className="space-y-4"
     >
       {/* Header */}
-      <div className="rounded-3xl glass-card p-5 shadow-sm">
-        <h2 className="text-xl font-black uppercase tracking-tight flex items-center gap-2 mb-2">
-          <AlertCircle className="w-5 h-5 text-t-magenta" /> Objection Coach
-        </h2>
-        <p className="text-xs text-t-dark-gray font-medium">
-          Start with the fastest likely category, grab one <strong className="text-t-magenta">quick comeback</strong>, then queue only the blockers that need a deeper strategy.
-        </p>
+      <div className="rounded-3xl glass-card p-5 shadow-sm flex items-start gap-4">
+        <KipAvatar size="small" state="idle" />
+        <div>
+          <h2 className="text-xl font-black uppercase tracking-tight flex items-center gap-2 mb-2 text-foreground">
+            Objection Coach
+          </h2>
+          <p className="text-xs text-t-dark-gray font-medium leading-relaxed">
+            Start with the fastest likely category, grab one <strong className="text-t-magenta">quick comeback</strong>, then queue only the blockers that need a deeper strategy.
+          </p>
+        </div>
       </div>
 
       <div className="grid gap-2 md:grid-cols-3">
@@ -416,9 +423,9 @@ export function ObjectionResults({ result, onClear }: { result: ObjectionAnalysi
       animate={{ opacity: 1, scale: 1 }}
       className="space-y-6"
     >
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex items-center justify-between mb-4">
         <h2 className="text-2xl font-black uppercase tracking-tight flex items-center gap-3">
-          <Zap className="w-6 h-6 text-t-magenta" /> Objection Strategy
+          <KipAvatar size="small" state="idle" /> Objection Strategy
         </h2>
         <button
           type="button"
@@ -429,7 +436,7 @@ export function ObjectionResults({ result, onClear }: { result: ObjectionAnalysi
         </button>
       </div>
 
-      <div className="rounded-3xl glass-card p-6 shadow-sm">
+      <div className="rounded-3xl glass-card p-6 shadow-sm border border-t-magenta/10">
         <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
           <MessageSquare className="w-3 h-3 text-t-magenta" /> Key Talking Points
         </h3>
@@ -443,7 +450,7 @@ export function ObjectionResults({ result, onClear }: { result: ObjectionAnalysi
         </div>
       </div>
 
-      <div className="rounded-3xl glass-card p-6 shadow-sm">
+      <div className="rounded-3xl glass-card p-6 shadow-sm border border-t-magenta/10">
         <h3 className="text-[10px] font-black text-t-dark-gray uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
           <Target className="w-3 h-3 text-t-magenta" /> How to Respond
         </h3>
@@ -491,11 +498,14 @@ export function ObjectionResults({ result, onClear }: { result: ObjectionAnalysi
       )}
 
       {result.coachsCorner && (
-        <div className="bg-t-magenta/10 rounded-3xl border-2 border-t-magenta/20 p-6 shadow-sm">
+        <div className="bg-t-magenta/10 rounded-3xl border-2 border-t-magenta/20 p-6 shadow-sm relative pl-[5.5rem]">
+          <div className="absolute left-6 top-7">
+            <KipAvatar size="medium" state="idle" />
+          </div>
 	          <h3 className="text-[10px] font-black text-t-magenta uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-	            <Lightbulb className="w-3 h-3 text-t-magenta" /> Coach's Corner
+	            Kip's Corner
 	          </h3>
-	          <p className="text-sm font-bold text-t-dark-gray">
+	          <p className="text-sm font-bold text-t-dark-gray leading-relaxed">
 	            {result.coachsCorner}
 	          </p>
 	        </div>

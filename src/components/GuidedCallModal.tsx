@@ -8,6 +8,7 @@ import {
 import { SalesContext } from '../types';
 import { WELCOME_MESSAGES, ONE_LINERS, DISCOVERY_QUESTIONS } from '../data/salesMethodology';
 import OrderSupportSelector, { OrderSupportType } from './OrderSupportSelector';
+import { KipAvatar } from './kip';
 
 interface GuidedCallModalProps {
   open: boolean;
@@ -125,9 +126,12 @@ export default function GuidedCallModal({ open, onClose, context, setContext }: 
     <motion.div
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      className="glass-feature mt-4 rounded-xl px-4 py-3"
+      className="glass-feature relative mt-4 rounded-xl px-4 py-3 pl-12"
     >
-      <p className="text-[10px] font-black uppercase tracking-widest text-t-magenta mb-1">Say this</p>
+      <div className="absolute left-3 top-3">
+        <KipAvatar size="tiny" state="idle" />
+      </div>
+      <p className="text-[10px] font-black uppercase tracking-widest text-t-magenta mb-1">Kip says</p>
       <p className="text-[12px] font-semibold text-t-dark-gray leading-snug italic">"{text}"</p>
     </motion.div>
   );
@@ -338,7 +342,10 @@ export default function GuidedCallModal({ open, onClose, context, setContext }: 
         </div>
 
         {/* Opener */}
-        <div className="glass-reading rounded-2xl p-4 space-y-1.5 shadow-md">
+        <div className="glass-reading relative rounded-2xl p-4 pl-12 space-y-1.5 shadow-md">
+          <div className="absolute left-3 top-4">
+            <KipAvatar size="tiny" state="idle" />
+          </div>
           <div className="flex items-center gap-1.5 mb-2">
             <Sparkles className="w-3.5 h-3.5 text-t-magenta" />
             <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">Open with</p>
@@ -347,7 +354,10 @@ export default function GuidedCallModal({ open, onClose, context, setContext }: 
         </div>
 
         {/* Ask first */}
-        <div className="glass-reading rounded-2xl p-4 shadow-md">
+        <div className="glass-reading relative rounded-2xl p-4 pl-12 shadow-md">
+          <div className="absolute left-3 top-4">
+            <KipAvatar size="tiny" state="idle" />
+          </div>
           <div className="flex items-center gap-1.5 mb-2">
             <ChevronRight className="w-3.5 h-3.5 text-info-foreground" />
             <p className="text-[9px] font-black uppercase tracking-widest text-info-foreground">Ask first</p>
@@ -356,7 +366,10 @@ export default function GuidedCallModal({ open, onClose, context, setContext }: 
         </div>
 
         {/* One-liner */}
-        <div className="glass-feature rounded-2xl p-4 shadow-md">
+        <div className="glass-feature relative rounded-2xl p-4 pl-12 shadow-md">
+          <div className="absolute left-3 top-4">
+            <KipAvatar size="tiny" state="idle" />
+          </div>
           <div className="flex items-center gap-1.5 mb-2">
             <Zap className="w-3.5 h-3.5 text-t-magenta" />
             <p className="text-[9px] font-black uppercase tracking-widest text-t-magenta">Talk track</p>

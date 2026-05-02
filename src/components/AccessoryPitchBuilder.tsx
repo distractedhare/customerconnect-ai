@@ -1,6 +1,7 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { ShoppingBag, MessageSquare, DollarSign, Ear, Users, AlertTriangle, ChevronDown, ArrowRightLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { KipAvatar } from './kip';
 import { Device } from '../data/devices';
 import { getAccessoriesForDevice, sortByPitchPriority, AccessoryPitch } from '../data/accessoryPitches';
 import { EcosystemMatrix } from '../types/ecosystem';
@@ -72,7 +73,10 @@ export default function AccessoryPitchBuilder({ device, ecosystemMatrix }: Acces
       animate={{ opacity: 1, y: 0 }}
       className="space-y-4"
     >
-      <div className="rounded-2xl bg-t-dark-gray p-4 text-white">
+      <div className="rounded-2xl bg-t-dark-gray p-4 text-white relative pl-16">
+        <div className="absolute left-3 top-4">
+          <KipAvatar size="small" state="tip" />
+        </div>
         <p className="mb-1 text-[9px] font-black uppercase tracking-widest text-t-magenta">Accessory Pitch Builder</p>
         <p className="text-sm font-black">{device.name}</p>
         <p className="mt-1 text-[10px] font-medium text-white/60">

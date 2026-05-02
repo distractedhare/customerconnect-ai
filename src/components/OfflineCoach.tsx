@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Bot, Send, Wifi, Loader2, ShieldCheck, AlertCircle, ArrowRight } from 'lucide-react';
+import { Send, Wifi, Loader2, ShieldCheck, AlertCircle, ArrowRight } from 'lucide-react';
 import { localAiService } from '../services/localAiService';
 import { InitProgressReport } from '@mlc-ai/web-llm';
+import { KipAvatar } from './kip';
 
 interface Message {
   id: string;
@@ -114,7 +115,7 @@ export default function OfflineCoach({ onOpenOfflineAiSettings }: OfflineCoachPr
     {
       id: '1',
       role: 'assistant',
-      content: "I'm your offline Gemma coach. I run entirely on your device, so I work instantly even in dead zones. What objection are you stuck on?",
+      content: "I'm your offline coach, Kip. I run entirely on your device using Gemma, so I work instantly even in dead zones. What objection are you stuck on?",
     }
   ]);
   const [input, setInput] = useState('');
@@ -245,11 +246,9 @@ Rules:
       {/* Header */}
       <div className="flex items-center justify-between border-b border-t-light-gray bg-surface-elevated px-5 py-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-t-magenta/10">
-            <Wifi className="h-5 w-5 text-t-magenta" />
-          </div>
+          <KipAvatar size="small" state="idle" showOnlineStatus />
           <div>
-            <h2 className="text-sm font-extrabold tracking-tight">Gemma Coach</h2>
+            <h2 className="text-sm font-extrabold tracking-tight">Kip Offline Coach</h2>
             <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-success-accent">
               <ShieldCheck className="h-3 w-3" />
               <span>100% Private & Offline</span>
@@ -276,9 +275,9 @@ Rules:
               }`}
             >
               {msg.role === 'assistant' && (
-                <div className="mb-1 flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-t-magenta">
-                  <Bot className="h-3 w-3" />
-                  <span>Gemma Coach</span>
+                <div className="mb-2 flex items-center gap-2 text-[10px] font-black uppercase tracking-wider text-t-magenta">
+                  <KipAvatar size="tiny" state="idle" />
+                  <span>Kip (Offline)</span>
                 </div>
               )}
               <p className="leading-relaxed whitespace-pre-line">{msg.content}</p>

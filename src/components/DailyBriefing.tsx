@@ -1,6 +1,7 @@
 import { ChangeEvent, DragEvent as ReactDragEvent, useEffect, useRef, useState } from 'react';
 import { Zap, Shield, Wifi, ChevronDown, ChevronUp, AlertCircle, Target, TrendingUp, Flame, Upload, RotateCcw, CheckCircle2, FileJson } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { KipAvatar } from './kip';
 import { WeeklyUpdate } from '../services/weeklyUpdateSchema';
 import { DIFFERENTIATORS } from '../data/differentiators';
 import { clearUploadedUpdate, uploadWeeklyUpdate, WeeklyUpdateSource } from '../services/localGenerationService';
@@ -234,8 +235,13 @@ export default function DailyBriefing({ weeklyData, weeklySource, onDataUpdate }
           expanded={expandedSection === 'focus'}
           onToggle={() => toggle('focus')}
         >
-          <p className="text-sm font-black text-t-magenta mb-2">{weeklyData.weeklyFocus.headline}</p>
-          <p className="text-xs text-t-dark-gray font-medium">{weeklyData.weeklyFocus.context}</p>
+          <div className="flex items-start gap-3">
+            <KipAvatar size="small" state="tip" />
+            <div className="flex-1">
+              <p className="text-sm font-black text-t-magenta mb-2">{weeklyData.weeklyFocus.headline}</p>
+              <p className="text-xs text-t-dark-gray font-medium">{weeklyData.weeklyFocus.context}</p>
+            </div>
+          </div>
         </BriefingCard>
       )}
 

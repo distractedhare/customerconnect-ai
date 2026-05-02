@@ -49,6 +49,9 @@ import type { SettingsTab } from './components/SettingsView';
 import TroubleshootingPivot from './components/TroubleshootingPivot';
 import OrderSupportPanel from './components/OrderSupportPanel';
 import AccountSupportPanel from './components/AccountSupportPanel';
+import AskKipSheet from './components/kip/AskKipSheet';
+import KipAvatar from './components/kip/KipAvatar';
+import { useKipStore } from './hooks/useKipStore';
 
 function LazySectionFallback({ label }: { label: string }) {
   return (
@@ -247,6 +250,8 @@ export default function App() {
   const [refreshingApp, setRefreshingApp] = useState(false);
   const [showHintPrompt, setShowHintPrompt] = useState(false);
   const [levelUpImmersive, setLevelUpImmersive] = useState(false);
+
+  const toggleKip = useKipStore(s => s.toggleKip);
 
   // Scroll-to-top visibility
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -856,9 +861,18 @@ export default function App() {
       </main>
 
 
-      <footer className="relative z-[1] mx-auto mt-10 max-w-5xl space-y-3 px-6 pb-8 pt-6 text-center md:px-10 2xl:max-w-6xl" style={{ borderTop: '1px solid var(--glass-border-subtle)' }}>
-        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[11px] font-semibold text-t-dark-gray">
-          {weeklyLoaded && weeklyData ? (
+      <footer className="relative z-[1] mx-auto mt-10 max-w-5xl space-y-4 px-6 pb-8 pt-6 text-center md:px-10 2xl:max-w-6xl" style={{ borderTop: '1px solid var(--glass-border-subtle)' }}>
+        <div className="flex flex-col items-center gap-4">
+          <button
+            onClick={toggleKip}
+            className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-full border border-white/5 hover:bg-white/10 transition-colors"
+          >
+            <KipAvatar size="tiny" state="idle" showOnlineStatus />
+            <span className="text-xs font-black uppercase tracking-[0.15em] text-white/60">Kip is online</span>
+          </button>
+          
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[11px] font-semibold text-t-dark-gray">
+            {weeklyLoaded && weeklyData ? (
             <span className="inline-flex items-center gap-1.5">
               <Calendar className="w-3 h-3 text-t-magenta/60" />
               <span>
@@ -886,7 +900,8 @@ export default function App() {
         <p className="pt-2 text-[11px] font-semibold text-t-dark-gray">
           &copy; 2026 CustomerConnect AI. Built for fast, stable call support.
         </p>
-      </footer>
+      </div>
+    </footer>
 
       {/* Scroll to top */}
       <AnimatePresence>
@@ -903,6 +918,8 @@ export default function App() {
           </motion.button>
         )}
       </AnimatePresence>
+
+      <AskKipSheet />
 
       {/* HINT Availability Prompt Modal */}
       <AnimatePresence>

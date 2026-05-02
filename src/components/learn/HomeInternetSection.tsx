@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Home, ChevronRight, Zap, Shield, MessageSquareQuote, AlertTriangle, DollarSign, Cable, Globe, Router, Users, Briefcase, Heart } from 'lucide-react';
 import { HOME_INTERNET_PLANS, HINT_SELLING_FRAMEWORK, FIBER_INFO, OTHER_HOME_PRODUCTS } from '../../data/homeInternet';
 import LearnSectionHeader from './LearnSectionHeader';
+import { KipAvatar } from '../kip';
 
 type Section = 'plans' | 'selling' | 'objections' | 'competitors' | 'fiber';
 const PLAN_IMAGES: Record<string, string> = {
@@ -55,14 +56,19 @@ export default function HomeInternetSection() {
       </div>
 
       <div className="rounded-[1.8rem] glass-reading-strong p-4">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-          <div className="max-w-xl">
-            <p className="mb-2 flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-t-magenta">
-              <Zap className="w-3 h-3" /> Address-check lane
-            </p>
-            <p className="text-[12px] font-semibold leading-relaxed text-foreground">
-              Check the address first, hook with the savings second, then only open plans, objections, or competition after you know the home qualifies.
-            </p>
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div className="flex flex-1 gap-4">
+            <div className="shrink-0 mt-1">
+              <KipAvatar size="medium" state="listening" showGlow />
+            </div>
+            <div className="max-w-xl">
+              <p className="mb-2 flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-t-magenta">
+                <Zap className="w-3 h-3" /> Kip's Address-Check Lane
+              </p>
+              <p className="text-[14px] font-bold leading-relaxed text-foreground">
+                "Check the address first, hook with the savings second, then only open plans or objections after you know the home qualifies."
+              </p>
+            </div>
           </div>
           <div className="grid gap-2 sm:grid-cols-3 lg:min-w-[32rem]">
             {[

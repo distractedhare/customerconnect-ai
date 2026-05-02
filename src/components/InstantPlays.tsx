@@ -1,5 +1,6 @@
 import { Home, Tag, ChevronRight, Headphones, CreditCard, ChevronDown, Star, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { KipAvatar } from './kip';
 import { EcosystemMatrix } from '../types/ecosystem';
 import { getSupportAccessory } from '../services/ecosystemService';
 import { useState, useMemo, useCallback, useEffect } from 'react';
@@ -325,7 +326,7 @@ export default function InstantPlays({ intent, age, product, ecosystemMatrix }: 
         animate={{ opacity: 1, scale: 1 }}
         className="glass-feature flex items-center gap-3 rounded-xl px-4 py-3"
       >
-        <Home className="w-5 h-5 text-white shrink-0" />
+        <KipAvatar size="tiny" state="tip" />
         <p className="text-xs font-bold text-white">Check the address for Home Internet first. Rebate and Month On Us value land best after availability is confirmed.</p>
       </motion.div>
 

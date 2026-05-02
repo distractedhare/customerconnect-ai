@@ -23,6 +23,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { useStore } from '../../store';
+import { KipAvatar } from '../../../../kip';
 import { GameStatus, TLIFE_COLORS, type CharacterDefinition, type CharacterId, type RunnerAbilitySlot, type ShopItem } from '../../types';
 import {
   PLAYABLE_CHARACTERS,
@@ -1297,9 +1298,14 @@ const MenuScreen: React.FC = () => {
             </summary>
             <div className="mt-4 space-y-3">
               <div className="rounded-[1.2rem] border border-white/10 bg-white/5 p-3">
-                <div className="text-[10px] uppercase tracking-[0.24em] text-white/45">Support intelligence</div>
-                <div className="mt-2 text-base font-black text-white">{SIDEKICK_CORE.name}</div>
-                <div className="mt-1 text-xs uppercase tracking-[0.18em] text-white/45">{SIDEKICK_CORE.title}</div>
+                <div className="flex items-center gap-3">
+                  <KipAvatar size="medium" state="listening" />
+                  <div className="min-w-0">
+                    <div className="text-[10px] uppercase tracking-[0.24em] text-white/45">Support intelligence</div>
+                    <div className="mt-1 text-base font-black text-white">{SIDEKICK_CORE.name}</div>
+                    <div className="mt-0.5 text-xs uppercase tracking-[0.18em] text-white/45">{SIDEKICK_CORE.title}</div>
+                  </div>
+                </div>
                 <div className="mt-3 grid gap-2">
                   {SIDEKICK_CORE.abilities.slice(0, 2).map((ability) => (
                     <AbilityPill key={ability.id} label={ability.type} copy={ability.name} accent={SIDEKICK_CORE.accent} />
@@ -1779,9 +1785,9 @@ export const HudControlPanel: React.FC = () => {
       <div className="flex min-w-0 flex-1 flex-col gap-2.5 sm:gap-3">
         <div className="grid grid-cols-4 gap-2 sm:gap-3">
           <Meter label="Health" value={batteryRatio} accent="#FF0066" icon={<BatteryCharging className="h-3 w-3" />} />
-          <Meter label="Smash" value={dashEnergy} accent={character.accent} icon={<AbilityGlyph slot="smash" src={abilityIcons.smash} className="h-3 w-3 rounded-sm" />} />
-          <Meter label="Blast" value={abilityEnergy} accent={character.secondary} icon={<AbilityGlyph slot="blast" src={abilityIcons.blast} className="h-3 w-3 rounded-sm" />} />
-          <Meter label="Core" value={sidekickCoreCharge} max={100} accent="#FFFFFF" icon={<AbilityGlyph slot="core" src={abilityIcons.core} className="h-3 w-3 rounded-sm" />} />
+          <Meter label="Smash" value={dashEnergy} accent={character.accent} icon={<AbilityGlyph slot="smash" src={abilityIcons.smash} className="h-3 w-3" />} />
+          <Meter label="Blast" value={abilityEnergy} accent={character.secondary} icon={<AbilityGlyph slot="blast" src={abilityIcons.blast} className="h-3 w-3" />} />
+          <Meter label="Core" value={sidekickCoreCharge} max={100} accent="#FFFFFF" icon={<AbilityGlyph slot="core" src={SIDEKICK_CORE.assets.abilityIcons.find(a => a.slot === 'core')?.path} className="h-4 w-4" />} />
         </div>
 
         <div className="grid grid-cols-[1fr_auto] items-stretch gap-2 sm:gap-3">
@@ -1834,7 +1840,7 @@ export const HudControlPanel: React.FC = () => {
             <AbilityIconButton
               slot="core"
               label="Core: Sidekick Core"
-              iconSrc={abilityIcons.core}
+              iconSrc={SIDEKICK_CORE.assets.abilityIcons.find(a => a.slot === 'core')?.path}
               ready={sidekickCoreCharge >= 100}
               accent="#FFFFFF"
               secondary={character.secondary}

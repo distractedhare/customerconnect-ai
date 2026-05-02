@@ -18,6 +18,8 @@ import { WeeklyUpdate } from '../services/weeklyUpdateSchema';
 import { AppMode } from './Header';
 import { pickKipGreeting } from '../services/kip/kipVoice';
 import KipHero from './kip/KipHero';
+import { KipAvatar } from './kip';
+import { useKipStore } from '../hooks/useKipStore';
 
 interface HomeScreenProps {
   weeklyData: WeeklyUpdate | null;
@@ -97,6 +99,12 @@ export default function HomeScreen({ weeklyData, onNavigate, onReset }: HomeScre
             <p className="text-sm font-bold text-t-dark-gray sm:text-base">
               {role.greeting}
             </p>
+            <div className="mt-2 flex items-center gap-2">
+              <KipAvatar size="tiny" state="idle" onClick={() => useKipStore.getState().toggleKip()} />
+              <p className="text-xs font-medium text-t-dark-gray italic">
+                "Ready up. Let's stack a shift."
+              </p>
+            </div>
           </div>
         </div>
 
@@ -104,6 +112,7 @@ export default function HomeScreen({ weeklyData, onNavigate, onReset }: HomeScre
           greeting={kipGreeting}
           tagline="I’ll flag the play, hype the wins, and shrug the misses. Let’s stack a shift."
           tone="hype"
+          borderless
         />
 
         {showRoleSelector && (
@@ -194,44 +203,52 @@ export default function HomeScreen({ weeklyData, onNavigate, onReset }: HomeScre
                   : 'glass-reading hover:border-t-magenta/30'
               }`}
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div
-                    className={`w-10 h-10 rounded-[1rem] flex items-center justify-center shrink-0 ${
-                      isPrimary
-                        ? 'bg-white/20'
-                        : 'glass-magenta'
-                    }`}
-                  >
-                    <Icon
-                      className={`w-5 h-5 ${
-                        isPrimary ? 'text-white' : 'text-t-magenta'
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div
+                      className={`w-10 h-10 rounded-[1rem] flex items-center justify-center shrink-0 ${
+                        isPrimary
+                          ? 'bg-white/20'
+                          : 'glass-magenta'
+                      }`}
+                    >
+                      <Icon
+                        className={`w-5 h-5 ${
+                          isPrimary ? 'text-white' : 'text-t-magenta'
+                        }`}
+                      />
+                    </div>
+                    <div className="min-w-0">
+                      <p
+                        className={`text-sm font-black ${
+                          isPrimary ? 'text-white' : 'text-t-dark-gray'
+                        }`}
+                      >
+                        {card.label}
+                      </p>
+                      <p
+                        className={`mt-1 text-sm font-medium leading-relaxed ${
+                          isPrimary ? 'text-white/75' : 'text-t-dark-gray'
+                        }`}
+                      >
+                        {card.subtitle}
+                      </p>
+                      <p className={`mt-1.5 text-[10px] italic font-medium ${isPrimary ? 'text-white/60' : 'text-t-magenta/60'}`}>
+                        {card.mode === 'live' ? '“KIP: I’m in here too, ready to scan.”' : '“KIP: Knowledge is power. Let’s look it up.”'}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="h-6 w-6 opacity-40 group-hover:opacity-100 transition-opacity">
+                      <KipAvatar size="tiny" state="idle" />
+                    </div>
+                    <ChevronRight
+                      className={`w-5 h-5 transition-transform group-hover:translate-x-1 ${
+                        isPrimary ? 'text-white/60' : 'text-t-dark-gray/30'
                       }`}
                     />
                   </div>
-                  <div className="min-w-0">
-                    <p
-                      className={`text-sm font-black ${
-                        isPrimary ? 'text-white' : 'text-t-dark-gray'
-                      }`}
-                    >
-                      {card.label}
-                    </p>
-                    <p
-                      className={`mt-1 text-sm font-medium leading-relaxed ${
-                        isPrimary ? 'text-white/75' : 'text-t-dark-gray'
-                      }`}
-                    >
-                      {card.subtitle}
-                    </p>
-                  </div>
                 </div>
-                <ChevronRight
-                  className={`w-5 h-5 transition-transform group-hover:translate-x-1 ${
-                    isPrimary ? 'text-white/60' : 'text-t-dark-gray/30'
-                  }`}
-                />
-              </div>
             </button>
           );
         })}
@@ -249,7 +266,7 @@ export default function HomeScreen({ weeklyData, onNavigate, onReset }: HomeScre
           </div>
           <div className="h-3 w-px bg-t-dark-gray/15" />
           <div className="flex items-center gap-1.5 text-[11px] font-semibold text-t-muted">
-            <Sparkles className="w-3 h-3 text-t-magenta/40" />
+            <KipAvatar size="tiny" state="idle" className="scale-75" onClick={() => useKipStore.getState().toggleKip()} />
             <span>AI Ready</span>
           </div>
           <div className="h-3 w-px bg-t-dark-gray/15" />

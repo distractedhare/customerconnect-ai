@@ -1,4 +1,4 @@
-export type KipAssetSize = 16 | 24 | 32 | 64 | 128;
+export type KipAssetSize = 16 | 24 | 32 | 64 | 128 | 256;
 export type KipAssetState =
   | 'idle'
   | 'listening'
@@ -28,24 +28,33 @@ export const KIP_SOURCE_SHEETS = {
 export const KIP_ASSETS = {
   hero: {
     png: '/kip/hero.png',
-    webp: '/kip/hero.webp',
     alt: 'Kip',
     minSize: 128,
     usage: 'Large mascot moments: Home, onboarding, major recovery or celebration states.',
   },
   portrait: {
-    png: '/kip/portrait.png',
-    webp: '/kip/portrait.webp',
+    png: '/kip/mobile.png',
     alt: 'Kip',
     minSize: 64,
     usage: 'Coach cards, Live guidance, Learn notes, and medium helper panels.',
   },
-  orb: {
-    png: '/kip/orb.png',
-    webp: '/kip/orb.webp',
+  avatar: {
+    png: '/kip/avatar.png',
     alt: 'Kip',
     minSize: 32,
     usage: 'Compact assistant badge and runner Sidekick Core identity.',
+  },
+  orb: {
+    png: '/kip/avatar.png',
+    alt: 'Kip',
+    minSize: 32,
+    usage: 'Compact assistant badge and runner Sidekick Core identity.',
+  },
+  banner: {
+    png: '/kip/banner.png',
+    alt: 'Kip Banner',
+    minSize: 256,
+    usage: 'Wide hero banner panels: T-LIFE Runner intro, character select.',
   },
   visor: {
     svg: '/kip/icons/kip-visor.svg',
@@ -114,12 +123,18 @@ export const KIP_ASSETS = {
   },
 } as const satisfies Record<string, KipAssetEntry | Record<string, KipAssetEntry>>;
 
-export function getKipBadgeAsset(size: KipAssetSize, state: KipAssetState = 'idle'): KipAssetEntry {
-  if (size <= 32) return KIP_ASSETS.states[state] ?? KIP_ASSETS.visor;
-  if (size <= 64) return state === 'idle' ? KIP_ASSETS.orb : KIP_ASSETS.states[state];
-  return KIP_ASSETS.portrait;
+export function getKipBadgeAsset(
+  _size: number,
+  _state: "idle" | "listening" | "tip" | "alert" | "success" | "loading" | "speaking" | "notification" = "idle"
+) {
+  // State-specific SVGs reference an external `<image href>` that browsers
+  // sandbox and refuse to load when the parent SVG in an <img>. Plus
+  // KIP_ASSETS.orb and KIP_ASSETS.portrait don't exist on this object.
+  // Return the transparent avatar PNG for every size/state. State distinction
+  // is carried by the breathing/glow/pulse animation in <KipAvatar />.
+  return KIP_ASSETS.avatar as KipAssetEntry;
 }
 
-export function getKipStateAsset(state: KipAssetState): KipAssetEntry {
-  return KIP_ASSETS.states[state];
+export function getKipStateAsset(_state: string) {
+  return KIP_ASSETS.avatar as KipAssetEntry;
 }

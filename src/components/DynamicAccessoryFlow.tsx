@@ -4,6 +4,7 @@ import {
   ShoppingBag, X,
   CheckCircle2, Plus, MessageSquare,
 } from 'lucide-react';
+import { KipAvatar } from './kip';
 import {
   AccessoryRecommendation, SalesContext, CatalogItem,
   PivotReason, OfferSessionState, OfferCardModel,
@@ -105,10 +106,8 @@ export default function DynamicAccessoryFlow({
             >
               <div className="bg-t-dark-gray text-white rounded-3xl p-4 shadow-2xl border border-white/10">
                 <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-xl bg-t-magenta flex items-center justify-center">
-                      <ShoppingBag className="w-4 h-4" />
-                    </div>
+                  <div className="flex items-center gap-3">
+                    <KipAvatar size="small" state="idle" />
                     <div>
                       <p className="text-xs font-black uppercase tracking-widest text-t-magenta">
                         Selected Setup

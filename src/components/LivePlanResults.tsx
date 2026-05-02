@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { SalesContext, SalesScript } from '../types';
 import { getSupportFocusLabel } from '../constants/supportFocus';
-import { KipPanel } from './kip';
+import { KipPanel, KipAvatar } from './kip';
 import { buildLiveKipRecommendation } from '../services/kip/kipRules';
 
 interface LivePlanResultsProps {
@@ -191,7 +191,10 @@ export default function LivePlanResults({ script, context }: LivePlanResultsProp
         </section>
       ) : null}
 
-      <section className="glass-stage-quiet rounded-3xl p-5">
+      <section className="glass-stage-quiet rounded-3xl p-5 relative pl-[5.5rem]">
+        <div className="absolute left-5 top-6">
+          <KipAvatar size="medium" state="idle" />
+        </div>
         <div className="flex items-start gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-t-light-gray/40">
             <CheckCircle2 className="h-5 w-5 text-t-magenta" />

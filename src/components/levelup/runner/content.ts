@@ -62,99 +62,105 @@ export interface RunnerCharacter {
     hud: string;
     avatar: string;
   };
+  fullCard?: string;
   stats: { power: number; speed: number; defense: number; utility: number; };
   abilities: CharacterAbility[];
 }
 
 export const PLAYABLE_RUNNERS: RunnerCharacter[] = [
   {
-    id: 'tcl',
-    name: 'TCL NXTVISION',
-    role: 'Brawler',
-    trait: 'Wide Obstacle Clears & Extra Battery',
-    color: '#FF0000',
+    id: "tcl",
+    name: "TCL NXTVISION",
+    role: "Brawler",
+    trait: "Wide Obstacle Clears & Extra Battery",
+    color: "#FF0000",
     assets: {
-      cutout: '/assets/factions/tcl/cutout_transparent.png',
-      hud: '/assets/factions/tcl/hud_portrait.png',
-      avatar: '/assets/factions/tcl/avatar_small.png',
+      cutout: "/runners/tcl/cutout.png",
+      hud: "/runners/tcl/hud.png",
+      avatar: "/runners/tcl/avatar.png"
     },
+    fullCard: "/runners/tcl/full-card.png",
     stats: { power: 8, speed: 6, defense: 8, utility: 7 },
     abilities: [
-      { slot: 1, label: 'Equalizer Blast', description: 'Wide area shockwave.', path: '/assets/factions/tcl/abilities/blast.svg' },
-      { slot: 2, label: 'Power Smash', description: 'Heavy strike.', path: '/assets/factions/tcl/abilities/smash.svg' },
-      { slot: 3, label: 'NXTV Core', description: 'Instant 20% battery.', path: '/assets/factions/tcl/abilities/core.svg' },
+      { slot: 1, label: "Equalizer Blast", description: "Wide area shockwave.", path: "/runners/tcl/abilities/blast.png" },
+      { slot: 2, label: "Power Smash", description: "Heavy strike.", path: "/runners/tcl/abilities/smash.png" },
+      { slot: 3, label: "NXTV Core", description: "Instant 20% battery.", path: "/runners/tcl/abilities/core.png" }
     ]
   },
   {
-    id: 'pixel',
-    name: 'Pixel Sentinel',
-    role: 'Digital Tactician',
-    trait: 'Predicts, Adapts, Dominates',
-    color: '#00FF00',
+    id: "pixel",
+    name: "Pixel Sentinel",
+    role: "Digital Tactician",
+    trait: "Predicts, Adapts, Dominates",
+    color: "#00FF00",
     assets: {
-      cutout: '/assets/factions/pixel/cutout_transparent.png',
-      hud: '/assets/factions/pixel/hud_portrait.png',
-      avatar: '/assets/factions/pixel/avatar_small.png',
+      cutout: "/runners/pixel/cutout.png",
+      hud: "/runners/pixel/hud.png",
+      avatar: "/runners/pixel/avatar.png"
     },
+    fullCard: "/runners/pixel/full-card.png",
     stats: { power: 6, speed: 9, defense: 5, utility: 10 },
     abilities: [
-      { slot: 1, label: 'Data Swarm', description: 'Hacks nearby obstacles.', path: '/assets/factions/pixel/abilities/swarm.svg' },
-      { slot: 2, label: 'Pixel Laser', description: 'Precision piercing beam.', path: '/assets/factions/pixel/abilities/laser.svg' },
-      { slot: 3, label: 'Adaptive Protocol', description: 'Invulnerability for 3s.', path: '/assets/factions/pixel/abilities/protocol.svg' },
+      { slot: 1, label: "Data Swarm", description: "Hacks nearby obstacles.", path: "/runners/pixel/abilities/blast.png" },
+      { slot: 2, label: "Pixel Laser", description: "Precision piercing beam.", path: "/runners/pixel/abilities/smash.png" },
+      { slot: 3, label: "Adaptive Protocol", description: "Invulnerability for 3s.", path: "/runners/pixel/abilities/core.png" }
     ]
   },
   {
-    id: 'apple',
-    name: 'Apple Duelist',
-    role: 'Precision Striker',
-    trait: 'Perfect Timing & Clean Lane Control',
-    color: '#66B2FF',
+    id: "apple",
+    name: "Apple Duelist",
+    role: "Precision Striker",
+    trait: "Perfect Timing & Clean Lane Control",
+    color: "#66B2FF",
     assets: {
-      cutout: '/assets/factions/apple/cutout_transparent.png',
-      hud: '/assets/factions/apple/hud_portrait.png',
-      avatar: '/assets/factions/apple/avatar_small.png',
+      cutout: "/runners/apple/cutout.png",
+      hud: "/runners/apple/hud.png",
+      avatar: "/runners/apple/avatar.png"
     },
+    fullCard: "/runners/apple/full-card.png",
     stats: { power: 7, speed: 9, defense: 8, utility: 10 },
     abilities: [
-      { slot: 1, label: 'MagSafe Core', description: 'Pulls nearby rewards.', path: '/assets/factions/apple/abilities/blast.svg' },
-      { slot: 2, label: 'Titanium Smash', description: 'Precision lane strike.', path: '/assets/factions/apple/abilities/smash.svg' },
-      { slot: 3, label: 'Core Overdrive', description: 'Short speed burst.', path: '/assets/factions/apple/abilities/core.svg' },
+      { slot: 1, label: "MagSafe Core", description: "Pulls nearby rewards.", path: "/runners/apple/abilities/blast.png" },
+      { slot: 2, label: "Titanium Smash", description: "Precision lane strike.", path: "/runners/apple/abilities/smash.png" },
+      { slot: 3, label: "Core Overdrive", description: "Short speed burst.", path: "/runners/apple/abilities/core.png" }
     ]
   },
   {
-    id: 'samsung',
-    name: 'Samsung Warrior',
-    role: 'Versatile Controller',
-    trait: 'Adaptive Defense & Multi-Lens Reads',
-    color: '#9B5CFF',
+    id: "samsung",
+    name: "Samsung Warrior",
+    role: "Versatile Controller",
+    trait: "Adaptive Defense & Multi-Lens Reads",
+    color: "#9B5CFF",
     assets: {
-      cutout: '/assets/factions/samsung/cutout_transparent.png',
-      hud: '/assets/factions/samsung/hud_portrait.png',
-      avatar: '/assets/factions/samsung/avatar_small.png',
+      cutout: "/runners/samsung/cutout.png",
+      hud: "/runners/samsung/hud.png",
+      avatar: "/runners/samsung/avatar.png"
     },
+    fullCard: "/runners/samsung/full-card.png",
     stats: { power: 10, speed: 8, defense: 8, utility: 10 },
     abilities: [
-      { slot: 1, label: 'Lens Burst', description: 'Wide lens pulse.', path: '/assets/factions/samsung/abilities/smash.svg' },
-      { slot: 2, label: 'Precision Spear', description: 'Pierces the safest route.', path: '/assets/factions/samsung/abilities/blast.svg' },
-      { slot: 3, label: 'Multi-Lens Mode', description: 'Scans danger ahead.', path: '/assets/factions/samsung/abilities/core.svg' },
+      { slot: 1, label: "Lens Burst", description: "Wide lens pulse.", path: "/runners/samsung/abilities/smash.png" },
+      { slot: 2, label: "Precision Spear", description: "Pierces the safest route.", path: "/runners/samsung/abilities/blast.png" },
+      { slot: 3, label: "Multi-Lens Mode", description: "Scans danger ahead.", path: "/runners/samsung/abilities/core.png" }
     ]
   },
   {
-    id: 'motorola',
-    name: 'Motorola Striker',
-    role: 'Speed Runner',
-    trait: 'Momentum Dashes & Fast Recovery',
-    color: '#FF7A18',
+    id: "motorola",
+    name: "Motorola Striker",
+    role: "Speed Runner",
+    trait: "Momentum Dashes & Fast Recovery",
+    color: "#FF7A18",
     assets: {
-      cutout: '/assets/factions/motorola/cutout_transparent.png',
-      hud: '/assets/factions/motorola/hud_portrait.png',
-      avatar: '/assets/factions/motorola/avatar_small.png',
+      cutout: "/runners/motorola/cutout.png",
+      hud: "/runners/motorola/hud.png",
+      avatar: "/runners/motorola/avatar.png"
     },
+    fullCard: "/runners/motorola/full-card.png",
     stats: { power: 7, speed: 10, defense: 6, utility: 8 },
     abilities: [
-      { slot: 1, label: 'Speed Dash', description: 'Bursts through trouble.', path: '/assets/factions/motorola/abilities/blast.svg' },
-      { slot: 2, label: 'Vortex Slash', description: 'Fast cutting strike.', path: '/assets/factions/motorola/abilities/smash.svg' },
-      { slot: 3, label: 'Adrenaline Boost', description: 'Refills momentum.', path: '/assets/factions/motorola/abilities/core.svg' },
+      { slot: 1, label: "Speed Dash", description: "Bursts through trouble.", path: "/runners/motorola/abilities/blast.png" },
+      { slot: 2, label: "Vortex Slash", description: "Fast cutting strike.", path: "/runners/motorola/abilities/smash.png" },
+      { slot: 3, label: "Adrenaline Boost", description: "Refills momentum.", path: "/runners/motorola/abilities/core.png" }
     ]
   },
 ];
@@ -648,25 +654,25 @@ export const CHARACTERS: CharacterDefinition[] = [
     cardImage: '/levelup/runner/cards/tmobile_sidekick_core_command_card_v2.png',
     assets: {
       cutout: '/kip/hero.png',
-      hudPortrait: '/kip/portrait.png',
-      avatar: '/kip/orb.png',
+      hudPortrait: '/kip/mobile.png',
+      avatar: '/kip/avatar.png',
       abilityIcons: [
         {
           slot: 'smash',
           label: 'Signal Check',
-          path: '/kip/states/kip-alert.svg',
+          path: '/kip/abilities/smash.png',
           description: 'Kip scans ahead, highlighting safe lanes and threats.',
         },
         {
           slot: 'blast',
           label: 'Bonus Round',
-          path: '/kip/states/kip-success.svg',
+          path: '/kip/abilities/blast.png',
           description: 'Kip triggers a short bonus opportunity.',
         },
         {
           slot: 'core',
           label: 'KIP Challenge',
-          path: '/kip/states/kip-tip.svg',
+          path: '/kip/abilities/core.png',
           description: 'Optional risk/reward challenge for bonus rewards.',
         },
       ],

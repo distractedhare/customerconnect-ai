@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Users, Sparkles, RefreshCw, Heart, Mountain, Gamepad2, Briefcase, Zap } from 'lucide-react';
 import { GoogleGenAI } from "@google/genai";
+import { KipAvatar } from './kip';
 
 const PERSONAS = [
   { id: 'hiker', label: 'The Hiker', icon: Mountain, description: 'Durability, battery, GPS, outdoors' },
@@ -102,12 +103,19 @@ export default function PersonaTranslator({ baseText, deviceName }: PersonaTrans
             <div className="absolute top-0 right-0 p-3 opacity-10">
               <Zap className="w-12 h-12" />
             </div>
-            <p className="text-[10px] font-black text-t-magenta uppercase mb-3 tracking-widest">
-              {selectedPersona.label} Pitch
-            </p>
-            <p className="text-sm font-medium leading-relaxed">
-              "{translatedText}"
-            </p>
+            <div className="flex items-start gap-4">
+              <div className="shrink-0">
+                <KipAvatar size="small" state="listening" />
+              </div>
+              <div>
+                <p className="text-[10px] font-black text-t-magenta uppercase mb-1.5 tracking-widest leading-none">
+                  Kip Translator · {selectedPersona.label}
+                </p>
+                <p className="text-sm font-medium leading-relaxed">
+                  "{translatedText}"
+                </p>
+              </div>
+            </div>
           </motion.div>
         ) : (
           <motion.div

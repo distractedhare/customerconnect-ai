@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Brain, Info, Shield, Sparkles, Swords, Zap, type LucideIcon } from 'lucide-react';
 import { useStore } from '../../store';
 import { GameStatus } from '../../types';
+import { KipAvatar } from '../../../../kip';
 
 export interface TutorialTip {
   id: string;
@@ -99,9 +100,7 @@ export const TutorialOverlay: React.FC = () => {
         >
           <div className="rounded-[1.35rem] border border-white/10 bg-black/72 p-3 shadow-[0_20px_60px_rgba(0,0,0,0.35)] backdrop-blur-2xl md:rounded-[1.7rem] md:p-4">
             <div className="mb-2.5 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-[#E20074]/40 bg-[#E20074]/20 text-[#ff8cc6] md:h-11 md:w-11">
-                <activeTip.icon size={20} />
-              </div>
+              <KipAvatar size="medium" state="tip" />
               <div>
                 <div className="text-[10px] uppercase tracking-[0.3em] text-[#E20074]">Training tip</div>
                 <div className="text-white font-black uppercase tracking-[0.1em]">{activeTip.title}</div>

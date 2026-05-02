@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { BookOpen, Monitor, Moon, Settings, Sun, Trophy, UserPlus, Zap, Wifi } from 'lucide-react';
 import { motion } from 'motion/react';
+import { KipAvatar } from './kip';
+import { useKipStore } from '../hooks/useKipStore';
 
 export type AppMode = 'home' | 'live' | 'learn' | 'level-up' | 'offline-coach' | 'settings';
 
@@ -68,6 +70,8 @@ export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
     }
   };
 
+  const toggleKip = useKipStore(s => s.toggleKip);
+
   const handleNewCall = () => {
     onReset();
     if (mode !== 'live') onModeChange('live');
@@ -94,6 +98,10 @@ export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
                 className="h-6 w-6 sm:h-9 sm:w-9"
               />
             </span>
+
+            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/5 md:h-10 md:w-10" onClick={(e) => { e.stopPropagation(); toggleKip(); }}>
+              <KipAvatar size="small" state="idle" showOnlineStatus />
+            </div>
 
             <div className="min-w-0">
               <div className="flex items-center gap-2">

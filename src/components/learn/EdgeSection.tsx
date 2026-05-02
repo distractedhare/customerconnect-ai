@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { ChevronDown, ChevronUp, Wifi, Satellite, ShieldCheck, Globe, Tv, Plane, Gift } from 'lucide-react';
 import { DIFFERENTIATORS } from '../../data/differentiators';
 import LearnSectionHeader from './LearnSectionHeader';
+import { KipAvatar } from '../kip';
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   Network: <Wifi className="w-4 h-4" />,
@@ -29,7 +30,14 @@ export default function EdgeSection() {
       />
 
       <div className="grid gap-3 md:grid-cols-3">
-        {DIFFERENTIATORS.slice(0, 3).map((diff) => (
+        <div className="rounded-[1.45rem] glass-reading-strong p-4">
+          <div className="flex items-center gap-3">
+            <KipAvatar size="small" state="listening" />
+            <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-magenta">Kip's Focus</p>
+          </div>
+          <p className="mt-3 text-[12px] font-bold leading-relaxed text-foreground uppercase tracking-tight">"Lead with the story, provide proof, and win on the value."</p>
+        </div>
+        {DIFFERENTIATORS.slice(0, 2).map((diff) => (
           <div key={diff.category} className="rounded-[1.45rem] glass-reading-strong p-4">
             <div className="flex items-center gap-2">
               <div className="flex h-9 w-9 items-center justify-center rounded-2xl glass-control text-t-magenta">

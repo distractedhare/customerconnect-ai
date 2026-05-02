@@ -96,7 +96,7 @@ export const PLAYABLE_RUNNERS: RunnerCharacter[] = [
     trait: 'Wide Obstacle Clears & Extra Battery',
     color: '#FF4639',
     assets: {
-      cutout: '/assets/factions/tcl/cutout_transparent.png',
+      cutout: '/assets/factions/tcl/hud_portrait.png',
       hud: '/assets/factions/tcl/hud_portrait.png',
       avatar: '/assets/factions/tcl/avatar_small.png',
     },
@@ -115,7 +115,7 @@ export const PLAYABLE_RUNNERS: RunnerCharacter[] = [
     trait: 'Predicts, Adapts, Dominates',
     color: '#9AE94A',
     assets: {
-      cutout: '/assets/factions/pixel/cutout_transparent.png',
+      cutout: '/assets/factions/pixel/hud_portrait.png',
       hud: '/assets/factions/pixel/hud_portrait.png',
       avatar: '/assets/factions/pixel/avatar_small.png',
     },
@@ -134,7 +134,7 @@ export const PLAYABLE_RUNNERS: RunnerCharacter[] = [
     trait: 'Perfect Timing & Clean Lane Control',
     color: '#9DD9FF',
     assets: {
-      cutout: '/assets/factions/apple/cutout_transparent.png',
+      cutout: '/assets/factions/apple/hud_portrait.png',
       hud: '/assets/factions/apple/hud_portrait.png',
       avatar: '/assets/factions/apple/avatar_small.png',
     },
@@ -153,7 +153,7 @@ export const PLAYABLE_RUNNERS: RunnerCharacter[] = [
     trait: 'Adaptive Defense & Multi-Lens Reads',
     color: '#9B5CFF',
     assets: {
-      cutout: '/assets/factions/samsung/cutout_transparent.png',
+      cutout: '/assets/factions/samsung/hud_portrait.png',
       hud: '/assets/factions/samsung/hud_portrait.png',
       avatar: '/assets/factions/samsung/avatar_small.png',
     },
@@ -172,7 +172,7 @@ export const PLAYABLE_RUNNERS: RunnerCharacter[] = [
     trait: 'Momentum Dashes & Fast Recovery',
     color: '#FF7A18',
     assets: {
-      cutout: '/assets/factions/motorola/cutout_transparent.png',
+      cutout: '/assets/factions/motorola/hud_portrait.png',
       hud: '/assets/factions/motorola/hud_portrait.png',
       avatar: '/assets/factions/motorola/avatar_small.png',
     },

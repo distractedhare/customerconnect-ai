@@ -13,7 +13,9 @@ import {
   ArrowUpCircle,
   Package,
   Wrench,
-  UserCircle
+  UserCircle,
+  UserPlus,
+  Users
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { SalesContext } from '../types';
@@ -27,12 +29,13 @@ interface GuidedContextFlowProps {
   onStepChange: (step: GuidedFlowStep) => void;
 }
 
-export type GuidedFlowStep = 'intent' | 'supportFocus' | 'hintCheck' | 'product' | 'currentDevice' | 'carrier' | 'lines' | 'platform' | 'brand' | 'plan' | 'age';
+export type GuidedFlowStep = 'customerType' | 'intent' | 'supportFocus' | 'hintCheck' | 'product' | 'currentDevice' | 'carrier' | 'lines' | 'platform' | 'brand' | 'plan' | 'age';
 
-const STEPS: GuidedFlowStep[] = ['intent', 'supportFocus', 'hintCheck', 'product', 'currentDevice', 'carrier', 'lines', 'platform', 'brand', 'plan', 'age'];
+const STEPS: GuidedFlowStep[] = ['customerType', 'intent', 'supportFocus', 'hintCheck', 'product', 'currentDevice', 'carrier', 'lines', 'platform', 'brand', 'plan', 'age'];
 const SUPPORT_INTENTS: SalesContext['purchaseIntent'][] = ['order support', 'tech support', 'account support'];
 
 const STEP_LABELS: Record<GuidedFlowStep, string> = {
+  customerType: 'Customer type',
   intent: 'Purchase intent',
   supportFocus: 'Support focus',
   hintCheck: 'HINT eligibility',
@@ -84,6 +87,8 @@ export default function GuidedContextFlow({ context, setContext, onComplete, cur
     if (currentStep === 'product') {
       if (context.purchaseIntent === 'upgrade / add a line') {
         finalNextStep = 'currentDevice';
+      } else if (context.customerType === 'existing') {
+        finalNextStep = 'lines';
       } else {
         finalNextStep = 'carrier';
       }
@@ -141,8 +146,51 @@ export default function GuidedContextFlow({ context, setContext, onComplete, cur
     }
   };
 
+  const renderCustomerType = () => (
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+      className="space-y-6"
+    >
+      <div className="text-center space-y-2">
+        <h2 className="text-2xl font-black uppercase tracking-tight text-t-magenta">Who's calling?</h2>
+        <p className="text-sm font-medium text-t-dark-gray">Do they have any T-Mobile account?</p>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {[
+          { id: 'new' as const, label: 'New Customer', icon: UserPlus, desc: 'No T-Mobile account' },
+          { id: 'existing' as const, label: 'Existing Customer', icon: Users, desc: 'Has any T-Mobile account' },
+        ].map((opt) => (
+          <motion.button
+            key={opt.id}
+            variants={cardVariants}
+            animate={selectedId === opt.id ? "selected" : "show"}
+            whileHover={selectedId ? {} : { scale: 1.02, y: -4, rotateX: 5 }}
+            whileTap={selectedId ? {} : "tap"}
+            onClick={() => handleOptionSelect(opt.id, { customerType: opt.id }, 'intent')}
+            className={`flex flex-col items-center gap-3 p-8 rounded-2xl border-2 transition-all group shadow-sm hover:shadow-md ${
+              selectedId === opt.id
+                ? 'border-t-magenta bg-t-magenta/10'
+                : 'border-t-light-gray bg-surface hover:border-t-magenta/50 hover:bg-t-magenta/5'
+            }`}
+            style={{ transformStyle: 'preserve-3d' }}
+          >
+            <div className="w-16 h-16 rounded-full bg-t-magenta/10 flex items-center justify-center group-hover:bg-t-magenta group-hover:text-white transition-colors">
+              <opt.icon className="w-8 h-8 text-t-magenta group-hover:text-white" />
+            </div>
+            <div>
+              <p className="text-sm font-black uppercase tracking-tight text-t-dark-gray">{opt.label}</p>
+              <p className="text-[10px] font-medium text-t-muted mt-1">{opt.desc}</p>
+            </div>
+          </motion.button>
+        ))}
+      </div>
+    </motion.div>
+  );
+
   const renderIntent = () => (
-    <motion.div 
+    <motion.div
       variants={containerVariants}
       initial="hidden"
       animate="show"
@@ -154,13 +202,19 @@ export default function GuidedContextFlow({ context, setContext, onComplete, cur
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {[
-          { id: 'exploring', label: 'Exploring', icon: Search, desc: 'What is the customer wanting to get?' },
-          { id: 'ready to buy', label: 'Ready to Buy', icon: ShoppingBag, desc: 'Knows what they want' },
-          { id: 'upgrade / add a line', label: 'Upgrade', icon: ArrowUpCircle, desc: 'Existing customer' },
-          { id: 'order support', label: 'Order Support', icon: Package, desc: 'Status, tracking, etc.' },
-          { id: 'tech support', label: 'Tech Support', icon: Wrench, desc: 'Device or network issues' },
-          { id: 'account support', label: 'Account', icon: UserCircle, desc: 'Billing, plans, etc.' },
-        ].map((opt) => (
+          { id: 'exploring', label: 'Exploring', icon: Search, desc: 'What is the customer wanting to get?', forNew: true, forExisting: true },
+          { id: 'ready to buy', label: 'Ready to Buy', icon: ShoppingBag, desc: 'Knows what they want', forNew: true, forExisting: false },
+          { id: 'upgrade / add a line', label: 'Upgrade / Add Line', icon: ArrowUpCircle, desc: 'Add or upgrade a device', forNew: false, forExisting: true },
+          { id: 'order support', label: 'Order Support', icon: Package, desc: 'Status, tracking, etc.', forNew: true, forExisting: true },
+          { id: 'tech support', label: 'Tech Support', icon: Wrench, desc: 'Device or network issues', forNew: true, forExisting: true },
+          { id: 'account support', label: 'Account', icon: UserCircle, desc: 'Billing, plans, etc.', forNew: true, forExisting: true },
+        ]
+          .filter((opt) => {
+            if (context.customerType === 'new') return opt.forNew;
+            if (context.customerType === 'existing') return opt.forExisting;
+            return true;
+          })
+          .map((opt) => (
           <motion.button
             key={opt.id}
             variants={cardVariants}
@@ -169,9 +223,12 @@ export default function GuidedContextFlow({ context, setContext, onComplete, cur
             whileTap={selectedId ? {} : "tap"}
             onClick={() => {
                 const isSupportIntent = SUPPORT_INTENTS.includes(opt.id as SalesContext['purchaseIntent']);
+                const isExisting = context.customerType === 'existing';
                 const next: GuidedFlowStep = isSupportIntent
                   ? 'supportFocus'
                   : opt.id === 'upgrade / add a line'
+                  ? 'product'
+                  : isExisting
                   ? 'product'
                   : 'hintCheck';
                 handleOptionSelect(opt.id, {
@@ -181,8 +238,8 @@ export default function GuidedContextFlow({ context, setContext, onComplete, cur
                 }, next);
               }}
             className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all text-center group shadow-sm hover:shadow-md relative overflow-hidden ${
-              selectedId === opt.id 
-                ? 'border-t-magenta bg-t-magenta/10' 
+              selectedId === opt.id
+                ? 'border-t-magenta bg-t-magenta/10'
                 : 'border-t-light-gray bg-surface hover:border-t-magenta/50 hover:bg-t-magenta/5'
             }`}
             style={{ transformStyle: 'preserve-3d' }}
@@ -197,8 +254,8 @@ export default function GuidedContextFlow({ context, setContext, onComplete, cur
           </motion.button>
         ))}
       </div>
-      <button 
-        onClick={() => goToStep('hintCheck')}
+      <button
+        onClick={() => goToStep(context.customerType === 'existing' ? 'product' : 'hintCheck')}
         className="w-full py-3 text-[10px] font-black uppercase tracking-[0.2em] text-t-muted hover:text-t-magenta transition-colors"
       >
         Skip / Not Sure
@@ -361,10 +418,12 @@ export default function GuidedContextFlow({ context, setContext, onComplete, cur
           </motion.button>
         ))}
       </div>
-      <button 
+      <button
         onClick={() => {
           if (context.purchaseIntent === 'upgrade / add a line') {
             goToStep('currentDevice');
+          } else if (context.customerType === 'existing') {
+            goToStep('lines');
           } else {
             goToStep('carrier');
           }
@@ -779,12 +838,15 @@ export default function GuidedContextFlow({ context, setContext, onComplete, cur
           const currentIndex = STEPS.indexOf(currentStep);
           const isSupport = SUPPORT_INTENTS.includes(context.purchaseIntent);
           const isUpgrade = context.purchaseIntent === 'upgrade / add a line';
+          const isExisting = context.customerType === 'existing';
 
-          // Support: intent + focused issue only.
-          if (isSupport && !['intent', 'supportFocus'].includes(step)) return null;
+          // Support: customerType + intent + focused issue only.
+          if (isSupport && !['customerType', 'intent', 'supportFocus'].includes(step)) return null;
           if (!isSupport && step === 'supportFocus') return null;
           // Upgrade: skip hintCheck, carrier, brand, plan; keep currentDevice
           if (isUpgrade && ['hintCheck', 'carrier', 'brand', 'plan'].includes(step)) return null;
+          // Existing non-upgrade: skip hintCheck and carrier
+          if (isExisting && !isUpgrade && ['hintCheck', 'carrier'].includes(step)) return null;
           // Standard: hide currentDevice
           if (!isSupport && !isUpgrade && step === 'currentDevice') return null;
 
@@ -820,6 +882,7 @@ export default function GuidedContextFlow({ context, setContext, onComplete, cur
             className="w-full"
             style={{ backfaceVisibility: "hidden", transformStyle: "preserve-3d" }}
           >
+            {currentStep === 'customerType' && renderCustomerType()}
             {currentStep === 'intent' && renderIntent()}
             {currentStep === 'supportFocus' && renderSupportFocus()}
             {currentStep === 'hintCheck' && renderHintCheck()}
@@ -836,14 +899,17 @@ export default function GuidedContextFlow({ context, setContext, onComplete, cur
       </div>
 
       {/* Back Button */}
-      {currentStep !== 'intent' && (
+      {currentStep !== 'customerType' && (
         <button
           onClick={() => {
             const isSupport = SUPPORT_INTENTS.includes(context.purchaseIntent);
             const isUpgrade = context.purchaseIntent === 'upgrade / add a line';
+            const isExisting = context.customerType === 'existing';
 
             let prevStep: GuidedFlowStep;
-            if (isSupport) {
+            if (currentStep === 'intent') {
+              prevStep = 'customerType';
+            } else if (isSupport) {
               prevStep = 'intent';
             } else if (isUpgrade) {
               const upgradeMap: Partial<Record<GuidedFlowStep, GuidedFlowStep>> = {
@@ -854,6 +920,14 @@ export default function GuidedContextFlow({ context, setContext, onComplete, cur
                 age: 'platform',
               };
               prevStep = upgradeMap[currentStep] ?? 'intent';
+            } else if (isExisting) {
+              const existingMap: Partial<Record<GuidedFlowStep, GuidedFlowStep>> = {
+                product: 'intent',
+                lines: 'product',
+                platform: 'lines',
+                age: 'platform',
+              };
+              prevStep = existingMap[currentStep] ?? 'intent';
             } else {
               const standardMap: Partial<Record<GuidedFlowStep, GuidedFlowStep>> = {
                 hintCheck: 'intent',

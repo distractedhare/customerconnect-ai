@@ -2,9 +2,13 @@
  * Team Configuration Service
  *
  * Teams customize name, mascot, weekly focus, and goal text.
- * Stored in localStorage; shared between devices via "Arcade Token"
- * (copy-pasteable Base64 string — zero filesystem friction on mobile).
+ * Stored via kvStore (memory + LS write-ahead + IDB durable);
+ * shared between devices via "Arcade Token" (copy-pasteable Base64
+ * string — zero filesystem friction on mobile).
  */
+
+import { get as kvGet, set as kvSet } from './storage/kvStore';
+import { fromBase64Url as sharedFromB64Url, toBase64Url as sharedToB64Url } from './storage/tokenCodec';
 
 const TEAM_CONFIG_KEY = 'team-config-v1';
 export const TEAM_TOKEN_PREFIX = 'ARC1-';
@@ -59,17 +63,9 @@ export function defaultTeamConfig(): TeamConfig {
 }
 
 export function getTeamConfig(): TeamConfig {
-  try {
-    const raw = localStorage.getItem(TEAM_CONFIG_KEY);
-    if (!raw) return defaultTeamConfig();
-    const parsed = JSON.parse(raw) as Partial<TeamConfig>;
-    return {
-      ...defaultTeamConfig(),
-      ...parsed,
-    };
-  } catch {
-    return defaultTeamConfig();
-  }
+  const parsed = kvGet<Partial<TeamConfig>>(TEAM_CONFIG_KEY);
+  if (!parsed) return defaultTeamConfig();
+  return { ...defaultTeamConfig(), ...parsed };
 }
 
 type TeamConfigListener = (config: TeamConfig) => void;
@@ -86,13 +82,9 @@ function notifyListeners(config: TeamConfig): void {
 }
 
 export function saveTeamConfig(config: TeamConfig): void {
-  try {
-    config.updatedAt = new Date().toISOString();
-    localStorage.setItem(TEAM_CONFIG_KEY, JSON.stringify(config));
-    notifyListeners(config);
-  } catch {
-    // Silently fail
-  }
+  config.updatedAt = new Date().toISOString();
+  kvSet(TEAM_CONFIG_KEY, config);
+  notifyListeners(config);
 }
 
 export function subscribeTeamConfig(fn: TeamConfigListener): () => void {
@@ -135,22 +127,8 @@ interface TokenPayload {
   mg: string;  // managerName
 }
 
-function toBase64Url(input: string): string {
-  // UTF-8 safe: encodeURIComponent → unescape → btoa
-  const utf8 = unescape(encodeURIComponent(input));
-  const b64 = btoa(utf8);
-  return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-}
-
-function fromBase64Url(input: string): string {
-  const padded = input
-    .replace(/-/g, '+')
-    .replace(/_/g, '/');
-  const padLen = (4 - (padded.length % 4)) % 4;
-  const b64 = padded + '='.repeat(padLen);
-  const binary = atob(b64);
-  return decodeURIComponent(escape(binary));
-}
+const toBase64Url = sharedToB64Url;
+const fromBase64Url = sharedFromB64Url;
 
 export function encodeArcadeToken(config: TeamConfig): string {
   const trimmedName = config.teamName.trim();

@@ -3,6 +3,7 @@ import { BookOpen, Monitor, Moon, Settings, Sun, Trophy, UserPlus, Zap, Wifi } f
 import { motion } from 'motion/react';
 import { KipAvatar } from './kip';
 import { useKipStore } from '../hooks/useKipStore';
+import AccountPill from './auth/AccountPill';
 
 export type AppMode = 'home' | 'live' | 'learn' | 'level-up' | 'offline-coach' | 'settings';
 
@@ -12,6 +13,7 @@ interface HeaderProps {
   onReset: () => void;
   mode: AppMode;
   onModeChange: (mode: AppMode) => void;
+  onOpenAccount?: () => void;
 }
 
 const MODES = [
@@ -31,7 +33,7 @@ function getSystemDark() {
   return matchMedia('(prefers-color-scheme:dark)').matches;
 }
 
-export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
+export default function Header({ onReset, mode, onModeChange, onOpenAccount }: HeaderProps) {
   const [pref, setPref] = useState<ThemePref>(() => {
     const stored = localStorage.getItem('theme');
     if (stored === 'light' || stored === 'dark') return stored;
@@ -119,6 +121,7 @@ export default function Header({ onReset, mode, onModeChange }: HeaderProps) {
           </motion.button>
 
           <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
+            {onOpenAccount && <AccountPill onClick={onOpenAccount} />}
             <button
               type="button"
               onClick={cycleTheme}

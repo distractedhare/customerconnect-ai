@@ -1,4 +1,5 @@
 import { BingoCell, FREE_SPACE, getBoardLayout, getFeaturedBoardId } from '../constants/bingoBoard';
+import { get as kvGet, set as kvSet } from './storage/kvStore';
 
 const BINGO_PROGRESS_KEY = 'bingo-progress-v2';
 const BINGO_STREAK_KEY = 'bingo-streak-v2';
@@ -74,24 +75,13 @@ function getWeekStart(date = new Date()): Date {
 
 function readStorage<T>(key: string, fallback: T): T {
   if (typeof window === 'undefined') return fallback;
-
-  try {
-    const raw = localStorage.getItem(key);
-    if (!raw) return fallback;
-    return JSON.parse(raw) as T;
-  } catch {
-    return fallback;
-  }
+  const value = kvGet<T>(key);
+  return value === undefined ? fallback : value;
 }
 
 function writeStorage<T>(key: string, value: T): void {
   if (typeof window === 'undefined') return;
-
-  try {
-    localStorage.setItem(key, JSON.stringify(value));
-  } catch {
-    // Ignore storage failures so the board still works in-memory.
-  }
+  kvSet(key, value);
 }
 
 function defaultProgress(): BingoBoardProgress {

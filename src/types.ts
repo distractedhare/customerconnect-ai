@@ -15,6 +15,7 @@ export type SupportFocus =
   | 'order_missing_item';
 
 export interface SalesContext {
+  customerType?: 'new' | 'existing';
   age: '18-24' | '25-34' | '35-54' | '55+' | 'Not Specified';
   region: 'New England' | 'Mid-Atlantic' | 'South Atlantic' | 'Southeast' | 'Deep South' | 'Mid-South' | 'Great Lakes' | 'Upper Midwest' | 'Great Plains' | 'Texas & Oklahoma' | 'Desert Southwest' | 'Rocky Mountains' | 'Pacific Northwest' | 'California' | 'Alaska' | 'Hawaii' | 'Not Specified';
   state?: string;

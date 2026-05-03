@@ -138,6 +138,7 @@ function buildScriptMessages(context: SalesContext, weeklyData: WeeklyUpdate | n
       content: `Generate a personalized sales game plan.
 
 Customer context:
+- Customer type: ${context.customerType === 'new' ? 'New customer (no prior T-Mobile account)' : context.customerType === 'existing' ? 'Existing T-Mobile customer' : 'Unknown'}
 - Age group: ${context.age}
 - Region: ${context.region}${context.state ? ` (${context.state})` : ''}
 - Products: ${products}
@@ -184,6 +185,7 @@ function buildObjectionMessages(
       content: `Help a rep respond to this objection.
 
 Customer context:
+- Customer type: ${context.customerType === 'new' ? 'New customer (no prior T-Mobile account)' : context.customerType === 'existing' ? 'Existing T-Mobile customer' : 'Unknown'}
 - Age group: ${context.age}
 - Region: ${context.region}
 - Products: ${context.product.join(', ')}

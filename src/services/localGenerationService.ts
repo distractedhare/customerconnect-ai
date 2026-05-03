@@ -196,6 +196,13 @@ export function generateScript(context: SalesContext, weeklyData?: WeeklyUpdate 
     ? [...playbook.openers]
     : [...template.welcomeMessages];
 
+  // Prepend an acquisition vs. retention opener based on customer type
+  if (context.customerType === 'existing') {
+    welcomeMessages.unshift("Welcome back! Great to have you in — what can we help you with today?");
+  } else if (context.customerType === 'new') {
+    welcomeMessages.unshift("Welcome to T-Mobile! Really glad you stopped by — let me show you what we can do.");
+  }
+
   const discoveryQuestions = playbook?.discovery?.length
     ? [...playbook.discovery, ...template.discoveryQuestions.slice(0, 4)]
     : [...template.discoveryQuestions];
@@ -256,7 +263,7 @@ export function generateScript(context: SalesContext, weeklyData?: WeeklyUpdate 
 
   // HINT Unavailable Logic
   if (context.hintAvailable === false) {
-    const isTMobile = context.currentCarrier === 'Not Specified';
+    const isTMobile = context.customerType === 'existing' || context.currentCarrier === 'Not Specified';
     if (isTMobile) {
       valuePropositions.unshift("HINT Priority List: Secure their spot for the next rollout.");
       valuePropositions.push("Pivot to BTS/IOT: Focus on SyncUP or Wearables while waiting for HINT.");

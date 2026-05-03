@@ -244,7 +244,7 @@ export default function App() {
   const [mode, setMode] = useState<AppMode>('home');
   const [settingsSection, setSettingsSection] = useState<SettingsTab>('team');
   const [refineOpen, setRefineOpen] = useState(false);
-  const [guidedFlowStep, setGuidedFlowStep] = useState<GuidedFlowStep>('intent');
+  const [guidedFlowStep, setGuidedFlowStep] = useState<GuidedFlowStep>('customerType');
   const [, setSessionStats] = useState(() => getSessionStats());
   const [lastDemoScenarioName, setLastDemoScenarioName] = useState<string | null>(null);
   const [refreshingApp, setRefreshingApp] = useState(false);
@@ -348,7 +348,7 @@ export default function App() {
 
   const reset = useCallback(() => {
     storeReset();
-    setGuidedFlowStep('intent');
+    setGuidedFlowStep('customerType');
   }, [storeReset]);
 
   const handleDemoScenario = useCallback((scenario: DemoScenario) => {

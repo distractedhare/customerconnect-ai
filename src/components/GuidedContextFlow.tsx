@@ -845,8 +845,8 @@ export default function GuidedContextFlow({ context, setContext, onComplete, cur
           if (!isSupport && step === 'supportFocus') return null;
           // Upgrade: skip hintCheck, carrier, brand, plan; keep currentDevice
           if (isUpgrade && ['hintCheck', 'carrier', 'brand', 'plan'].includes(step)) return null;
-          // Existing non-upgrade: skip hintCheck and carrier
-          if (isExisting && !isUpgrade && ['hintCheck', 'carrier'].includes(step)) return null;
+          // Existing non-upgrade: skip hintCheck, carrier, brand, plan
+          if (isExisting && !isUpgrade && ['hintCheck', 'carrier', 'brand', 'plan'].includes(step)) return null;
           // Standard: hide currentDevice
           if (!isSupport && !isUpgrade && step === 'currentDevice') return null;
 

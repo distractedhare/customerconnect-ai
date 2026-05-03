@@ -28,7 +28,7 @@ const SAVE_STATUS_RESET_MS = 2200;
 
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
 
-const ALL_CHARACTER_IDS: CharacterId[] = ['apple', 'samsung', 'tcl', 'motorola', 'pixel', 'sidekick_core'];
+const ALL_CHARACTER_IDS: CharacterId[] = ['apple', 'samsung', 'tcl', 'motorola', 'pixel', 'sidekick_core', 'nokia_relay'];
 const DEFAULT_MASTERY: Record<CharacterId, number> = {
   apple: 0,
   samsung: 0,
@@ -36,6 +36,7 @@ const DEFAULT_MASTERY: Record<CharacterId, number> = {
   motorola: 0,
   pixel: 0,
   sidekick_core: 0,
+  nokia_relay: 0,
 };
 
 const getDifficultyMultiplier = (difficulty: number) => {

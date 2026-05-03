@@ -62,7 +62,7 @@ export const TLIFE_COLORS = [
   '#FFFFFF',
 ];
 
-export type CharacterId = 'apple' | 'samsung' | 'tcl' | 'motorola' | 'pixel' | 'sidekick_core';
+export type CharacterId = 'apple' | 'samsung' | 'tcl' | 'motorola' | 'pixel' | 'sidekick_core' | 'nokia_relay';
 export type AbilityType = 'passive' | 'active' | 'ultimate' | 'defensive';
 export type RunnerAbilitySlot = 'smash' | 'blast' | 'core';
 

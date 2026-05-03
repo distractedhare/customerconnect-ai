@@ -101,6 +101,17 @@ const CHARACTER_SILHOUETTES: Record<CharacterId, SilhouetteProfile> = {
     legScale: [1, 1, 1],
     hipScale: [1, 1, 1],
   },
+  // Nokia Relay reuses the apple silhouette profile until a tuned profile lands
+  // (matches the current runtime fallback in getCharacterDefinition).
+  nokia_relay: {
+    torsoScale: [0.84, 1.06, 0.88],
+    chestScale: [0.86, 0.84, 0.9],
+    headScale: [0.92, 0.92, 0.92],
+    shoulderX: 0.31,
+    armScale: [0.82, 1.02, 0.82],
+    legScale: [0.84, 1.06, 0.84],
+    hipScale: [0.82, 0.9, 0.88],
+  },
 };
 
 export const Player: React.FC = () => {

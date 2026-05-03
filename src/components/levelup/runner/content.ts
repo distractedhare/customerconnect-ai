@@ -269,7 +269,7 @@ export interface RunnerCharacter {
 export const PLAYABLE_RUNNERS: RunnerCharacter[] = [
   // ── Nokia Relay: intro / tutorial runner ──────────────────────────────────
   {
-    id: 'nokia_relay' as CharacterId,
+    id: 'nokia_relay',
     name: 'Nokia Relay',
     role: 'Intro Runner',
     trait: 'Built to Last & Signal Strong',

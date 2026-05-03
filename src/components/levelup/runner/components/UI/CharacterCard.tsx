@@ -26,6 +26,8 @@ export const CharacterCard: React.FC<Props> = ({ character, isActive }) => {
       <div
         className={`relative w-[85vw] max-w-sm shrink-0 transition-all duration-500 snap-center
           ${isActive ? 'opacity-100 scale-100' : 'opacity-60 scale-95'}`}
+        data-selected={isActive ? 'true' : 'false'}
+        data-character-id={character.id}
       >
         {/* Floating pop-out character art */}
         <button

@@ -154,6 +154,7 @@ const CHARACTER_ABILITY_SHORT: Record<CharacterId, string> = {
   motorola: 'Boost',
   pixel: 'Drone',
   sidekick_core: 'Core Sync',
+  nokia_relay: 'Signal',
 };
 
 const CHARACTER_SMASH_SHORT: Record<CharacterId, string> = {
@@ -163,6 +164,7 @@ const CHARACTER_SMASH_SHORT: Record<CharacterId, string> = {
   motorola: 'Burst',
   pixel: 'Scan',
   sidekick_core: 'Smash',
+  nokia_relay: 'Relay',
 };
 
 type CharacterStatKey = keyof CharacterDefinition['stats'];

@@ -28,15 +28,18 @@ interface Envelope<T> {
   updatedAt: number;
 }
 
-export function runMigrations(memory: Map<string, Envelope<unknown>>): void {
+export function runMigrations(memory: Map<string, Envelope<unknown>>): string[] {
+  const migratedKeys: string[] = [];
   for (const entry of REGISTRY) {
     const env = memory.get(entry.key);
     if (!env) continue;
     const migrated = liftShape(env.v, entry);
     if (migrated !== env.v) {
       memory.set(entry.key, { v: migrated, updatedAt: Date.now() });
+      migratedKeys.push(entry.key);
     }
   }
+  return migratedKeys;
 }
 
 function liftShape(value: unknown, entry: MigrationEntry): unknown {
@@ -52,7 +55,14 @@ function liftShape(value: unknown, entry: MigrationEntry): unknown {
     const step = entry.steps[from];
     if (!step) break;
     try {
-      current = step(current);
+      const next = step(current) as { schemaVersion?: number };
+      // Each step MUST advance the version. If a buggy migrator returns
+      // something at-or-before `from`, stop walking instead of looping
+      // until `safety` runs out — fail fast preserves the rep's data.
+      if (!next || typeof next !== 'object' || (next.schemaVersion ?? 0) <= from) {
+        break;
+      }
+      current = next;
     } catch {
       // Migrator threw — stop walking and return what we have so the rep
       // doesn't lose data over a code bug.

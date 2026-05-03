@@ -12,9 +12,10 @@
 import { defaultTabCode, defaultTeamId, findTab, findTeam } from '../../data/tabs';
 import type { MascotId } from '../teamConfigService';
 import { get as kvGet, remove as kvRemove, set as kvSet } from '../storage/kvStore';
+import { PROFILE_KEY, REP_GAMEPLAY_KEYS } from '../storage/keys';
 import type { AccessLevel } from './capabilities';
 
-export const PROFILE_KEY = 'cc-profile-v1';
+export { PROFILE_KEY };
 const HANDLE_RE = /^[a-z0-9_]{3,20}$/;
 const PIN_RE = /^\d{6}$/;
 const PBKDF2_ITERATIONS = 100_000;
@@ -252,17 +253,11 @@ export function updateProfile(update: ProfileUpdate): PublicProfile | null {
 export function signOut(eraseLocalData: boolean): void {
   kvRemove(PROFILE_KEY);
   if (eraseLocalData) {
-    // Wipe everything we own. Header theme + cc-role are explicitly
-    // per-device prefs and are NOT erased.
-    const REP_KEYS = [
-      'bingo-progress-v2',
-      'bingo-streak-v2',
-      'prize-tracker-v1',
-      'cc-leaderboard-v1',
-      'team-config-v1',
-      'tlife_runner_save_v3',
-    ];
-    for (const k of REP_KEYS) kvRemove(k);
+    // Wipe every registered rep gameplay key. Per-device prefs (theme,
+    // cc-role) are NOT in the registry and are intentionally left intact.
+    // New rep-state keys are added by registering them in keys.ts —
+    // without that registration they leak across sign-outs.
+    for (const k of REP_GAMEPLAY_KEYS) kvRemove(k);
   }
   notify();
 }

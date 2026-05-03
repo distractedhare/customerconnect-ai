@@ -65,4 +65,32 @@ describe('kvStore', () => {
     await hydrate();
     expect(isHydrated()).toBe(true);
   });
+
+  it('persists migrated state to localStorage during hydrate', async () => {
+    // Seed a legacy (unstamped) bingo payload — migrator should stamp
+    // schemaVersion: 1 and write it back so the migration doesn't
+    // re-run on every boot.
+    const legacy = { v: { completedCellIds: ['free-space'] }, updatedAt: 50 };
+    localStorage.setItem('bingo-progress-v2', JSON.stringify(legacy));
+
+    __resetForTests();
+    await hydrate();
+
+    const raw = localStorage.getItem('bingo-progress-v2');
+    expect(raw).toBeTruthy();
+    const parsed = JSON.parse(raw!);
+    expect(parsed.v.schemaVersion).toBe(1);
+  });
+
+  it('rejects malformed envelopes (non-numeric updatedAt) by treating them as raw legacy values', () => {
+    localStorage.setItem(
+      'test:malformed',
+      JSON.stringify({ v: { hello: 'world' }, updatedAt: 'not-a-number' }),
+    );
+    // The whole object becomes the legacy payload — no crash, value
+    // wraps with updatedAt: 0 (oldest), so any well-formed envelope
+    // will outrank it.
+    const value = get<{ v: unknown; updatedAt: string }>('test:malformed');
+    expect(value).toEqual({ v: { hello: 'world' }, updatedAt: 'not-a-number' });
+  });
 });

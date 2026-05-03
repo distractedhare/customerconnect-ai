@@ -9,7 +9,7 @@
 //    tab close mid-flush) and queue an async IDB write.
 //  - On hydrate, whichever side has the newer `updatedAt` wins per key.
 
-import { idbAllKeys, idbAvailable, idbDelete, idbGet, idbSet } from './idb';
+import { idbAllEntries, idbAvailable, idbDelete, idbSet } from './idb';
 import { runMigrations } from './migrations';
 
 interface Envelope<T> {
@@ -30,7 +30,14 @@ function lsGet(key: string): Envelope<unknown> | undefined {
     const parsed = JSON.parse(raw);
     // Legacy values (pre-envelope) don't have updatedAt — wrap them so
     // services keep working while we transition. Treat them as oldest.
-    if (parsed && typeof parsed === 'object' && 'v' in parsed && 'updatedAt' in parsed) {
+    // We require updatedAt to be a number so pickNewer() stays reliable
+    // even if a malformed envelope sneaks in.
+    if (
+      parsed
+      && typeof parsed === 'object'
+      && 'v' in parsed
+      && typeof (parsed as { updatedAt?: unknown }).updatedAt === 'number'
+    ) {
       return parsed as Envelope<unknown>;
     }
     return { v: parsed, updatedAt: 0 };
@@ -85,11 +92,12 @@ export async function hydrate(): Promise<void> {
   hydrating = (async () => {
     const seen = new Set<string>();
 
-    // Read every IDB key first.
+    // Single bulk transaction — fetch every (key, value) pair at once.
+    // Replaces the prior O(N) idbGet loop so first-paint isn't held up
+    // as the rep accumulates persisted keys.
     if (idbAvailable()) {
-      const idbKeys = await idbAllKeys();
-      for (const key of idbKeys) {
-        const idbEnv = (await idbGet<Envelope<unknown>>(key)) ?? undefined;
+      const entries = await idbAllEntries<Envelope<unknown>>();
+      for (const [key, idbEnv] of entries) {
         const lsEnv = lsGet(key);
         const winner = pickNewer(idbEnv, lsEnv);
         if (winner) {
@@ -113,8 +121,16 @@ export async function hydrate(): Promise<void> {
       }
     }
 
-    // Run schema migrations across every hydrated key.
-    runMigrations(memory);
+    // Run schema migrations across every hydrated key, then persist
+    // anything that actually changed. Without this, migrations re-run
+    // every boot until a service happens to call set() for that key.
+    const migratedKeys = runMigrations(memory);
+    for (const key of migratedKeys) {
+      const env = memory.get(key);
+      if (!env) continue;
+      lsSet(key, env);
+      if (idbAvailable()) scheduleIdbWrite(key, env);
+    }
 
     hydrated = true;
   })();

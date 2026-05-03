@@ -53,4 +53,19 @@ describe('migrations', () => {
     runMigrations(memory);
     expect(memory.get('totally-unrelated')!.v).toEqual({ x: 1 });
   });
+
+  it('returns the list of keys that were actually mutated', () => {
+    const memory = new Map<string, { v: unknown; updatedAt: number }>();
+    memory.set('bingo-progress-v2', { v: { completedCellIds: [] }, updatedAt: 100 });
+    memory.set('cc-profile-v1', { v: { schemaVersion: 1, handle: 'bsharp' }, updatedAt: 100 });
+    memory.set('totally-unrelated', { v: { x: 1 }, updatedAt: 100 });
+    const mutated = runMigrations(memory);
+    expect(mutated).toEqual(['bingo-progress-v2']);
+  });
+
+  it('returns an empty list when nothing needed migrating', () => {
+    const memory = new Map<string, { v: unknown; updatedAt: number }>();
+    memory.set('cc-profile-v1', { v: { schemaVersion: 1, handle: 'bsharp' }, updatedAt: 100 });
+    expect(runMigrations(memory)).toEqual([]);
+  });
 });

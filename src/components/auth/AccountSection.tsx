@@ -188,13 +188,18 @@ function SignInForm() {
     if (busy) return;
     setBusy(true);
     setError(null);
-    const result = await signIn(handle, pin);
-    setBusy(false);
-    if (result.ok) return;
-    if (result.error === 'no-profile') {
-      setError('No account on this device yet. Create one or restore from a Rep Token.');
-    } else {
-      setError('Handle or PIN does not match.');
+    try {
+      const result = await signIn(handle, pin);
+      if (result.ok) return;
+      if (result.error === 'no-profile') {
+        setError('No account on this device yet. Create one or restore from a Rep Token.');
+      } else {
+        setError('Handle or PIN does not match.');
+      }
+    } catch {
+      setError('Something went wrong. Please try again.');
+    } finally {
+      setBusy(false);
     }
   };
 
@@ -264,15 +269,20 @@ function SignUpForm() {
     setBusy(true);
     setError(null);
     const payload: SignUpInput = { handle, pin, tabCode, teamId, mascotId, initials };
-    const result = await signUp(payload);
-    setBusy(false);
-    if (result.ok) return;
-    switch (result.error) {
-      case 'handle': setError('Handle must be 3-20 chars: lowercase letters, numbers, or underscore.'); break;
-      case 'pin': setError('PIN must be exactly 6 digits.'); break;
-      case 'tab': setError('Pick a TAB.'); break;
-      case 'team': setError('Pick a team in that TAB.'); break;
-      case 'crypto': setError('This browser does not support secure PINs. Try a different browser.'); break;
+    try {
+      const result = await signUp(payload);
+      if (result.ok) return;
+      switch (result.error) {
+        case 'handle': setError('Handle must be 3-20 chars: lowercase letters, numbers, or underscore.'); break;
+        case 'pin': setError('PIN must be exactly 6 digits.'); break;
+        case 'tab': setError('Pick a TAB.'); break;
+        case 'team': setError('Pick a team in that TAB.'); break;
+        case 'crypto': setError('This browser does not support secure PINs. Try a different browser.'); break;
+      }
+    } catch {
+      setError('Something went wrong. Please try again.');
+    } finally {
+      setBusy(false);
     }
   };
 

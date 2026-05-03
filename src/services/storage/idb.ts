@@ -104,6 +104,34 @@ export async function idbAllKeys(): Promise<string[]> {
   });
 }
 
+// Bulk-read every (key, value) pair in a single transaction. We use this
+// at boot so hydration is one round-trip instead of N+1.
+export async function idbAllEntries<T = unknown>(): Promise<Array<[string, T]>> {
+  const db = await openDb();
+  if (!db) return [];
+  return new Promise((resolve) => {
+    try {
+      const tx = db.transaction(STORE_NAME, 'readonly');
+      const store = tx.objectStore(STORE_NAME);
+      const keysReq = store.getAllKeys();
+      const valuesReq = store.getAll();
+      tx.oncomplete = () => {
+        const keys = (keysReq.result as IDBValidKey[]).map(String);
+        const values = valuesReq.result as T[];
+        const out: Array<[string, T]> = [];
+        for (let i = 0; i < keys.length; i++) {
+          out.push([keys[i], values[i]]);
+        }
+        resolve(out);
+      };
+      tx.onerror = () => resolve([]);
+      tx.onabort = () => resolve([]);
+    } catch {
+      resolve([]);
+    }
+  });
+}
+
 export function idbAvailable(): boolean {
   return isAvailable();
 }

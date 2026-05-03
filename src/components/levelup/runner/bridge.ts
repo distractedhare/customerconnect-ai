@@ -54,6 +54,8 @@ declare global {
   }
 }
 
+import { get as kvGet, set as kvSet, remove as kvRemove } from '../../../services/storage/kvStore';
+
 export const RUNNER_SAVE_KEY = 'tlife_runner_save_v3';
 
 export const emitRunnerEvent = (type: string, payload?: any) => {
@@ -86,7 +88,7 @@ export const saveRunnerProgress = (payload: RunnerSavePayload) => {
   if (typeof window === 'undefined') return false;
 
   try {
-    localStorage.setItem(RUNNER_SAVE_KEY, JSON.stringify(payload));
+    kvSet(RUNNER_SAVE_KEY, payload);
     window.__TLIFE_RUNNER_SAVE__ = payload;
     window.TLifeRunnerHost?.saveRunnerState?.(payload);
     emitRunnerEvent('tlife-runner-save', payload);
@@ -110,20 +112,19 @@ export const loadRunnerProgress = (): RunnerSavePayload | null => {
 
   if (window.__TLIFE_RUNNER_SAVE__) return window.__TLIFE_RUNNER_SAVE__;
 
-  try {
-    const local = localStorage.getItem(RUNNER_SAVE_KEY);
-    if (!local) return null;
-    return JSON.parse(local) as RunnerSavePayload;
-  } catch (error) {
-    console.warn('Unable to parse local runner save', error);
-    return null;
+  const stored = kvGet<RunnerSavePayload>(RUNNER_SAVE_KEY);
+  if (stored) {
+    // Hydrate the window memo so subsequent reads stay synchronous.
+    window.__TLIFE_RUNNER_SAVE__ = stored;
+    return stored;
   }
+  return null;
 };
 
 export const clearRunnerProgress = () => {
   if (typeof window === 'undefined') return;
   try {
-    localStorage.removeItem(RUNNER_SAVE_KEY);
+    kvRemove(RUNNER_SAVE_KEY);
     window.__TLIFE_RUNNER_SAVE__ = undefined;
     emitRunnerEvent('tlife-runner-save-cleared');
   } catch (error) {

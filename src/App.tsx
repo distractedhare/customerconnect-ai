@@ -443,6 +443,12 @@ export default function App() {
     setShowHintPrompt(true);
   }, []);
 
+  const handleOpenAccount = useCallback(() => {
+    void loadSettingsView();
+    setSettingsSection('account');
+    setMode('settings');
+  }, []);
+
   const handleGuidedComplete = useCallback((finalContext?: SalesContext) => {
     const nextContext = finalContext ?? context;
     setActiveTab('gameplan');
@@ -485,7 +491,7 @@ export default function App() {
     <ErrorBoundary>
     <div className="relative min-h-screen overflow-x-hidden font-sans text-foreground selection:bg-t-magenta/20">
       <PwaUpdater />
-      <Header onReset={reset} mode={mode} onModeChange={handleModeChange} />
+      <Header onReset={reset} mode={mode} onModeChange={handleModeChange} onOpenAccount={handleOpenAccount} />
 
       <main
         className={`relative z-[1] mx-auto ${

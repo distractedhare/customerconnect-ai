@@ -1,5 +1,9 @@
+import { get as kvGet, set as kvSet } from './storage/kvStore';
+import { getProfile } from './auth/profileService';
+
 export interface LeaderboardEntry {
   initials: string;
+  handle?: string;
   teamToken: string;
   score: number;
   ts: number;
@@ -13,22 +17,12 @@ const normalizeInitials = (raw: string) =>
   raw.replace(/[^A-Za-z]/g, '').toUpperCase().slice(0, 3);
 
 function readStore(): LeaderboardEntry[] {
-  try {
-    const raw = localStorage.getItem(STORE_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
+  const parsed = kvGet<LeaderboardEntry[]>(STORE_KEY);
+  return Array.isArray(parsed) ? parsed : [];
 }
 
 function writeStore(entries: LeaderboardEntry[]) {
-  try {
-    localStorage.setItem(STORE_KEY, JSON.stringify(entries));
-  } catch {
-    /* quota / disabled storage — silent */
-  }
+  kvSet(STORE_KEY, entries);
 }
 
 async function mockNetwork(): Promise<void> {
@@ -49,8 +43,10 @@ export async function submitScore(
     if (cleanInitials.length !== 3 || !cleanToken) return false;
 
     const entries = readStore();
+    const profile = getProfile();
     entries.push({
       initials: cleanInitials,
+      handle: profile?.handle,
       teamToken: cleanToken,
       score: cleanScore,
       ts: Date.now(),

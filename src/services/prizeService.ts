@@ -9,6 +9,8 @@
  * All tracking is localStorage — no server needed for the pilot.
  */
 
+import { get as kvGet, set as kvSet } from './storage/kvStore';
+
 const PRIZE_KEY = 'prize-tracker-v1';
 
 export type PrizeTier = 'daily' | 'weekly' | 'monthly';
@@ -74,38 +76,31 @@ function defaultPrizeData(): PrizeData {
 }
 
 function readPrizeData(): PrizeData {
-  try {
-    const raw = localStorage.getItem(PRIZE_KEY);
-    if (!raw) return defaultPrizeData();
-    const parsed = JSON.parse(raw) as PrizeData;
+  const parsed = kvGet<PrizeData>(PRIZE_KEY);
+  if (!parsed) return defaultPrizeData();
 
-    // Reset stale periods
-    const today = todayKey();
-    const week = weekStartKey();
-    const month = monthKey();
+  // Reset stale periods. Period-reset logic operates on parsed objects
+  // and is independent of the storage backend.
+  const today = todayKey();
+  const week = weekStartKey();
+  const month = monthKey();
 
-    if (parsed.daily.date !== today) {
-      parsed.daily = { date: today, cellsCompleted: 0, quizScore: null, quizCompleted: false, momentumEarned: false };
-    }
-    if (parsed.weekly.weekStart !== week) {
-      parsed.weekly = { weekStart: week, totalRows: 0, raffleEntered: false };
-    }
-    if (parsed.monthly.month !== month) {
-      parsed.monthly = { month: month, longestStreak: 0, raffleEntered: false };
-    }
-
-    return parsed;
-  } catch {
-    return defaultPrizeData();
+  if (parsed.daily?.date !== today) {
+    parsed.daily = { date: today, cellsCompleted: 0, quizScore: null, quizCompleted: false, momentumEarned: false };
   }
+  if (parsed.weekly?.weekStart !== week) {
+    parsed.weekly = { weekStart: week, totalRows: 0, raffleEntered: false };
+  }
+  if (parsed.monthly?.month !== month) {
+    parsed.monthly = { month: month, longestStreak: 0, raffleEntered: false };
+  }
+  if (!Array.isArray(parsed.history)) parsed.history = [];
+
+  return parsed;
 }
 
 function savePrizeData(data: PrizeData): void {
-  try {
-    localStorage.setItem(PRIZE_KEY, JSON.stringify(data));
-  } catch {
-    // Silently fail
-  }
+  kvSet(PRIZE_KEY, data);
 }
 
 export function getPrizeData(): PrizeData {

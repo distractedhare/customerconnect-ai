@@ -1,17 +1,18 @@
 import { useState, useEffect } from 'react';
-import { 
-  Settings, Users, MessageSquare, Rocket, Download, 
+import {
+  Settings, Users, MessageSquare, Rocket, Download,
   Wifi, ShieldCheck, Loader2, CheckCircle2, AlertCircle,
-  Info, RefreshCw
+  Info, RefreshCw, UserCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import TeamConfig from './levelup/TeamConfig';
 import FeedbackForm from './levelup/FeedbackForm';
 import Roadmap from './levelup/Roadmap';
+import AccountSection from './auth/AccountSection';
 import { localAiService } from '../services/localAiService';
 import { InitProgressReport } from '@mlc-ai/web-llm';
 
-export type SettingsTab = 'team' | 'feedback' | 'roadmap' | 'offline-ai';
+export type SettingsTab = 'account' | 'team' | 'feedback' | 'roadmap' | 'offline-ai';
 
 interface SettingsViewProps {
   initialTab?: SettingsTab;
@@ -105,6 +106,7 @@ export default function SettingsView({ initialTab = 'team' }: SettingsViewProps)
     {
       heading: 'Rep Tools',
       tabs: [
+        { id: 'account', icon: UserCircle, label: 'Account', description: 'Optional sign-in for cross-device backup.' },
         { id: 'team', icon: Users, label: 'Team Setup', description: 'Squad name, mascot, and challenge focus.' },
         { id: 'offline-ai', icon: Wifi, label: 'Offline AI', description: 'Gemma status, download, and recovery tools.' },
       ],
@@ -219,6 +221,7 @@ export default function SettingsView({ initialTab = 'team' }: SettingsViewProps)
               transition={{ duration: 0.2 }}
               className="glass-card rounded-3xl p-6 min-h-[400px]"
             >
+              {activeTab === 'account' && <AccountSection />}
               {activeTab === 'team' && <TeamConfig />}
               {activeTab === 'feedback' && <FeedbackForm />}
               {activeTab === 'roadmap' && <Roadmap onSwitchToFeedback={() => setActiveTab('feedback')} />}

@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { evaluatePromoStatus } from '../promoEngine';
+import { countQualifyingItems, evaluatePromoStatus, itemQualifiesForPromoSet } from '../promoEngine';
 import { CATALOG } from '../../data/accessoryCatalog';
 import { CatalogItem } from '../../types';
+import { KNOWLEDGE_PROMOS, canKipQuoteAccessoryBundleEligibility } from '../../data/knowledge';
 
 // Pull essential-qualifying items from the real catalog
 const essentialItems = CATALOG.filter(c => c.qualifyingSetIds.includes('essential'));
@@ -70,5 +71,31 @@ describe('evaluatePromoStatus', () => {
     const result = evaluatePromoStatus(pickEssential(3), CATALOG);
     // No suggestions needed once qualified
     expect(result.itemsNeeded).toBe(0);
+  });
+
+  it('maps the app alias to the canonical workbook promo set ID', () => {
+    const item = essentialItems[0];
+    expect(itemQualifiesForPromoSet(item, 'essential')).toBe(true);
+    expect(itemQualifiesForPromoSet(item, 'essential-accessories')).toBe(true);
+  });
+
+  it('counts only checker-approved items for quote-safe UI labels', () => {
+    const quoteSafeItem = CATALOG.find((item) => canKipQuoteAccessoryBundleEligibility(item.id));
+    const reviewOnlyItem = essentialItems.find((item) => !canKipQuoteAccessoryBundleEligibility(item.id));
+
+    expect(quoteSafeItem).toBeTruthy();
+    expect(reviewOnlyItem).toBeTruthy();
+    expect(countQualifyingItems([quoteSafeItem!])).toBe(1);
+    expect(countQualifyingItems([reviewOnlyItem!])).toBe(0);
+  });
+
+  it('keeps imported promo copy out of eligibility math', () => {
+    const importedPromo = KNOWLEDGE_PROMOS.find((promo) => promo.promoId === 'essential-15pct');
+    expect(importedPromo).toBeTruthy();
+    expect(importedPromo?.confidence).toBe('review-required');
+
+    const result = evaluatePromoStatus(pickEssential(2), CATALOG);
+    expect(result.discountPct).toBe(15);
+    expect(result.activeRuleId).toBe('essential-15pct');
   });
 });

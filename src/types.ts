@@ -1,4 +1,5 @@
 import { OrderSupportType } from './components/OrderSupportSelector';
+import type { KnowledgeLinkedFields } from './types/knowledge';
 
 export type SupportFocus =
   | 'tech_device_issue'
@@ -32,6 +33,10 @@ export interface SalesContext {
   desiredPlatform?: 'iOS' | 'Android' | 'Other' | 'Not Specified';
   hintAvailable?: boolean;
   hintQualified?: 'Yes' | 'No' | 'Wait';
+  customerRelationship?: 'unknown' | 'new-customer' | 'current-customer' | 'current-hint-only' | 'current-voice' | 'mixed-account';
+  discountProfile?: 'none' | '55-plus' | 'military' | 'first-responder' | 'business' | 'unknown';
+  householdTags?: Array<'kids' | 'caregiver' | 'traveler' | 'privacy-minded' | 'commuter' | 'power-user' | 'small-business' | 'family-household'>;
+  profilePreset?: 'young-professional' | 'family-household' | 'senior-low-tech' | 'power-user' | 'small-business-owner';
 }
 
 export interface StoreInfo {
@@ -48,15 +53,28 @@ export interface GroundingSource {
   uri: string;
 }
 
+export type AccessoryBundleEligibilityStatus =
+  | 'quote-safe'
+  | 'review-required'
+  | 'not-eligible'
+  | 'not-applicable';
+
 export interface AccessoryRecommendation {
+  itemId?: string;
   name: string;
   why: string;
   priceRange: string;
   /** Specific verified prices from t-mobile.com for key items */
   verifiedPrices?: { item: string; fullPrice: string; salePrice?: string }[];
   brands: string[];
-  /** Whether this item qualifies for the 25% off 3+ Essential Accessories bundle */
+  /** Quote-safe bundle eligibility derived from the accuracy checker, not raw Firecrawl mentions */
   bundleEligible: boolean;
+  sourceUrl?: string;
+  confidence?: string;
+  proofText?: string;
+  reasonTags?: string[];
+  eligibilityStatus?: AccessoryBundleEligibilityStatus;
+  reviewStatus?: string;
 }
 
 export interface SalesScript {
@@ -136,7 +154,7 @@ export interface CustomerSignal {
   source: string;
 }
 
-export interface CatalogItem {
+export interface CatalogItem extends KnowledgeLinkedFields {
   id: string;
   sku?: string;
   name: string;

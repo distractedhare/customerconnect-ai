@@ -1,0 +1,11 @@
+{
+  "deviceByName": {},
+  "accessoryById": {},
+  "planByName": {
+    "experience-beyond": "plan-experience-beyond",
+    "experience-more": "plan-experience-more",
+    "better-value": "plan-better-value",
+    "essentials": "plan-essentials",
+    "essentials-saver": "plan-essentials-saver"
+  }
+}

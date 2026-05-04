@@ -13,6 +13,7 @@ interface CustomerContextFormProps {
   showCarrier?: boolean;
   showSharperRead?: boolean;
   defaultLocationOpen?: boolean;
+  defaultSharperReadOpen?: boolean;
   locationLabel?: string;
   locationHint?: string;
   locationPanelId?: string;
@@ -27,12 +28,13 @@ export default function CustomerContextForm({
   showCarrier = true,
   showSharperRead = true,
   defaultLocationOpen = false,
+  defaultSharperReadOpen = true,
   locationLabel = 'Location',
   locationHint,
   locationPanelId,
 }: CustomerContextFormProps) {
   const [locationOpen, setLocationOpen] = useState(defaultLocationOpen);
-  const [sharperReadOpen, setSharperReadOpen] = useState(true);
+  const [sharperReadOpen, setSharperReadOpen] = useState(defaultSharperReadOpen);
   const zipInputId = inline ? 'customer-zip-inline' : 'customer-zip';
   const resolvedLocationPanelId = locationPanelId || (inline ? 'location-panel-inline' : 'location-panel');
 

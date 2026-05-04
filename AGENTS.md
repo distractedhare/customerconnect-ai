@@ -202,3 +202,9 @@ is authorized to promote stubs to full agents per the criteria in
 `.claude/agents/README.md` — that README is the canonical roster, when-to-
 invoke guide, and promotion-rules document. Read it before adding or
 modifying any agent.
+
+These agent files are development-only coordination helpers. They must never be
+imported, bundled, exposed in the UI, exported in knowledge data, or treated as
+app personas. Personal helper agents such as Evy stay outside this app repo.
+KIP is the only approved app-facing assistant persona unless B explicitly
+approves another sales-app persona.

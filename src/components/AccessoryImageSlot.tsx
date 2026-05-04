@@ -8,6 +8,8 @@ import {
 interface AccessoryImageSlotProps {
   name: string;
   imageUrl?: string;
+  heroImageUrl?: string;
+  fallbackSources?: string[];
   className: string;
   imageClassName: string;
   placeholderLabel?: string;
@@ -17,32 +19,39 @@ interface AccessoryImageSlotProps {
 export default function AccessoryImageSlot({
   name,
   imageUrl,
+  heroImageUrl,
+  fallbackSources,
   className,
   imageClassName,
   placeholderLabel = 'Accessory',
   showManufacturerBadge = true,
 }: AccessoryImageSlotProps) {
   const badge = getManufacturerBadge(name);
-  const fallbackSources = useMemo(
-    () => [imageUrl, badge.fallbackAssetPath, COMPANY_LOGO_FALLBACK].filter(Boolean) as string[],
-    [badge.fallbackAssetPath, imageUrl]
+  const resolvedSources = useMemo(
+    () =>
+      (fallbackSources && fallbackSources.length > 0
+        ? fallbackSources
+        : [imageUrl, heroImageUrl, badge.fallbackAssetPath, COMPANY_LOGO_FALLBACK]
+      ).filter(Boolean) as string[],
+    [badge.fallbackAssetPath, fallbackSources, heroImageUrl, imageUrl]
   );
   const [fallbackIndex, setFallbackIndex] = useState(0);
 
   useEffect(() => {
     setFallbackIndex(0);
-  }, [badge.fallbackAssetPath, imageUrl]);
+  }, [badge.fallbackAssetPath, fallbackSources, heroImageUrl, imageUrl]);
 
-  const currentSource = fallbackSources[fallbackIndex];
+  const currentSource = resolvedSources[fallbackIndex];
   const shouldShowImage = Boolean(currentSource);
   const isPrimaryImage = Boolean(imageUrl) && fallbackIndex === 0;
+  const isKnowledgeHero = Boolean(heroImageUrl) && currentSource === heroImageUrl;
 
   return (
     <div className={`relative flex items-center justify-center overflow-hidden ${className}`}>
       {shouldShowImage ? (
         <img
           src={currentSource}
-          alt={isPrimaryImage ? name : `${badge.label} placeholder for ${name}`}
+          alt={isPrimaryImage || isKnowledgeHero ? name : `${badge.label} placeholder for ${name}`}
           className={`${imageClassName} ${isPrimaryImage ? '' : 'opacity-80 saturate-75'}`}
           loading="lazy"
           width={160}

@@ -951,18 +951,34 @@ export function getDevicePositioningSummary(
 ): PositioningSummary {
   const { demoAngles, texts } = buildDeviceTexts(device, ecosystemMatrix);
   const promos = getPromoMatches(device, weeklyData);
-  const drivers = scoreDrivers(texts, getDeviceBoosts(device));
-  const featureTranslations = getFeatureTranslations(device.keySpecs);
+  const knowledgeFeatureTexts = unique(compact([
+    ...(device.knowledgeFeatures?.map((feature) => feature.customerBenefit || feature.featureValue || feature.proofText) ?? []),
+    ...(device.knowledgeBenefits?.map((benefit) => benefit.benefit) ?? []),
+  ]));
+  const knowledgeSpecTexts = unique(
+    compact(
+      device.knowledgeSpecs?.map((spec) => `${spec.specName}: ${spec.specValue}`) ?? []
+    )
+  );
+  const translationInput = unique(compact([
+    device.keySpecs,
+    ...knowledgeFeatureTexts,
+    ...knowledgeSpecTexts,
+  ])).join(', ');
+  const drivers = scoreDrivers([...texts, ...knowledgeFeatureTexts], getDeviceBoosts(device));
+  const featureTranslations = getFeatureTranslations(translationInput);
 
-  const evidenceTexts = compact([
+  const evidenceTexts = unique(compact([
     device.sellingNotes,
+    ...knowledgeFeatureTexts,
+    ...knowledgeSpecTexts,
     ...demoAngles.map(angle => angle.whyThisDemoResponds),
     ...promos.map(promo => `${promo.name}. ${promo.details}`),
     ...texts.filter(text => text !== device.keySpecs),
     ...featureTranslations.map(item => `${item.feature}: ${item.benefit}`),
     device.category === 'watch' ? `Connected line runs ${CONNECTED_DEVICE_INFO.plans.wearableLine.desc}.` : null,
     device.category === 'tablet' ? `Tablet line runs ${CONNECTED_DEVICE_INFO.plans.tabletLine.desc}.` : null,
-  ]);
+  ]));
 
   return buildSummary({
     name: device.name,

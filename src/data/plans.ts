@@ -1,3 +1,6 @@
+import { mergePlanKnowledge } from './knowledge';
+import type { KnowledgeLinkedFields } from '../types/knowledge';
+
 export interface PlanPricing {
   lines: number;
   monthlyTotal: number;
@@ -7,7 +10,7 @@ export interface PlanPricing {
   promoNote?: string;
 }
 
-export interface Plan {
+export interface Plan extends KnowledgeLinkedFields {
   name: string;
   tier: 'flagship' | 'mid' | 'family' | 'entry' | 'budget' | 'specialized';
   status: 'current' | 'retired' | 'legacy';
@@ -25,7 +28,7 @@ export const REG_FEES = {
   note: 'Plus federal & local surcharges ($0.36–$4.79/line, varies by location)',
 };
 
-export const POSTPAID_PLANS: Plan[] = [
+export const POSTPAID_PLANS: Plan[] = ([
   {
     name: 'Experience Beyond',
     tier: 'flagship',
@@ -176,7 +179,7 @@ export const POSTPAID_PLANS: Plan[] = [
       'No streaming perks',
     ],
   },
-];
+] satisfies Plan[]).map(mergePlanKnowledge);
 
 export const SPECIALIZED_PLANS = {
   senior: {

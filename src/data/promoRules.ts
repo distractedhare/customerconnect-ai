@@ -1,21 +1,34 @@
 /**
  * Promo rules — single source of truth for qualifying set logic.
  *
- * qualifyingSetId must match the qualifyingSetIds values used in accessoryCatalog.ts.
+ * qualifyingSetId uses the canonical workbook promo set ID.
+ * The older app catalog still uses the `essential` alias until migrated.
  *
  * TODO: Confirm exact eligibility items and dates with current T-Mobile promo documentation.
  * This implements the current two-tier structure:
- *   - 'essential' set: 2 items = 15% off, 3+ items = 25% off
+ *   - 'essential-accessories' set: 2 items = 15% off, 3+ items = 25% off
  */
 
 import { PromoRule } from '../types';
+
+export const ESSENTIAL_ACCESSORIES_PROMO_SET_ID = 'essential-accessories';
+export const ESSENTIAL_ACCESSORIES_APP_ALIAS = 'essential';
+
+export const PROMO_SET_ALIASES: Record<string, string> = {
+  [ESSENTIAL_ACCESSORIES_PROMO_SET_ID]: ESSENTIAL_ACCESSORIES_PROMO_SET_ID,
+  [ESSENTIAL_ACCESSORIES_APP_ALIAS]: ESSENTIAL_ACCESSORIES_PROMO_SET_ID,
+};
+
+export function canonicalizePromoSetId(setId: string): string {
+  return PROMO_SET_ALIASES[setId] ?? setId;
+}
 
 export const PROMO_RULES: PromoRule[] = [
   {
     id: 'essential-25pct',
     label: 'Save 25% — 3+ Essential Accessories',
     channel: 'store',
-    qualifyingSetId: 'essential',
+    qualifyingSetId: ESSENTIAL_ACCESSORIES_PROMO_SET_ID,
     requiredQty: 3,
     discountPct: 25,
     subtleLabel: 'Works well together',
@@ -26,7 +39,7 @@ export const PROMO_RULES: PromoRule[] = [
     id: 'essential-15pct',
     label: 'Save 15% — 2 Essential Accessories',
     channel: 'store',
-    qualifyingSetId: 'essential',
+    qualifyingSetId: ESSENTIAL_ACCESSORIES_PROMO_SET_ID,
     requiredQty: 2,
     discountPct: 15,
     subtleLabel: 'Add one more qualifying item',

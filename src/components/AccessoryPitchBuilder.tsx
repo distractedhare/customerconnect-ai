@@ -6,6 +6,7 @@ import { Device } from '../data/devices';
 import { getAccessoriesForDevice, sortByPitchPriority, AccessoryPitch } from '../data/accessoryPitches';
 import { EcosystemMatrix } from '../types/ecosystem';
 import AccessoryImageSlot from './AccessoryImageSlot';
+import { getKnowledgeRecordForAccessory } from '../data/knowledge';
 import {
   getAccessoryOutcomeLabel,
   getAccessoryPitchPositioningSummary,
@@ -141,6 +142,10 @@ function AccessoryCard({
   outcomeLabel: string;
 }) {
   const [showMore, setShowMore] = useState(false);
+  const knowledgeRecord = useMemo(
+    () => getKnowledgeRecordForAccessory(accessory.name),
+    [accessory.name]
+  );
   const margin = MARGIN_COLORS[accessory.margin];
   const topDemo = summary.demoAngles[0];
 
@@ -150,6 +155,7 @@ function AccessoryCard({
         <AccessoryImageSlot
           name={accessory.name}
           imageUrl={accessory.imageUrl}
+          heroImageUrl={knowledgeRecord?.heroImageUrl}
           className="h-14 w-14 shrink-0 rounded-xl border border-t-light-gray/50 bg-t-light-gray/20 p-2"
           imageClassName="h-full w-full object-contain"
         />

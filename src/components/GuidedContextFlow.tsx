@@ -18,6 +18,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { SalesContext } from '../types';
 import { getSupportOptionsForIntent } from '../constants/supportFocus';
+import { trackLiveEvent } from '../services/sessionTracker';
 
 interface GuidedContextFlowProps {
   context: SalesContext;
@@ -31,6 +32,13 @@ export type GuidedFlowStep = 'intent' | 'supportFocus' | 'hintCheck' | 'product'
 
 const STEPS: GuidedFlowStep[] = ['intent', 'supportFocus', 'hintCheck', 'product', 'currentDevice', 'carrier', 'lines', 'platform', 'brand', 'plan', 'age'];
 const SUPPORT_INTENTS: SalesContext['purchaseIntent'][] = ['order support', 'tech support', 'account support'];
+const PROFILE_PRESETS: Array<{ id: NonNullable<SalesContext['profilePreset']>; label: string; helper: string; patch: Partial<SalesContext> }> = [
+  { id: 'young-professional', label: 'Young Professional', helper: 'Camera, style, speed, convenience.', patch: { age: '25-34', householdTags: ['commuter', 'power-user'] } },
+  { id: 'family-household', label: 'Family Household', helper: 'Lines, safety, protection, value.', patch: { age: '35-54', householdTags: ['family-household', 'kids'] } },
+  { id: 'senior-low-tech', label: 'Senior / Low-Tech', helper: 'Simple setup, reliability, clarity.', patch: { age: '55+', householdTags: ['caregiver'] } },
+  { id: 'power-user', label: 'Power User', helper: 'Battery, hotspot, upgrades, storage.', patch: { householdTags: ['power-user', 'traveler'] } },
+  { id: 'small-business-owner', label: 'Small Business Owner', helper: 'Reliability, devices, travel, hotspot.', patch: { householdTags: ['small-business', 'traveler'] } },
+];
 
 const STEP_LABELS: Record<GuidedFlowStep, string> = {
   intent: 'Purchase intent',
@@ -60,15 +68,71 @@ export default function GuidedContextFlow({ context, setContext, onComplete, cur
 
   useEffect(() => () => clearSelectionTimer(), []);
 
+  useEffect(() => {
+    setSelectedId(getSelectedIdForStep(currentStep, context));
+  }, [context, currentStep]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key === 'ArrowLeft' && currentStep !== 'intent') {
+        event.preventDefault();
+        goBack();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  });
+
   const togglePlanFlip = (id: string) => {
     setFlippedPlans(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
   const goToStep = (step: GuidedFlowStep) => {
+    clearSelectionTimer();
     const currentIndex = STEPS.indexOf(currentStep);
     const nextIndex = STEPS.indexOf(step);
     setDirection(nextIndex > currentIndex ? 1 : -1);
     onStepChange(step);
+  };
+
+  const goBack = () => {
+    clearSelectionTimer();
+    const isSupport = SUPPORT_INTENTS.includes(context.purchaseIntent);
+    const isUpgrade = context.purchaseIntent === 'upgrade / add a line';
+
+    let prevStep: GuidedFlowStep;
+    if (isSupport) {
+      prevStep = 'intent';
+    } else if (isUpgrade) {
+      const upgradeMap: Partial<Record<GuidedFlowStep, GuidedFlowStep>> = {
+        product: 'intent',
+        currentDevice: 'product',
+        lines: 'currentDevice',
+        platform: 'lines',
+        age: 'platform',
+      };
+      prevStep = upgradeMap[currentStep] ?? 'intent';
+    } else {
+      const standardMap: Partial<Record<GuidedFlowStep, GuidedFlowStep>> = {
+        hintCheck: 'intent',
+        product: 'hintCheck',
+        carrier: 'product',
+        lines: 'carrier',
+        platform: 'lines',
+        brand: 'platform',
+        plan: context.desiredPlatform === 'iOS' ? 'platform' : 'brand',
+        age: 'plan',
+      };
+      prevStep = standardMap[currentStep] ?? 'intent';
+    }
+
+    try {
+      trackLiveEvent('guided-back');
+    } catch {
+      // Never block the live flow for local-only tracking.
+    }
+    goToStep(prevStep);
   };
 
   const handleOptionSelect = (id: string, update: Partial<SalesContext>, nextStep: GuidedFlowStep | 'complete') => {
@@ -82,7 +146,7 @@ export default function GuidedContextFlow({ context, setContext, onComplete, cur
     
     // If we just picked product, decide where to go next
     if (currentStep === 'product') {
-      if (context.purchaseIntent === 'upgrade / add a line') {
+      if (nextContext.purchaseIntent === 'upgrade / add a line') {
         finalNextStep = 'currentDevice';
       } else {
         finalNextStep = 'carrier';
@@ -105,6 +169,35 @@ export default function GuidedContextFlow({ context, setContext, onComplete, cur
       selectionTimerRef.current = null;
     }, 1000);
   };
+
+  function getSelectedIdForStep(step: GuidedFlowStep, value: SalesContext): string | null {
+    switch (step) {
+      case 'intent':
+        return value.purchaseIntent ?? null;
+      case 'supportFocus':
+        return value.supportFocus ?? null;
+      case 'hintCheck':
+        return value.hintQualified ?? null;
+      case 'product':
+        return value.product[0] && value.product[0] !== 'No Specific Product' ? value.product[0] : null;
+      case 'currentDevice':
+        return value.currentDeviceBrand ?? null;
+      case 'carrier':
+        return value.currentCarrier === 'Prepaid (Mint, Boost, etc.)' ? 'Prepaid' : value.currentCarrier ?? null;
+      case 'lines':
+        return value.totalLines ? String(value.totalLines >= 6 ? '6+' : value.totalLines) : null;
+      case 'platform':
+        return value.desiredPlatform && value.desiredPlatform !== 'Not Specified' ? value.desiredPlatform : null;
+      case 'brand':
+        return value.currentDeviceBrand ?? null;
+      case 'plan':
+        return value.plan ?? null;
+      case 'age':
+        return value.profilePreset ?? value.age ?? null;
+      default:
+        return null;
+    }
+  }
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -721,26 +814,27 @@ export default function GuidedContextFlow({ context, setContext, onComplete, cur
       className="space-y-6"
     >
       <div className="text-center space-y-2">
-        <h2 className="text-2xl font-black uppercase tracking-tight text-t-magenta">Demographics</h2>
-        <p className="text-sm font-medium text-t-dark-gray">Select the customer's age range for tailored talk tracks.</p>
+        <h2 className="text-2xl font-black uppercase tracking-tight text-t-magenta">Quick profile</h2>
+        <p className="text-sm font-medium text-t-dark-gray">Optional read. Pick a vibe only if it helps the call.</p>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {['18-24', '25-34', '35-54', '55+', 'Not Specified'].map((a) => (
+      <div className="grid grid-cols-1 gap-3">
+        {PROFILE_PRESETS.map((preset) => (
           <motion.button
-            key={a}
+            key={preset.id}
             variants={cardVariants}
-            animate={selectedId === a ? "selected" : "show"}
+            animate={selectedId === preset.id ? "selected" : "show"}
             whileHover={selectedId ? {} : { scale: 1.02, y: -2, rotateX: 5 }}
             whileTap={selectedId ? {} : "tap"}
-            onClick={() => handleOptionSelect(a, { age: a as any }, 'complete')}
-            className={`p-4 rounded-xl border-2 transition-all text-xs font-black uppercase tracking-tight text-t-dark-gray shadow-sm hover:shadow-md ${
-              selectedId === a 
+            onClick={() => handleOptionSelect(preset.id, { ...preset.patch, profilePreset: preset.id }, 'complete')}
+            className={`rounded-xl border-2 p-4 text-left transition-all shadow-sm hover:shadow-md ${
+              selectedId === preset.id
                 ? 'border-t-magenta bg-t-magenta/10' 
                 : 'border-t-light-gray bg-surface hover:border-t-magenta/50 hover:bg-t-magenta/5'
             }`}
             style={{ transformStyle: 'preserve-3d' }}
           >
-            {a}
+            <span className="text-xs font-black uppercase tracking-tight text-t-dark-gray">{preset.label}</span>
+            <span className="mt-1 block text-[11px] font-medium leading-relaxed text-t-muted">{preset.helper}</span>
           </motion.button>
         ))}
       </div>
@@ -748,8 +842,11 @@ export default function GuidedContextFlow({ context, setContext, onComplete, cur
         onClick={() => onComplete(context)}
         className="w-full py-3 text-[10px] font-black uppercase tracking-[0.2em] text-t-muted hover:text-t-magenta transition-colors"
       >
-        Skip / Not Sure
+        Skip profile
       </button>
+      <p className="text-center text-[10px] font-semibold text-t-muted">
+        Session-only. Never stored or shared.
+      </p>
     </motion.div>
   );
 
@@ -838,41 +935,11 @@ export default function GuidedContextFlow({ context, setContext, onComplete, cur
       {/* Back Button */}
       {currentStep !== 'intent' && (
         <button
-          onClick={() => {
-            const isSupport = SUPPORT_INTENTS.includes(context.purchaseIntent);
-            const isUpgrade = context.purchaseIntent === 'upgrade / add a line';
-
-            let prevStep: GuidedFlowStep;
-            if (isSupport) {
-              prevStep = 'intent';
-            } else if (isUpgrade) {
-              const upgradeMap: Partial<Record<GuidedFlowStep, GuidedFlowStep>> = {
-                product: 'intent',
-                currentDevice: 'product',
-                lines: 'currentDevice',
-                platform: 'lines',
-                age: 'platform',
-              };
-              prevStep = upgradeMap[currentStep] ?? 'intent';
-            } else {
-              const standardMap: Partial<Record<GuidedFlowStep, GuidedFlowStep>> = {
-                hintCheck: 'intent',
-                product: 'hintCheck',
-                carrier: 'product',
-                lines: 'carrier',
-                platform: 'lines',
-                brand: 'platform',
-                plan: context.desiredPlatform === 'iOS' ? 'platform' : 'brand',
-                age: 'plan',
-              };
-              prevStep = standardMap[currentStep] ?? 'intent';
-            }
-            goToStep(prevStep);
-          }}
-          className="mt-8 flex items-center gap-2 text-t-muted hover:text-t-magenta transition-colors text-[10px] font-black uppercase tracking-widest"
+          onClick={goBack}
+          className="focus-ring mt-8 inline-flex min-h-[48px] items-center gap-2 rounded-full px-3 text-t-muted transition-colors hover:text-t-magenta text-[10px] font-black uppercase tracking-widest"
         >
           <ArrowLeft className="w-3 h-3" />
-          Back
+          Back / Change answer
         </button>
       )}
     </div>

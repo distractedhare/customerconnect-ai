@@ -7,7 +7,7 @@ import {
   manufacturerBadgeClass,
 } from '../utils/manufacturerBadges';
 
-type DeviceImageRecord = Pick<Device, 'name' | 'imageUrl'>;
+type DeviceImageRecord = Pick<Device, 'name' | 'imageUrl' | 'heroImageUrl'>;
 type DeviceImageBadgeSize = 'sm' | 'md' | 'lg';
 
 interface DeviceImageProps {
@@ -27,6 +27,14 @@ const BADGE_SIZE_CLASSES: Record<DeviceImageBadgeSize, string> = {
   lg: 'bottom-2 right-2 h-7 w-7 p-[5px]',
 };
 
+function isApprovedDeviceHeroImage(source?: string) {
+  if (!source) return false;
+  const normalized = source.toLowerCase();
+  return !normalized.includes('/accessory/')
+    && !normalized.includes('/accessories/')
+    && !normalized.includes('apple_intelligence_mark');
+}
+
 export default function DeviceImage({
   device,
   className = '',
@@ -38,29 +46,33 @@ export default function DeviceImage({
   fallbackSources,
 }: DeviceImageProps) {
   const badge = getManufacturerBadge(device.name);
+  const approvedHeroImageUrl = isApprovedDeviceHeroImage(device.heroImageUrl)
+    ? device.heroImageUrl
+    : undefined;
   const sources = useMemo(
     () =>
       (fallbackSources && fallbackSources.length > 0
         ? fallbackSources
-        : [device.imageUrl, PRODUCT_IMAGE_FALLBACK, badge.fallbackAssetPath, COMPANY_LOGO_FALLBACK]
+        : [device.imageUrl, approvedHeroImageUrl, PRODUCT_IMAGE_FALLBACK, badge.fallbackAssetPath, COMPANY_LOGO_FALLBACK]
       ).filter(Boolean) as string[],
-    [badge.fallbackAssetPath, device.imageUrl, fallbackSources]
+    [approvedHeroImageUrl, badge.fallbackAssetPath, device.imageUrl, fallbackSources]
   );
   const [fallbackIndex, setFallbackIndex] = useState(0);
 
   useEffect(() => {
     setFallbackIndex(0);
-  }, [badge.fallbackAssetPath, device.imageUrl, fallbackSources]);
+  }, [approvedHeroImageUrl, badge.fallbackAssetPath, device.imageUrl, fallbackSources]);
 
   const currentSource = sources[fallbackIndex];
   const isPrimaryImage = Boolean(device.imageUrl) && fallbackIndex === 0;
+  const isKnowledgeHero = Boolean(approvedHeroImageUrl) && currentSource === approvedHeroImageUrl;
 
   return (
     <div className={`relative flex items-center justify-center overflow-hidden ${className}`}>
       {currentSource ? (
         <img
           src={currentSource}
-          alt={isPrimaryImage ? device.name : `${badge.label} placeholder for ${device.name}`}
+          alt={isPrimaryImage || isKnowledgeHero ? device.name : `${badge.label} placeholder for ${device.name}`}
           className={imageClassName}
           loading="lazy"
           width={160}

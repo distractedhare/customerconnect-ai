@@ -1,10 +1,11 @@
 import { useState, useMemo, useDeferredValue, useEffect, type ReactNode } from 'react';
-import { Search, Tag, Crown, X, Wrench, Zap, Layers, Ear, MessageSquareQuote, Sparkles, Users, ChevronDown, ArrowRightLeft, Lightbulb, PanelTopOpen } from 'lucide-react';
+import { Search, Tag, Crown, X, Wrench, Zap, Layers, Ear, MessageSquareQuote, Sparkles, Users, ChevronDown, ArrowRightLeft, Lightbulb, PanelTopOpen, ExternalLink } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { PHONES, TABLETS, WATCHES, HOTSPOTS, Device, CONNECTED_DEVICE_INFO } from '../data/devices';
 import { Promo, WeeklyUpdate } from '../services/weeklyUpdateSchema';
 import { EcosystemMatrix } from '../types/ecosystem';
 import { getAppealTypeLabel, getDevicePositioningSummary } from '../services/positioningService';
+import { getRelatedCollectionRecords, getSourcePageTypeLabel } from '../data/knowledge';
 import DeviceImage from './DeviceImage';
 
 export interface DevicePreset {
@@ -1265,6 +1266,7 @@ export function DeviceDetail({
   ecosystemMatrix?: EcosystemMatrix | null;
 }) {
   const [showMore, setShowMore] = useState(false);
+  const [relatedCollections, setRelatedCollections] = useState<Array<{ itemId: string; name: string; sourceUrl: string }>>([]);
   const summary = useMemo(
     () => getDevicePositioningSummary(device, weeklyData, ecosystemMatrix),
     [device, weeklyData, ecosystemMatrix]
@@ -1273,6 +1275,21 @@ export function DeviceDetail({
     p.name.toLowerCase().includes(device.name.toLowerCase().split(' ')[0]) ||
     p.details.toLowerCase().includes(device.name.toLowerCase().split(' ')[0])
   ) || [];
+  const sourcePageLabel = getSourcePageTypeLabel(device.sourcePageType);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    getRelatedCollectionRecords(device.name, 3).then((records) => {
+      if (!cancelled) {
+        setRelatedCollections(records);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [device.name]);
 
   return (
     <motion.div
@@ -1404,6 +1421,76 @@ export function DeviceDetail({
           )}
         </div>
       </CoachPanel>
+
+      {(device.sourceUrl || device.knowledgeBenefits?.length || device.knowledgeCompatibility?.length || relatedCollections.length > 0) && (
+        <CoachPanel
+          title="Source + Reference"
+          icon={<PanelTopOpen className="w-3 h-3" />}
+          tone="neutral"
+        >
+          <div className="flex flex-wrap items-center gap-2">
+            {sourcePageLabel ? (
+              <span className="rounded-full border border-t-light-gray bg-surface-elevated px-2 py-1 text-[9px] font-black uppercase tracking-widest text-t-dark-gray">
+                {sourcePageLabel}
+              </span>
+            ) : null}
+            {device.sourceUrl && device.sourcePageType !== 'missing' ? (
+              <a
+                href={device.sourceUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-t-magenta"
+              >
+                T-Mobile source
+                <ExternalLink className="h-3 w-3" />
+              </a>
+            ) : null}
+          </div>
+
+          {device.knowledgeBenefits?.length ? (
+            <div className="mt-3 space-y-1.5">
+              <p className="text-[9px] font-black uppercase tracking-widest text-t-muted">Extracted benefits</p>
+              {device.knowledgeBenefits.slice(0, 2).map((benefit) => (
+                <SellingPoint key={`${benefit.itemId}-${benefit.benefit}`} text={benefit.benefit} />
+              ))}
+            </div>
+          ) : null}
+
+          {device.knowledgeCompatibility?.length ? (
+            <div className="mt-3">
+              <p className="text-[9px] font-black uppercase tracking-widest text-t-muted">Compatibility</p>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {device.knowledgeCompatibility.slice(0, 3).map((entry) => (
+                  <span
+                    key={`${entry.itemId}-${entry.worksWith}`}
+                    className="rounded-full border border-t-light-gray bg-surface-elevated px-2 py-1 text-[9px] font-black uppercase tracking-widest text-t-dark-gray"
+                  >
+                    {entry.worksWith}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          {relatedCollections.length > 0 ? (
+            <div className="mt-3 space-y-1.5">
+              <p className="text-[9px] font-black uppercase tracking-widest text-t-muted">Related collection pages</p>
+              {relatedCollections.map((record) => (
+                <a
+                  key={record.itemId}
+                  href={record.sourceUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-start justify-between gap-2 rounded-xl border border-t-light-gray/60 bg-surface-elevated px-3 py-2 text-[10px] font-medium text-t-dark-gray transition-colors hover:border-t-magenta/30"
+                >
+                  <span>{record.name}</span>
+                  <ExternalLink className="mt-0.5 h-3 w-3 shrink-0 text-t-magenta" />
+                </a>
+              ))}
+            </div>
+          ) : null}
+        </CoachPanel>
+      )}
 
       <DisclosureButton expanded={showMore} onToggle={() => setShowMore(prev => !prev)} />
 

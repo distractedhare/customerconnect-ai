@@ -58,7 +58,10 @@ const defaultContext: SalesContext = {
   familyCount: undefined,
   currentPlatform: 'Not Specified',
   desiredPlatform: 'Not Specified',
-  hintAvailable: undefined
+  hintAvailable: undefined,
+  customerRelationship: 'unknown',
+  discountProfile: 'unknown',
+  householdTags: [],
 };
 
 // Internal refs for debouncing and canceling

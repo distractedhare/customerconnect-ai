@@ -14,8 +14,9 @@
 
 import { CatalogItem } from '../types';
 import { slugifyAccessoryName } from './accessoryImagePaths';
+import { mergeAccessoryKnowledge } from './knowledge';
 
-export const CATALOG: CatalogItem[] = [
+export const CATALOG: CatalogItem[] = ([
 
   // ── PROTECTION 360 (anchor — P360 is NOT part of the essential qualifying set) ──
 
@@ -657,7 +658,7 @@ export const CATALOG: CatalogItem[] = [
     pitch: '"Kids can call and text from it, you can see where they are, but there\'s no browser or social media — just the connection."',
     why: 'Two-way calling/texting, GPS location, no browser/apps. Parent-controlled contacts only. $5/mo wearable line.',
   },
-];
+] satisfies CatalogItem[]).map(mergeAccessoryKnowledge);
 
 // ── Lookup helpers ──
 

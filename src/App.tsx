@@ -143,7 +143,7 @@ function StatusPill({
   const content = (
     <>
       <p className="type-micro">{label}</p>
-      <p className="mt-0.5 text-xs font-semibold leading-none">{value}</p>
+      <p className="mt-0.5 line-clamp-1 text-xs font-semibold leading-tight">{value}</p>
       {actionLabel ? (
         <p className="mt-1 text-[9px] font-black uppercase tracking-[0.18em] text-t-magenta">
           {actionLabel}
@@ -158,7 +158,7 @@ function StatusPill({
         type="button"
         onClick={onClick}
         aria-label={ariaLabel ?? `${label}: ${value}`}
-        className={`focus-ring rounded-full px-3 py-2 text-left transition-transform hover:scale-[1.01] active:scale-[0.985] ${toneClass}`}
+        className={`focus-ring flex min-h-[4.25rem] min-w-[7rem] flex-col justify-center rounded-full px-3 py-2 text-center transition-transform hover:scale-[1.01] active:scale-[0.985] ${toneClass}`}
       >
         {content}
       </button>
@@ -166,7 +166,7 @@ function StatusPill({
   }
 
   return (
-    <div className={`rounded-full px-3 py-2 ${toneClass}`}>
+    <div className={`flex min-h-[4.25rem] min-w-[7rem] flex-col justify-center rounded-full px-3 py-2 text-center ${toneClass}`}>
       {content}
     </div>
   );
@@ -641,14 +641,18 @@ export default function App() {
         >
         <>
         <div className="space-y-4">
-          <section className="glass-stage rounded-[2rem] p-4 md:p-5">
+          <section className={`glass-stage rounded-[2rem] p-4 md:p-5 ${hasLiveOutput ? 'md:py-4' : ''}`}>
             <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div className="min-w-0">
                 <p className="type-micro text-t-magenta">Live Call Flow</p>
-                <h2 className="mt-1 text-2xl font-black tracking-tight text-foreground">One guided decision at a time.</h2>
-                <p className="mt-1 max-w-2xl text-sm font-medium leading-relaxed text-t-dark-gray">
-                  Use the picker first. Refine details only when they matter, then read the plan without stacked controls fighting for space.
-                </p>
+                <h2 className="mt-1 text-2xl font-black tracking-tight text-foreground">
+                  {hasLiveOutput ? 'Live plan controls' : 'One guided decision at a time.'}
+                </h2>
+                {!hasLiveOutput ? (
+                  <p className="mt-1 max-w-2xl text-sm font-medium leading-relaxed text-t-dark-gray">
+                    Use the picker first. Tune details only when they matter, then keep the call surface light.
+                  </p>
+                ) : null}
               </div>
               <div className="flex flex-wrap gap-2">
                 <button
@@ -657,7 +661,7 @@ export default function App() {
                   className="focus-ring glass-control inline-flex min-h-[44px] items-center gap-2 rounded-xl px-4 text-xs font-black tracking-tight text-t-dark-gray transition-colors hover:text-foreground"
                 >
                   <SlidersHorizontal className="h-4 w-4 text-t-magenta" />
-                  Refine Plan
+                  Quick Tune
                 </button>
                 <button
                   type="button"
@@ -708,7 +712,7 @@ export default function App() {
               <div
                 role="tablist"
                 aria-label="Live call tools"
-                className="glass-capsule flex flex-wrap gap-1.5 rounded-full p-1.5"
+                className="glass-capsule grid grid-cols-3 gap-1.5 rounded-[1.5rem] p-1.5 sm:rounded-full"
               >
                 {(() => {
                   const intent = context.purchaseIntent;
@@ -717,7 +721,7 @@ export default function App() {
                       ? { id: 'troubleshoot' as const, icon: Package, label: 'Order', helper: supportFocusLabel ?? (context.orderSupportType ? context.orderSupportType.replace(/_/g, ' ') : 'Triage the order issue') }
                       : intent === 'account support'
                         ? { id: 'troubleshoot' as const, icon: UserCircle, label: 'Account', helper: supportFocusLabel ?? 'Triage, answer, or transfer' }
-                        : { id: 'troubleshoot' as const, icon: Wrench, label: 'Fix', helper: supportFocusLabel ?? (context.product.includes('Home Internet') ? 'HINT troubleshoot toolkit' : 'Troubleshoot and escalate') };
+                        : { id: 'troubleshoot' as const, icon: Wrench, label: 'Support', helper: supportFocusLabel ?? 'Fix first, then escalate cleanly' };
 
                   return [
                     { id: 'gameplan' as const, icon: Sparkles, label: 'Plan', helper: script ? 'Ready to use' : loading ? 'Building local-first plan' : 'Guided result' },
@@ -733,15 +737,15 @@ export default function App() {
                     aria-selected={activeTab === tab.id}
                     aria-controls={`live-panel-${tab.id}`}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`focus-ring flex-1 min-h-[52px] min-w-[88px] rounded-full px-2.5 py-3 text-center text-xs font-black tracking-tight transition-all ${activeTab === tab.id ? 'glass-control-active text-white' : 'glass-control text-t-dark-gray hover:text-foreground'}`}
+                    className={`focus-ring min-h-[52px] rounded-full px-2.5 py-3 text-center text-xs font-black tracking-tight transition-all ${activeTab === tab.id ? 'glass-control-active text-white' : 'glass-control text-t-dark-gray hover:text-foreground'}`}
                     style={{ touchAction: 'manipulation' }}
                   >
                     <span className="flex flex-col items-center gap-1 leading-none">
-                      <span className="flex items-center justify-center gap-1 md:gap-2">
-                        <tab.icon className="h-3.5 w-3.5" /> {tab.label}
-                      </span>
-                      {activeTab === tab.id ? (
-                        <span className="text-[10px] font-medium normal-case tracking-normal text-white/80 sm:text-[11px]">
+                        <span className="flex items-center justify-center gap-1 md:gap-2">
+                          <tab.icon className="h-3.5 w-3.5" /> {tab.label}
+                        </span>
+                        {activeTab === tab.id ? (
+                        <span className="hidden text-[10px] font-medium normal-case tracking-normal text-white/80 sm:block sm:text-[11px]">
                           {tab.helper}
                         </span>
                       ) : null}

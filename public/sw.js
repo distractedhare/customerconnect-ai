@@ -1,4 +1,4 @@
-const CACHE_NAME = 'customerconnect-v15';
+const CACHE_NAME = 'customerconnect-v16';
 const IMAGE_ASSET_PATTERN = /\.(png|webp|svg|jpe?g)$/i;
 const KIP_AVATAR_ASSETS = [
   '/assets/kip/kip_16_idle.svg',
@@ -84,6 +84,7 @@ const APP_SHELL_ASSETS = [
   '/index.html',
   '/manifest.json',
   '/weekly-update.json',
+  '/knowledge/tmobile-knowledge-raw.json',
   '/device-ecosystem-matrix.json',
   '/states-10m.json',
   '/tmo-logo-v4.svg',
@@ -117,6 +118,25 @@ const networkFirstAsset = (request, pathname) =>
         : new Response('', { status: 503 })
     )
   );
+
+const cacheFirstJsonAsset = (request, fallbackBody) =>
+  caches.match(request).then((cached) => {
+    if (cached) return cached;
+
+    return fetch(request)
+      .then((response) => {
+        if (response.ok) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+        }
+        return response;
+      })
+      .catch(() =>
+        new Response(fallbackBody, {
+          headers: { 'Content-Type': 'application/json' },
+        })
+      );
+  });
 
 self.addEventListener('message', (event) => {
   if (event.data?.type === 'SKIP_WAITING') {
@@ -219,6 +239,11 @@ self.addEventListener('fetch', (event) => {
           cached || new Response('{}', { headers: { 'Content-Type': 'application/json' } })
         ))
     );
+    return;
+  }
+
+  if (url.pathname === '/knowledge/tmobile-knowledge-raw.json') {
+    event.respondWith(cacheFirstJsonAsset(event.request, '[]'));
     return;
   }
 

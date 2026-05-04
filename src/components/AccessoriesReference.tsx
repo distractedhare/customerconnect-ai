@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { BIG_ADDS, ESSENTIALS_TABLE, EssentialItem, BigAddItem } from '../data/essentialAccessories';
 import { EcosystemMatrix } from '../types/ecosystem';
 import AccessoryImageSlot from './AccessoryImageSlot';
+import { getKnowledgeRecordForAccessory } from '../data/knowledge';
 import { learnCopy } from './learn/learnCopy';
 import {
   getAccessoryOutcomeLabel,
@@ -297,6 +298,7 @@ export default function AccessoriesReference({ ecosystemMatrix }: AccessoriesRef
                           key={item.name}
                           name={item.name}
                           imageUrl={item.imageUrl}
+                          heroImageUrl={getKnowledgeRecordForAccessory(item.name)?.heroImageUrl}
                           summary={summary}
                           outcomeLabel={outcomeLabel}
                           highlighted={outcomeFilter !== 'all' && matches}
@@ -381,6 +383,7 @@ export default function AccessoriesReference({ ecosystemMatrix }: AccessoriesRef
               key={item.name}
               name={item.name}
               imageUrl={item.imageUrl}
+              heroImageUrl={getKnowledgeRecordForAccessory(item.name)?.heroImageUrl}
               summary={summary}
               outcomeLabel={outcomeLabel}
               highlighted={outcomeFilter !== 'all' && matches}
@@ -424,6 +427,7 @@ function AccessoryReferenceCard({
   meta,
   name,
   imageUrl,
+  heroImageUrl,
 }: {
   summary: PositioningSummary;
   outcomeLabel: string;
@@ -433,6 +437,7 @@ function AccessoryReferenceCard({
   meta?: ReactNode;
   name: string;
   imageUrl?: string;
+  heroImageUrl?: string;
 }) {
   const callCue = summary.listenFor.slice(0, 2).join(' • ');
 
@@ -449,6 +454,7 @@ function AccessoryReferenceCard({
         <AccessoryImageSlot
           name={name}
           imageUrl={imageUrl}
+          heroImageUrl={heroImageUrl}
           className="h-12 w-12 shrink-0 rounded-lg border border-t-light-gray/50 bg-t-light-gray/20 p-1.5"
           imageClassName="h-full w-full object-contain"
         />

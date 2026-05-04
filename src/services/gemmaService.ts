@@ -1,4 +1,7 @@
 import { ObjectionAnalysis, SalesContext, SalesScript } from '../types';
+import { buildAccessoryRecommendations } from '../data/accessories';
+import { canKipQuoteAccessoryBundleEligibility } from '../data/knowledge';
+import { applyLiveGateToRecommendations, buildLiveRecommendationGate } from './liveRecommendationGate';
 import { isAbortError, withTimeoutSignal } from './networkUtils';
 import { WeeklyUpdate } from './weeklyUpdateSchema';
 
@@ -127,6 +130,17 @@ function buildWeeklySummary(weeklyData: WeeklyUpdate | null): string {
 function buildScriptMessages(context: SalesContext, weeklyData: WeeklyUpdate | null): ChatMessage[] {
   const products = context.product.join(', ');
   const carrier = context.currentCarrier || 'Unknown';
+  const lockedAccessories = buildAccessoryRecommendations(context).slice(0, 6);
+  const accessoryContext = lockedAccessories
+    .map((item) => [
+      `- ${item.itemId || item.name}: ${item.name}`,
+      `price=${item.priceRange || 'verify'}`,
+      `eligibilityStatus=${item.eligibilityStatus || 'not-applicable'}`,
+      `bundleEligible=${item.bundleEligible ? 'true' : 'false'}`,
+      item.sourceUrl ? `source=${item.sourceUrl}` : 'source=local-catalog',
+      item.proofText ? `proof=${item.proofText}` : '',
+    ].filter(Boolean).join(' | '))
+    .join('\n');
 
   return [
     {
@@ -152,6 +166,15 @@ Customer context:
 Weekly context:
 ${buildWeeklySummary(weeklyData)}
 
+Locked local accessory recommendations:
+${accessoryContext || '- No local accessory recommendations for this context.'}
+
+Accessory accuracy rules:
+- Prefer the locked local accessory recommendations above.
+- Only set bundleEligible true when eligibilityStatus is quote-safe.
+- If eligibilityStatus is review-required, the item can be recommended but the rep must verify bundle eligibility before quoting it.
+- Never count audio, Protection 360, watches/devices, trackers, or service plans toward the accessory bundle.
+
 Return JSON matching exactly:
 {
   "welcomeMessages": ["string"],
@@ -160,7 +183,7 @@ Return JSON matching exactly:
   "oneLiners": ["string"],
   "valuePropositions": ["string"],
   "objectionHandling": [{"concern": "string", "reassurance": "string"}],
-  "accessoryRecommendations": [{"name": "string", "why": "string", "priceRange": "string", "brands": ["string"], "bundleEligible": true}],
+  "accessoryRecommendations": [{"itemId": "string", "name": "string", "why": "string", "priceRange": "string", "brands": ["string"], "bundleEligible": false, "eligibilityStatus": "review-required", "sourceUrl": "string", "proofText": "string"}],
   "purchaseSteps": ["string"],
   "coachsCorner": "string"
 }`,
@@ -235,6 +258,15 @@ function ensureStringArray(value: unknown, fallback: string[] = []): string[] {
   return value.filter((entry): entry is string => typeof entry === 'string' && entry.trim().length > 0);
 }
 
+function normalizeAccessoryEligibilityStatus(
+  value: unknown,
+  quoteSafe: boolean
+): SalesScript['accessoryRecommendations'][number]['eligibilityStatus'] {
+  if (quoteSafe) return 'quote-safe';
+  if (value === 'not-eligible' || value === 'not-applicable' || value === 'review-required') return value;
+  return 'review-required';
+}
+
 async function requestGemma(messages: ChatMessage[]): Promise<string> {
   if (loadingState !== 'ready') {
     await initializeGemma();
@@ -293,8 +325,32 @@ function parseModelJson(raw: string, fallbackLabel: string): Record<string, unkn
   }
 }
 
-function parseScriptResponse(raw: string): SalesScript {
+function parseScriptResponse(raw: string, context: SalesContext): SalesScript {
   const data = parseModelJson(raw, 'Gemma game plan');
+  const parsedAccessories = Array.isArray(data.accessoryRecommendations)
+    ? data.accessoryRecommendations
+        .filter((item): item is Record<string, unknown> => typeof item === 'object' && item !== null)
+        .map((item) => {
+          const itemId = typeof item.itemId === 'string' ? item.itemId : undefined;
+          const name = typeof item.name === 'string' ? item.name : 'Accessory';
+          const quoteSafe = canKipQuoteAccessoryBundleEligibility(itemId || name);
+
+          return {
+            itemId,
+            name,
+            why: typeof item.why === 'string' ? item.why : '',
+            priceRange: typeof item.priceRange === 'string' ? item.priceRange : '',
+            brands: ensureStringArray(item.brands),
+            bundleEligible: quoteSafe,
+            eligibilityStatus: normalizeAccessoryEligibilityStatus(item.eligibilityStatus, quoteSafe),
+            sourceUrl: typeof item.sourceUrl === 'string' ? item.sourceUrl : undefined,
+            proofText: typeof item.proofText === 'string' ? item.proofText : undefined,
+            reasonTags: ensureStringArray(item.reasonTags),
+            confidence: typeof item.confidence === 'string' ? item.confidence : undefined,
+            reviewStatus: typeof item.reviewStatus === 'string' ? item.reviewStatus : undefined,
+          };
+        })
+    : [];
 
   return {
     welcomeMessages: ensureStringArray(data.welcomeMessages, ['Welcome to T-Mobile! How can I help you today?']),
@@ -319,17 +375,7 @@ function parseScriptResponse(raw: string): SalesScript {
           }))
           .filter((item) => item.concern && item.reassurance)
       : [],
-    accessoryRecommendations: Array.isArray(data.accessoryRecommendations)
-      ? data.accessoryRecommendations
-          .filter((item): item is Record<string, unknown> => typeof item === 'object' && item !== null)
-          .map((item) => ({
-            name: typeof item.name === 'string' ? item.name : 'Accessory',
-            why: typeof item.why === 'string' ? item.why : '',
-            priceRange: typeof item.priceRange === 'string' ? item.priceRange : '',
-            brands: ensureStringArray(item.brands),
-            bundleEligible: Boolean(item.bundleEligible),
-          }))
-      : [],
+    accessoryRecommendations: applyLiveGateToRecommendations(parsedAccessories, context),
     purchaseSteps: ensureStringArray(data.purchaseSteps, ['Review needs', 'Present the best option', 'Close confidently']),
     coachsCorner: typeof data.coachsCorner === 'string' ? data.coachsCorner : 'Stay calm, ask one more good question, and keep it simple.',
     nearbyStores: [],
@@ -364,7 +410,38 @@ export async function gemmaGenerateScript(
   weeklyData: WeeklyUpdate | null,
 ): Promise<SalesScript> {
   const response = await requestGemma(buildScriptMessages(context, weeklyData));
-  return parseScriptResponse(response);
+  return parseScriptResponse(response, context);
+}
+
+function cleanFreshTake(raw: string): string {
+  const parsed = raw.trim().replace(/^["']|["']$/g, '').replace(/\s+/g, ' ');
+  const words = parsed.split(' ').filter(Boolean);
+  return words.length > 18 ? `${words.slice(0, 18).join(' ')}...` : parsed;
+}
+
+export async function gemmaFreshTake(input: {
+  text: string;
+  context: SalesContext;
+  lastKipRecommendation?: string;
+}): Promise<string> {
+  const gate = buildLiveRecommendationGate(input.context);
+  const response = await requestGemma([
+    {
+      role: 'system',
+      content: "You are Gemma, the rep's creative co-pilot. Return one short line only. No markdown. No quotes.",
+    },
+    {
+      role: 'user',
+      content: `Context: ${input.context.purchaseIntent} + ${input.context.product.join(', ')} + profile=${input.context.profilePreset ?? input.context.age} + ${input.lastKipRecommendation ?? 'no KIP line yet'}.
+Allowed add-on categories, if any: ${gate.allowedCategories.join(', ') || 'none'}.
+Task: Rewrite the following in a fresher, more natural, slightly more confident tone while staying 100% ethical and on-script.
+Keep it under 18 words if possible.
+Do not add a new promo, product category, discount, eligibility claim, or accessory.
+Original: "${input.text}"`,
+    },
+  ]);
+
+  return cleanFreshTake(response);
 }
 
 export async function gemmaAnalyzeObjection(

@@ -131,7 +131,7 @@ export default function GuidedCallModal({ open, onClose, context, setContext }: 
       <div className="absolute left-3 top-3">
         <KipAvatar size="tiny" state="idle" />
       </div>
-      <p className="text-[10px] font-black uppercase tracking-widest text-t-magenta mb-1">Kip says</p>
+      <p className="text-[10px] font-black uppercase tracking-widest text-t-magenta mb-1">Next line</p>
       <p className="text-[12px] font-semibold text-t-dark-gray leading-snug italic">"{text}"</p>
     </motion.div>
   );

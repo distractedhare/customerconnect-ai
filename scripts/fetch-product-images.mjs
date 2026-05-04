@@ -4,6 +4,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
+import sharp from 'sharp';
 import { getProductImageManifest } from './product-image-manifest.mjs';
 
 const ROOT_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -13,6 +14,7 @@ const FALLBACK_USER_AGENT = 'Mozilla/5.0 (AppleWebKit/537.36) Apple iOS/18.0';
 
 const args = new Set(process.argv.slice(2));
 const force = args.has('--force');
+const kindFilter = parseStringArg('--kind', '');
 
 function parseIntArg(name, fallback) {
   const match = [...args].find((arg) => arg.startsWith(`${name}=`));
@@ -22,6 +24,11 @@ function parseIntArg(name, fallback) {
     throw new Error(`Invalid value for ${name}: ${match}`);
   }
   return value;
+}
+
+function parseStringArg(name, fallback) {
+  const match = [...args].find((arg) => arg.startsWith(`${name}=`));
+  return match ? match.slice(name.length + 1).trim() : fallback;
 }
 
 const limit = parseIntArg('--limit', CONCURRENCY_LIMIT);
@@ -263,6 +270,10 @@ async function requestAsBuffer(url, label, visitedPages, depth = 0) {
   if (buffer.byteLength === 0) {
     throw new Error(`Empty image response for ${label}`);
   }
+  const signatureError = getImageSignatureError(buffer, url);
+  if (signatureError) {
+    throw new Error(`Invalid image response for ${label}: ${signatureError}`);
+  }
   return buffer;
 }
 
@@ -279,11 +290,71 @@ async function getFileSizeSafe(filePath) {
   }
 }
 
+async function getFileBytesSafe(filePath) {
+  try {
+    return await fs.readFile(filePath);
+  } catch {
+    return null;
+  }
+}
+
+function getImageSignatureError(bytes, label) {
+  if (!bytes || bytes.byteLength === 0) return 'empty file';
+
+  const lower = label.toLowerCase();
+  const startsWith = (signature) => bytes.subarray(0, signature.length).equals(Buffer.from(signature));
+  const asciiStart = bytes.subarray(0, 256).toString('utf8').trimStart().toLowerCase();
+
+  if (lower.includes('.svg')) {
+    return asciiStart.startsWith('<svg') || asciiStart.startsWith('<?xml') ? null : 'invalid SVG signature';
+  }
+
+  if (lower.includes('.jpg') || lower.includes('.jpeg')) {
+    return startsWith([0xff, 0xd8, 0xff]) ? null : 'invalid JPEG signature';
+  }
+
+  if (lower.includes('.webp')) {
+    return bytes.subarray(0, 4).toString('ascii') === 'RIFF' && bytes.subarray(8, 12).toString('ascii') === 'WEBP'
+      ? null
+      : 'invalid WebP signature';
+  }
+
+  if (lower.includes('.png') || lower.includes('fmt=png') || lower.includes('png-alpha') || lower.includes('/is/image/')) {
+    return startsWith([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]) ? null : 'invalid PNG signature';
+  }
+
+  return null;
+}
+
+async function hasUsableExistingImage(outputPath) {
+  const existingSize = await getFileSizeSafe(outputPath);
+  if (existingSize < MIN_REAL_IMAGE_BYTES) return false;
+
+  const existingBytes = await getFileBytesSafe(outputPath);
+  return existingBytes !== null && !getImageSignatureError(existingBytes, outputPath);
+}
+
 // Write via rename to work around filesystem locks on existing files.
 async function writeViaRename(outputPath, buffer) {
   const tmpPath = outputPath + '.tmp.' + Date.now();
   await fs.writeFile(tmpPath, buffer);
   await fs.rename(tmpPath, outputPath);
+}
+
+async function encodeForTargetPath(outputPath, buffer) {
+  const ext = path.extname(outputPath).toLowerCase();
+
+  if (ext === '.svg') {
+    const asciiStart = buffer.subarray(0, 256).toString('utf8').trimStart().toLowerCase();
+    if (asciiStart.startsWith('<svg') || asciiStart.startsWith('<?xml')) return buffer;
+    throw new Error(`Cannot write raster image bytes into SVG target ${outputPath}`);
+  }
+
+  if (ext === '.png') return sharp(buffer).png().toBuffer();
+  if (ext === '.jpg' || ext === '.jpeg') return sharp(buffer).jpeg({ quality: 92 }).toBuffer();
+  if (ext === '.webp') return sharp(buffer).webp({ quality: 92 }).toBuffer();
+
+  return buffer;
 }
 
 async function copyFromFallback(outputPath, sourcePath) {
@@ -292,7 +363,8 @@ async function copyFromFallback(outputPath, sourcePath) {
     return;
   }
   const srcBuffer = await fs.readFile(sourcePath);
-  await writeViaRename(outputPath, srcBuffer);
+  const outputBuffer = await encodeForTargetPath(outputPath, srcBuffer);
+  await writeViaRename(outputPath, outputBuffer);
 }
 
 async function writeImage(targetPath, source, kind, label) {
@@ -300,12 +372,11 @@ async function writeImage(targetPath, source, kind, label) {
   await fs.mkdir(path.dirname(outputPath), { recursive: true });
 
   if (!force) {
-    const existingSize = await getFileSizeSafe(outputPath);
-    if (existingSize >= MIN_REAL_IMAGE_BYTES) {
+    if (await hasUsableExistingImage(outputPath)) {
       // Already a real image — skip re-download.
       return { targetPath, status: 'skip' };
     }
-    // File is missing or a small placeholder — proceed with download.
+    // File is missing, corrupt, or a small placeholder — proceed with download.
   }
 
   if (!isBrowserUrl(source)) {
@@ -320,7 +391,8 @@ async function writeImage(targetPath, source, kind, label) {
   if (buffer.byteLength < MIN_BUFFER_BYTES) {
     throw new Error(`Downloaded image too small for ${kind} ${label}: ${buffer.byteLength} bytes (min ${MIN_BUFFER_BYTES})`);
   }
-  await writeViaRename(outputPath, buffer);
+  const outputBuffer = await encodeForTargetPath(outputPath, buffer);
+  await writeViaRename(outputPath, outputBuffer);
   return { targetPath, status: 'downloaded', kind, label };
 }
 
@@ -340,7 +412,7 @@ async function runWithLimit(entries, worker) {
 }
 
 async function main() {
-  const manifest = await getProductImageManifest();
+  const manifest = (await getProductImageManifest()).filter((item) => !kindFilter || item.kind === kindFilter);
   const errors = [];
 
   const results = await runWithLimit(

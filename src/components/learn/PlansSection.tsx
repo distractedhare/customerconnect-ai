@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { DollarSign, Zap, Crown, ChevronDown, ChevronRight, Star, Users, Briefcase, Shield, Smartphone, Watch, Tablet } from 'lucide-react';
+import { DollarSign, Zap, Crown, ChevronDown, ChevronRight, Star, Users, Briefcase, Shield, Smartphone, Watch, Tablet, ExternalLink } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { POSTPAID_PLANS, SPECIALIZED_PLANS, RETIRED_PLANS } from '../../data/plans';
 import LearnSectionHeader from './LearnSectionHeader';
@@ -330,11 +330,17 @@ export default function PlansSection() {
 
 function PlanCard({ plan, tier }: { plan: typeof POSTPAID_PLANS[0]; tier: typeof PLAN_TIERS[string] }) {
   const [expanded, setExpanded] = useState(false);
-  const [hasError, setHasError] = useState(false);
-  const imageSource = hasError ? '/images/ui/product-card-fallback.svg' : tier.image;
+  const [imageErrorStep, setImageErrorStep] = useState(0);
+  const imageSource = imageErrorStep === 0
+    ? tier.image
+    : imageErrorStep === 1 && plan.heroImageUrl
+      ? plan.heroImageUrl
+      : '/images/ui/product-card-fallback.svg';
   const isBest = tier.tag === 'BEST';
   const isBetter = tier.tag === 'BETTER' || tier.tag === 'BEST VALUE';
   const imageLabel = `${plan.name} plan image`;
+  const topBenefits = [...new Set((plan.knowledgeBenefits ?? []).map((benefit) => benefit.benefit).filter(Boolean))].slice(0, 2);
+  const sourceLabel = plan.sourcePageType === 'overview' ? 'Plan source' : plan.sourcePageType === 'detail' ? 'T-Mobile detail' : '';
 
   return (
     <div className={`rounded-3xl border-2 overflow-hidden transition-all hover:shadow-lg ${isBest ? 'border-t-magenta bg-t-magenta/5' : isBetter ? 'border-t-berry/30 bg-surface-elevated' : 'border-t-light-gray bg-surface-elevated'}`}>
@@ -347,7 +353,7 @@ function PlanCard({ plan, tier }: { plan: typeof POSTPAID_PLANS[0]; tier: typeof
           width={1200}
           height={675}
           loading="lazy"
-          onError={() => setHasError(true)}
+          onError={() => setImageErrorStep((step) => Math.min(step + 1, 2))}
           referrerPolicy="no-referrer"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
@@ -391,6 +397,38 @@ function PlanCard({ plan, tier }: { plan: typeof POSTPAID_PLANS[0]; tier: typeof
           <p className="text-[9px] font-black uppercase tracking-wider text-t-magenta mb-1">Rep Insight</p>
           <p className="text-[11px] font-medium leading-snug" style={{ color: 'var(--text-pitch, #C70066)' }}>{tier.repInsight}</p>
         </div>
+
+        {(sourceLabel || plan.sourceUrl || topBenefits.length > 0) ? (
+          <div className="mb-3 rounded-xl border border-t-light-gray/60 bg-surface px-3 py-2.5">
+            <div className="flex flex-wrap items-center gap-2">
+              {sourceLabel ? (
+                <span className="rounded-full border border-t-light-gray bg-surface-elevated px-2 py-1 text-[8px] font-black uppercase tracking-widest text-t-dark-gray">
+                  {sourceLabel}
+                </span>
+              ) : null}
+              {plan.sourceUrl && plan.sourcePageType !== 'missing' ? (
+                <a
+                  href={plan.sourceUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-t-magenta"
+                >
+                  T-Mobile source
+                  <ExternalLink className="h-3 w-3" />
+                </a>
+              ) : null}
+            </div>
+            {topBenefits.length > 0 ? (
+              <div className="mt-2 space-y-1.5">
+                {topBenefits.map((benefit) => (
+                  <p key={benefit} className="text-[10px] font-medium leading-relaxed text-t-dark-gray">
+                    {benefit}
+                  </p>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        ) : null}
 
         {/* Expandable features */}
         <button

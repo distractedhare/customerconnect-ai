@@ -52,7 +52,7 @@ export default function TroubleshootingPivot({ initialCategory }: Troubleshootin
       </div>
 
       {/* Category Selection - Compact Scrollable on Mobile */}
-      <div className="glass-capsule flex gap-2 overflow-x-auto rounded-[1.75rem] p-2 no-scrollbar sm:grid sm:grid-cols-4 sm:overflow-visible">
+      <div className="glass-capsule flex gap-2 overflow-x-auto rounded-[1.75rem] p-2 scrollbar-hide sm:grid sm:grid-cols-4 sm:overflow-visible">
         {TROUBLESHOOTING_DATA.map((cat) => {
           const CatIcon = ICON_MAP[cat.icon] || Info;
           const isActive = selectedCategory.id === cat.id;
@@ -78,11 +78,11 @@ export default function TroubleshootingPivot({ initialCategory }: Troubleshootin
 
       <div className="grid gap-4">
         <section className="glass-feature rounded-2xl p-4">
-          <p className="type-kicker text-info-foreground">Best next move</p>
+          <p className="type-kicker text-info-foreground">Repair rhythm</p>
           <div className="mt-2 grid gap-2 md:grid-cols-3">
-            <QuickStep label="1. Confirm the issue" copy={`Make sure the caller is really in the ${selectedCategory.name.toLowerCase()} lane before you start solving.`} />
-            <QuickStep label="2. Work the repair path" copy="Use the steps below in order so the rep sounds structured and calm." />
-            <QuickStep label="3. Escalate cleanly" copy="Only transfer once you can explain what was tried and what the next team owns." />
+            <QuickStep label="1. Confirm" copy={`Confirm this is a ${selectedCategory.name.toLowerCase()} issue.`} />
+            <QuickStep label="2. Fix" copy="Work the next step below." />
+            <QuickStep label="3. Handoff" copy="Transfer only with what was tried." />
           </div>
         </section>
 
@@ -147,15 +147,18 @@ export default function TroubleshootingPivot({ initialCategory }: Troubleshootin
         </section>
 
         {/* Sales Pivots */}
-        <section className="glass-stage-quiet relative overflow-hidden rounded-2xl p-4 shadow-sm">
-          <div className="mb-4 flex items-center gap-2">
+        <details className="glass-stage-quiet relative overflow-hidden rounded-2xl p-4 shadow-sm">
+          <summary className="focus-ring flex cursor-pointer list-none items-center gap-2 rounded-xl">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-t-magenta text-white">
               <Lightbulb className="h-4 w-4" />
             </div>
-            <h2 className="text-sm font-extrabold tracking-tight">Sales Pivots</h2>
-          </div>
+            <div>
+              <h2 className="text-sm font-extrabold tracking-tight">After the fix is stable</h2>
+              <p className="mt-0.5 text-xs font-medium text-t-dark-gray">Optional pivots only after the support need is handled.</p>
+            </div>
+          </summary>
 
-          <div className="space-y-3">
+          <div className="mt-4 space-y-3">
             {selectedCategory.pivots.map((pivot, i) => (
               <div key={i} className="glass-reading rounded-xl p-3">
                 <div className="mb-1 flex items-center gap-1.5">
@@ -172,12 +175,15 @@ export default function TroubleshootingPivot({ initialCategory }: Troubleshootin
               </div>
             ))}
           </div>
-        </section>
+        </details>
 
         {/* Department Quick Links */}
-        <section className="glass-stage-quiet rounded-2xl p-4 shadow-sm">
-          <h3 className="type-kicker mb-3 text-t-dark-gray">Escalation Cards</h3>
-          <div className="grid gap-2 md:grid-cols-3">
+        <details className="glass-stage-quiet rounded-2xl p-4 shadow-sm">
+          <summary className="focus-ring cursor-pointer list-none rounded-xl">
+            <h3 className="type-kicker text-t-dark-gray">Escalation cards</h3>
+            <p className="mt-1 text-xs font-medium text-t-dark-gray">Open only when another team owns the next move.</p>
+          </summary>
+          <div className="mt-4 grid gap-2 md:grid-cols-3">
             {[
               {
                 name: 'Tech Support',
@@ -208,7 +214,7 @@ export default function TroubleshootingPivot({ initialCategory }: Troubleshootin
               </div>
             ))}
           </div>
-        </section>
+        </details>
       </div>
     </div>
   );

@@ -371,7 +371,8 @@ export async function getProductImageManifest() {
       label: 'Samsung Galaxy Tab S10+ 5G',
       fallbackSource: SAMSUNG_FALLBACK,
       sourceUrls: [
-        `${TM}/cell-phone/samsung-galaxy-tab-s10-plus-5g`,
+        'https://t-mobile.scene7.com/is/image/Tmusprod/Samsung-Galaxy-Tab-S10-Plus-Gray-frontimage?fmt=png-alpha&qlt=85',
+        `${TM}/tablet/samsung-galaxy-tab-s10-plus-5g`,
         'https://www.samsung.com/us/tablets/galaxy-tab-s10/',
       ],
     },
@@ -381,7 +382,8 @@ export async function getProductImageManifest() {
       label: 'Samsung Galaxy Tab S10 FE 5G',
       fallbackSource: SAMSUNG_FALLBACK,
       sourceUrls: [
-        `${TM}/cell-phone/samsung-galaxy-tab-s10-fe-5g`,
+        'https://t-mobile.scene7.com/is/image/Tmusprod/Samsung-Galaxy-Tab-S10-FE-5G-Cool-Gray-frontimage?fmt=png-alpha&qlt=85',
+        `${TM}/tablet/samsung-galaxy-tab-s10-fe-5g`,
         'https://www.samsung.com/us/tablets/galaxy-tab-s10-fe/',
       ],
     },
@@ -391,7 +393,8 @@ export async function getProductImageManifest() {
       label: 'Samsung Galaxy Tab A11+ 5G',
       fallbackSource: SAMSUNG_FALLBACK,
       sourceUrls: [
-        `${TM}/cell-phone/samsung-galaxy-tab-a11-plus-5g`,
+        'https://t-mobile.scene7.com/is/image/Tmusprod/Samsung-Galaxy-Tab-A11-Plus-5G-Gray-frontimage?fmt=png-alpha&qlt=85',
+        `${TM}/tablet/samsung-galaxy-tab-a11-plus-5g`,
         'https://www.samsung.com/us/tablets/',
       ],
     },
@@ -446,8 +449,8 @@ export async function getProductImageManifest() {
       label: 'Samsung Galaxy Watch8 Ultra',
       fallbackSource: SAMSUNG_FALLBACK,
       sourceUrls: [
-        `${TM}/cell-phone/samsung-galaxy-watch8-ultra`,
-        'https://www.samsung.com/us/smartphones/galaxy-watch8-ultra/',
+        `${TM}/smart-watch/samsung-galaxy-watch-ultra-47mm`,
+        'https://www.samsung.com/us/watches/galaxy-watch-ultra/',
       ],
     },
     {
@@ -456,8 +459,8 @@ export async function getProductImageManifest() {
       label: 'Samsung Galaxy Watch8 Classic',
       fallbackSource: SAMSUNG_FALLBACK,
       sourceUrls: [
-        `${TM}/cell-phone/samsung-galaxy-watch8-classic`,
-        'https://www.samsung.com/us/smartphones/galaxy-watch8-classic/',
+        `${TM}/smart-watch/samsung-galaxy-watch8-classic-46mm`,
+        'https://www.samsung.com/us/watches/galaxy-watch/galaxy-watch8-classic/',
       ],
     },
     {
@@ -466,8 +469,9 @@ export async function getProductImageManifest() {
       label: 'Samsung Galaxy Watch8',
       fallbackSource: SAMSUNG_FALLBACK,
       sourceUrls: [
-        `${TM}/cell-phone/samsung-galaxy-watch8`,
-        'https://www.samsung.com/us/smartphones/galaxy-watch8/',
+        `${TM}/smart-watch/samsung-galaxy-watch8-44mm`,
+        `${TM}/smart-watch/samsung-galaxy-watch8-40mm`,
+        'https://www.samsung.com/us/watches/galaxy-watch/galaxy-watch8/',
       ],
     },
     {

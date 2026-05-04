@@ -1,80 +1,149 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronUp, Lightbulb, MessageSquare, ShieldAlert, Sparkles } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { CheckCircle2, Lightbulb, MessageSquare, ThumbsDown, X } from 'lucide-react';
 import type { KipRecommendation } from '../../types/kip';
-import KipBadge from './KipBadge';
+import { trackLiveEvent } from '../../services/sessionTracker';
 import KipAvatar from './KipAvatar';
+import type { KipAvatarState } from './kip-types';
 
 interface KipPanelProps {
   recommendation: KipRecommendation;
 }
 
+function getKipState(recommendation: KipRecommendation): KipAvatarState {
+  if (recommendation.tone === 'pivot' || recommendation.watchOut) return 'alert';
+  if (recommendation.optionalAttach) return 'tip';
+  return 'listening';
+}
+
 export default function KipPanel({ recommendation }: KipPanelProps) {
-  const [expanded, setExpanded] = useState(false);
-  const detailRows = [
-    { label: 'Action', value: recommendation.action, icon: Lightbulb },
-    { label: 'Ask', value: recommendation.askThis, icon: MessageSquare },
-    { label: 'Watch out', value: recommendation.watchOut, icon: ShieldAlert },
-    { label: 'Attach only if it fits', value: recommendation.optionalAttach, icon: Sparkles },
-  ].filter((row) => row.value);
+  const [open, setOpen] = useState(false);
+  const [used, setUsed] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
+  const state = getKipState(recommendation);
+  const showBadge = !dismissed && !used;
+
+  const markUsed = () => {
+    setUsed(true);
+    setDismissed(false);
+    try {
+      trackLiveEvent('kip-suggestion-used');
+    } catch {
+      // Local-only tracking should never interrupt the call.
+    }
+  };
+
+  const markNotHelpful = () => {
+    setDismissed(true);
+    setOpen(false);
+    try {
+      trackLiveEvent('kip-not-helpful');
+    } catch {
+      // Local-only tracking should never interrupt the call.
+    }
+  };
 
   return (
-    <section className="glass-feature overflow-hidden rounded-[1.65rem] p-4 shadow-sm sm:p-5">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0 space-y-3">
-          <KipBadge tone={recommendation.tone} size={64} />
-          <div>
-            <h3 className="text-lg font-black leading-tight tracking-tight text-foreground sm:text-xl">
-              {recommendation.headline}
-            </h3>
-            {recommendation.sayThis ? (
-              <div className="mt-4 flex items-start gap-4">
-                <div className="mt-1 shrink-0">
-                  <KipAvatar size="small" state="speaking" showGlow />
-                </div>
-                <div className="relative flex-1 rounded-2xl bg-white/74 px-4 py-3 shadow-sm border border-t-magenta/10">
-                  {/* Speech bubble tail */}
-                  <div className="absolute -left-1.5 top-5 h-3 w-3 rotate-45 border-b border-l border-t-magenta/10 bg-white/74" />
-                  
-                  <p className="text-[9px] font-black uppercase tracking-[0.18em] text-t-magenta">Kip says:</p>
-                  <p className="mt-1 text-sm font-bold leading-relaxed text-foreground italic">"{recommendation.sayThis}"</p>
+    <div className="fixed bottom-[calc(env(safe-area-inset-bottom,0px)+5rem)] right-4 z-40 sm:bottom-6 sm:right-6">
+      <AnimatePresence>
+        {open ? (
+          <motion.section
+            initial={{ opacity: 0, y: 16, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.96 }}
+            transition={{ duration: 0.18, ease: 'easeOut' }}
+            className="mb-3 w-[min(22rem,calc(100vw-2rem))] rounded-[1.5rem] border border-violet-300/20 bg-[#17131f]/95 p-4 text-white shadow-[0_22px_50px_rgba(0,0,0,0.35)] backdrop-blur-xl"
+            aria-live="polite"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <KipAvatar size="small" state={used ? 'success' : state} showGlow />
+                <div>
+                  <p className="text-[9px] font-black uppercase tracking-[0.18em] text-violet-200">Kip's Tip</p>
+                  <h3 className="mt-1 text-sm font-black leading-tight">{recommendation.headline}</h3>
                 </div>
               </div>
-            ) : null}
-          </div>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => setExpanded((current) => !current)}
-          className="focus-ring inline-flex min-h-[44px] shrink-0 items-center justify-center gap-2 rounded-full bg-white/80 px-4 py-2 text-[10px] font-black uppercase tracking-[0.16em] text-t-magenta shadow-sm transition-transform hover:scale-[1.01] active:scale-95"
-          aria-expanded={expanded}
-        >
-          {expanded ? 'Hide Details' : 'Refine'}
-          {expanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-        </button>
-      </div>
-
-      {expanded ? (
-        <div className="mt-4 grid gap-2 md:grid-cols-2">
-          {detailRows.map((row) => (
-            <div key={row.label} className="glass-reading rounded-2xl px-4 py-3">
-              <div className="flex items-start gap-2.5">
-                <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-t-magenta/10 text-t-magenta">
-                  <row.icon className="h-4 w-4" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-[8px] font-black uppercase tracking-[0.18em] text-t-magenta">{row.label}</p>
-                  <p className="mt-1 text-[11px] font-semibold leading-relaxed text-t-dark-gray">{row.value}</p>
-                </div>
-              </div>
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                aria-label="Close KIP tip"
+                className="focus-ring rounded-full p-2 text-white/70 transition-colors hover:text-white"
+              >
+                <X className="h-4 w-4" />
+              </button>
             </div>
-          ))}
-          <div className="rounded-2xl bg-t-magenta/8 px-4 py-3 md:col-span-2">
-            <p className="text-[8px] font-black uppercase tracking-[0.18em] text-t-magenta">Source</p>
-            <p className="mt-1 text-[10px] font-medium leading-relaxed text-t-dark-gray">{recommendation.sourceReason}</p>
-          </div>
-        </div>
-      ) : null}
-    </section>
+
+            <div className="mt-4 space-y-3">
+              <div className="rounded-2xl bg-white/10 p-3">
+                <p className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.18em] text-violet-200">
+                  <Lightbulb className="h-3 w-3" />
+                  One insight
+                </p>
+                <p className="mt-1 text-xs font-semibold leading-relaxed text-white/88">{recommendation.action}</p>
+              </div>
+
+              {recommendation.sayThis ? (
+                <div className="rounded-2xl bg-t-magenta/18 p-3">
+                  <p className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.18em] text-pink-100">
+                    <MessageSquare className="h-3 w-3" />
+                    Try this next
+                  </p>
+                  <p className="mt-1 text-sm font-black leading-relaxed text-white">"{recommendation.sayThis}"</p>
+                </div>
+              ) : null}
+
+              <p className="text-[11px] font-medium leading-relaxed text-white/72">
+                {recommendation.watchOut || recommendation.askThis || 'Why it works: it keeps the rep on one clean move before adding complexity.'}
+              </p>
+
+              {recommendation.optionalAttach && !used ? (
+                <p className="rounded-xl border border-t-magenta/20 bg-t-magenta/10 p-2 text-[11px] font-semibold leading-relaxed text-white/80">
+                  Attach only if earned: {recommendation.optionalAttach}
+                </p>
+              ) : null}
+
+              {used ? (
+                <div className="rounded-2xl bg-emerald-400/15 p-3 text-xs font-black text-emerald-100">
+                  +25 KIP Points. Nice, clean move.
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={markUsed}
+                    className="focus-ring inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl bg-white text-[#17131f] text-xs font-black"
+                  >
+                    <CheckCircle2 className="h-4 w-4 text-t-magenta" />
+                    Used it
+                  </button>
+                  <button
+                    type="button"
+                    onClick={markNotHelpful}
+                    className="focus-ring inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl bg-white/10 text-xs font-black text-white"
+                  >
+                    <ThumbsDown className="h-4 w-4" />
+                    Not helpful
+                  </button>
+                </div>
+              )}
+            </div>
+          </motion.section>
+        ) : null}
+      </AnimatePresence>
+
+      <button
+        type="button"
+        onClick={() => setOpen((current) => !current)}
+        aria-label={open ? 'Close KIP tip' : 'Open KIP tip'}
+        className={`focus-ring relative flex h-16 w-16 items-center justify-center rounded-full border border-t-magenta/25 bg-[#0F0F14]/95 shadow-[0_18px_44px_rgba(226,0,116,0.34)] backdrop-blur-xl transition-transform hover:scale-[1.03] active:scale-95 ${showBadge ? 'motion-safe:animate-pulse' : ''}`}
+      >
+        <KipAvatar size="medium" state={used ? 'success' : state} showGlow />
+        {showBadge ? (
+          <span className="absolute -right-1 -top-1 flex h-6 min-w-6 items-center justify-center rounded-full border-2 border-[#0F0F14] bg-t-magenta px-1 text-[10px] font-black text-white">
+            1
+          </span>
+        ) : null}
+      </button>
+    </div>
   );
 }

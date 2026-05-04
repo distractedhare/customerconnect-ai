@@ -1,6 +1,6 @@
 import { SalesContext, SalesScript, ObjectionAnalysis } from '../types';
 import { WeeklyUpdate, WeeklyUpdateMetadata, validateWeeklyUpdate, getWeeklyUpdateValidationError } from './weeklyUpdateSchema';
-import { getTemplateScript, OBJECTION_TEMPLATES, BTS_IOT_VALUE_PROPS, COMPETITORS } from '../data';
+import { getTemplateScript, getPromptContextGroundingSources, OBJECTION_TEMPLATES, BTS_IOT_VALUE_PROPS, COMPETITORS } from '../data';
 import { findScenario } from '../data/objectionPlaybook';
 import { getDeepDiveScripts, OBJECTION_SCRIPTS } from '../data/recommendationRules';
 import { RequestSignalOptions, isAbortError, withTimeoutSignal } from './networkUtils';
@@ -306,7 +306,9 @@ export function generateScript(context: SalesContext, weeklyData?: WeeklyUpdate 
     coachsCorner,
     smallTalk: conversationBuilders,
     nearbyStores: [], // No longer available offline
-    groundingSources: [], // No longer available offline
+    groundingSources: template.groundingSources?.length
+      ? template.groundingSources
+      : getPromptContextGroundingSources(context),
   };
 }
 

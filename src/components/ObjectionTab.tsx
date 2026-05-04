@@ -222,7 +222,7 @@ function CategorySection({ category, expandedScenario, setExpandedScenario, sele
   toggleObjection: (id: string) => void;
   isSuggested: boolean;
 }) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(isSuggested);
   const Icon = ICON_MAP[category.icon] || AlertCircle;
   const selectedCount = category.scenarios.filter(s => selectedObjections.includes(s.id)).length;
 
@@ -329,24 +329,9 @@ export default function ObjectionTab({
             Objection Coach
           </h2>
           <p className="text-xs text-t-dark-gray font-medium leading-relaxed">
-            Start with the fastest likely category, grab one <strong className="text-t-magenta">quick comeback</strong>, then queue only the blockers that need a deeper strategy.
+            Pick the caller's pushback. Use one ready response, then build a deeper answer only if they keep pressing.
           </p>
         </div>
-      </div>
-
-      <div className="grid gap-2 md:grid-cols-3">
-        <TriageCard
-          title="1. Triage"
-          body="Open the most likely category first so the rep gets to a usable response in one tap."
-        />
-        <TriageCard
-          title="2. Quick Comeback"
-          body="Use the short response and coach note before you open the longer strategic lane."
-        />
-        <TriageCard
-          title="3. Deep Strategy"
-          body="Queue only the tricky scenarios you want the longer analysis to blend together."
-        />
       </div>
 
       {/* Context badge */}
@@ -354,7 +339,7 @@ export default function ObjectionTab({
         <div className="bg-t-magenta/5 border border-t-magenta/20 rounded-xl p-3 flex items-center gap-2">
           <Sparkles className="w-3.5 h-3.5 text-t-magenta shrink-0" />
           <p className="text-xs text-t-dark-gray font-medium">
-            <span className="font-bold text-t-magenta">{selectedGamePlanItems.length}</span> game plan move{selectedGamePlanItems.length === 1 ? '' : 's'} marked — deep dive will account for these.
+            <span className="font-bold text-t-magenta">{selectedGamePlanItems.length}</span> game plan move{selectedGamePlanItems.length === 1 ? '' : 's'} marked - deep dive will account for these.
           </p>
         </div>
       )}
@@ -401,15 +386,6 @@ export default function ObjectionTab({
         </motion.div>
       )}
     </motion.section>
-  );
-}
-
-function TriageCard({ title, body }: { title: string; body: string }) {
-  return (
-    <div className="rounded-2xl border border-t-light-gray bg-surface-elevated px-3 py-3">
-      <p className="text-[8px] font-black uppercase tracking-[0.18em] text-t-magenta">{title}</p>
-      <p className="mt-1 text-[11px] font-medium leading-relaxed text-t-dark-gray">{body}</p>
-    </div>
   );
 }
 

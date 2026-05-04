@@ -9,7 +9,12 @@
  */
 
 import { CatalogItem } from '../types';
-import { PROMO_RULES } from '../data/promoRules';
+import {
+  ESSENTIAL_ACCESSORIES_PROMO_SET_ID,
+  PROMO_RULES,
+  canonicalizePromoSetId,
+} from '../data/promoRules';
+import { canKipQuoteAccessoryBundleEligibility } from '../data/knowledge';
 
 export interface PromoStatus {
   activeRuleId?: string;
@@ -25,6 +30,11 @@ export interface PromoStatus {
   nextBestIds?: string[];
 }
 
+export function itemQualifiesForPromoSet(item: CatalogItem, promoSetId: string): boolean {
+  const canonicalTarget = canonicalizePromoSetId(promoSetId);
+  return item.qualifyingSetIds.some((setId) => canonicalizePromoSetId(setId) === canonicalTarget);
+}
+
 /**
  * Evaluate which promo (if any) applies to the current selected items,
  * and what's needed to reach the next tier.
@@ -37,7 +47,8 @@ export function evaluatePromoStatus(
   const setQtys = new Map<string, number>();
   for (const item of selectedItems) {
     for (const setId of item.qualifyingSetIds) {
-      setQtys.set(setId, (setQtys.get(setId) ?? 0) + 1);
+      const canonicalSetId = canonicalizePromoSetId(setId);
+      setQtys.set(canonicalSetId, (setQtys.get(canonicalSetId) ?? 0) + 1);
     }
   }
 
@@ -75,7 +86,7 @@ export function evaluatePromoStatus(
   const candidates = allCatalogItems
     .filter(i =>
       !selectedIds.has(i.id) &&
-      i.qualifyingSetIds.includes(nearestRule.qualifyingSetId),
+      itemQualifiesForPromoSet(i, nearestRule.qualifyingSetId),
     )
     .slice(0, 3)
     .map(i => i.id);
@@ -104,5 +115,8 @@ export function evaluatePromoStatus(
  * Used for the subtle chip display in the UI.
  */
 export function countQualifyingItems(selectedItems: CatalogItem[]): number {
-  return selectedItems.filter(i => i.qualifyingSetIds.includes('essential')).length;
+  return selectedItems.filter((item) =>
+    itemQualifiesForPromoSet(item, ESSENTIAL_ACCESSORIES_PROMO_SET_ID)
+    && canKipQuoteAccessoryBundleEligibility(item.id)
+  ).length;
 }

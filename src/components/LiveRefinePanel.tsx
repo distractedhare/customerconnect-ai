@@ -49,6 +49,32 @@ const PRODUCT_OPTIONS: Array<{
   { id: 'No Specific Product', label: 'General', helper: 'No clear product yet' },
 ];
 
+const PROFILE_PRESETS: Array<{ id: NonNullable<SalesContext['profilePreset']>; label: string; helper: string; patch: Partial<SalesContext> }> = [
+  { id: 'young-professional', label: 'Young Professional', helper: 'Style, camera, speed, convenience', patch: { age: '25-34', householdTags: ['commuter', 'power-user'] } },
+  { id: 'family-household', label: 'Family Household', helper: 'Lines, safety, protection, value', patch: { age: '35-54', householdTags: ['family-household', 'kids'] } },
+  { id: 'senior-low-tech', label: 'Senior / Low-Tech', helper: 'Simple setup, readable, reliable', patch: { age: '55+', householdTags: ['caregiver'] } },
+  { id: 'power-user', label: 'Power User', helper: 'Battery, hotspot, upgrades, storage', patch: { householdTags: ['power-user', 'traveler'] } },
+  { id: 'small-business-owner', label: 'Small Business Owner', helper: 'Reliability, hotspot, devices, travel', patch: { householdTags: ['small-business', 'traveler'] } },
+];
+
+const RELATIONSHIP_OPTIONS: Array<{ id: NonNullable<SalesContext['customerRelationship']>; label: string }> = [
+  { id: 'unknown', label: 'Unknown' },
+  { id: 'new-customer', label: 'New Customer' },
+  { id: 'current-customer', label: 'Current Customer' },
+  { id: 'current-hint-only', label: 'HINT Only' },
+  { id: 'current-voice', label: 'Voice Customer' },
+  { id: 'mixed-account', label: 'Mixed Account' },
+];
+
+const DISCOUNT_OPTIONS: Array<{ id: NonNullable<SalesContext['discountProfile']>; label: string }> = [
+  { id: 'unknown', label: 'Unknown' },
+  { id: 'none', label: 'None' },
+  { id: '55-plus', label: '55+' },
+  { id: 'military', label: 'Military' },
+  { id: 'first-responder', label: 'First Responder' },
+  { id: 'business', label: 'Business' },
+];
+
 export default function LiveRefinePanel({ open, context, onClose, onApply }: LiveRefinePanelProps) {
   const [draft, setDraft] = useState<SalesContext>(context);
 
@@ -90,6 +116,13 @@ export default function LiveRefinePanel({ open, context, onClose, onApply }: Liv
   };
 
   const supportOptions = getSupportOptionsForIntent(draft.purchaseIntent);
+  const applyProfilePreset = (preset: typeof PROFILE_PRESETS[number]) => {
+    setDraft(prev => ({
+      ...prev,
+      ...preset.patch,
+      profilePreset: preset.id,
+    }));
+  };
 
   return (
     <AnimatePresence>
@@ -106,17 +139,17 @@ export default function LiveRefinePanel({ open, context, onClose, onApply }: Liv
               <div className="flex items-start gap-3">
                 <KipAvatar size="small" state="idle" />
                 <div>
-                  <p className="type-micro text-t-magenta">Refine Plan</p>
-                  <h2 className="mt-1 text-xl font-black tracking-tight text-foreground">Tune the live context</h2>
+                  <p className="type-micro text-t-magenta">Quick Tune</p>
+                  <h2 className="mt-1 text-xl font-black tracking-tight text-foreground">Tune only what matters</h2>
                   <p className="mt-1 text-xs font-medium leading-relaxed text-t-dark-gray">
-                    Keep the call surface clean. Add details here, then apply once.
+                    Add optional context here without crowding the call screen.
                   </p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={onClose}
-                aria-label="Close Refine Plan"
+                aria-label="Close Quick Tune"
                 className="focus-ring glass-control rounded-full p-2 text-t-dark-gray transition-colors hover:text-t-magenta"
               >
                 <X className="h-4 w-4" />
@@ -215,11 +248,91 @@ export default function LiveRefinePanel({ open, context, onClose, onApply }: Liv
                 </div>
               </section>
 
+              <section className="space-y-3">
+                <div>
+                  <p className="type-kicker text-t-dark-gray">Quick profile</p>
+                  <p className="mt-1 text-[10px] font-medium leading-relaxed text-t-muted">
+                    Optional. Helps KIP tune language without asking personal questions.
+                  </p>
+                </div>
+                <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                  {PROFILE_PRESETS.map(preset => {
+                    const active = draft.profilePreset === preset.id;
+                    return (
+                      <button
+                        key={preset.id}
+                        type="button"
+                        onClick={() => applyProfilePreset(preset)}
+                        aria-pressed={active}
+                        title={`Why this matters: ${preset.helper}`}
+                        className={`focus-ring min-w-[12rem] rounded-xl px-3 py-3 text-left transition-all ${
+                          active ? 'glass-control-active text-white' : 'glass-control text-t-dark-gray hover:text-foreground'
+                        }`}
+                      >
+                        <span className="block text-[11px] font-black uppercase tracking-tight">{preset.label}</span>
+                        <span className={`mt-1 block text-[10px] font-medium leading-snug ${active ? 'text-white/80' : 'text-t-muted'}`}>
+                          {preset.helper}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </section>
+
+              <section className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <p className="type-kicker text-t-dark-gray">Relationship</p>
+                  <div className="flex flex-wrap gap-2">
+                    {RELATIONSHIP_OPTIONS.map(option => {
+                      const active = (draft.customerRelationship ?? 'unknown') === option.id;
+                      return (
+                        <button
+                          key={option.id}
+                          type="button"
+                          onClick={() => setDraft(prev => ({ ...prev, customerRelationship: option.id }))}
+                          aria-pressed={active}
+                          className={`focus-ring min-h-[38px] rounded-full px-3 text-[10px] font-black uppercase tracking-tight ${
+                            active ? 'glass-control-active text-white' : 'glass-control text-t-dark-gray'
+                          }`}
+                        >
+                          {option.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <p className="type-kicker text-t-dark-gray">Discount profile</p>
+                  <div className="flex flex-wrap gap-2">
+                    {DISCOUNT_OPTIONS.map(option => {
+                      const active = (draft.discountProfile ?? 'unknown') === option.id;
+                      return (
+                        <button
+                          key={option.id}
+                          type="button"
+                          onClick={() => setDraft(prev => ({ ...prev, discountProfile: option.id }))}
+                          aria-pressed={active}
+                          className={`focus-ring min-h-[38px] rounded-full px-3 text-[10px] font-black uppercase tracking-tight ${
+                            active ? 'glass-control-active text-white' : 'glass-control text-t-dark-gray'
+                          }`}
+                        >
+                          {option.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </section>
+
               <section className="glass-stage-quiet rounded-[1.5rem] p-4">
                 <CustomerContextForm
                   context={draft}
                   setContext={setDraftContext}
                   inline
+                  showAge={false}
+                  showCarrier={false}
+                  defaultSharperReadOpen={false}
                   defaultLocationOpen={false}
                   locationLabel="Region + ZIP"
                   locationHint="Add location only when it helps HINT, coverage, or regional context."
@@ -237,7 +350,7 @@ export default function LiveRefinePanel({ open, context, onClose, onApply }: Liv
                 onClick={() => onApply(draft)}
                 className="focus-ring cta-primary min-h-[48px] flex-1 rounded-xl text-sm font-black tracking-tight text-white"
               >
-                Apply and Rebuild
+                Apply
               </button>
               <button
                 type="button"

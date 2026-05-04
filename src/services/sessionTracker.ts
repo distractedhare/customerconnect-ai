@@ -3,6 +3,8 @@ export interface SessionStats {
   objectionsAnalyzed: number;
   intentsUsed: Record<string, number>;
   objectionTypesUsed: Record<string, number>;
+  liveEvents: Record<string, number>;
+  kipPoints: number;
 }
 
 const SESSION_STATS_KEY = 'cc-session-stats';
@@ -12,6 +14,8 @@ const DEFAULT_STATS: SessionStats = {
   objectionsAnalyzed: 0,
   intentsUsed: {},
   objectionTypesUsed: {},
+  liveEvents: {},
+  kipPoints: 0,
 };
 
 function canUseSessionStorage(): boolean {
@@ -37,6 +41,8 @@ function readStats(): SessionStats {
       objectionsAnalyzed: parsed.objectionsAnalyzed ?? 0,
       intentsUsed: parsed.intentsUsed ?? {},
       objectionTypesUsed: parsed.objectionTypesUsed ?? {},
+      liveEvents: parsed.liveEvents ?? {},
+      kipPoints: parsed.kipPoints ?? 0,
     };
   } catch {
     return DEFAULT_STATS;
@@ -91,6 +97,17 @@ export function trackIntentUsed(intent: string): SessionStats {
   const next = {
     ...stats,
     intentsUsed: incrementFrequencyMap(stats.intentsUsed, intent),
+  };
+  writeStats(next);
+  return next;
+}
+
+export function trackLiveEvent(event: 'fresh-take' | 'kip-suggestion-used' | 'guided-back' | 'kip-not-helpful'): SessionStats {
+  const stats = readStats();
+  const next = {
+    ...stats,
+    liveEvents: incrementFrequencyMap(stats.liveEvents, event),
+    kipPoints: event === 'kip-suggestion-used' ? stats.kipPoints + 25 : stats.kipPoints,
   };
   writeStats(next);
   return next;

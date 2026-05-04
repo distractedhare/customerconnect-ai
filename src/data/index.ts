@@ -1,10 +1,12 @@
-import { SalesContext, SalesScript } from '../types';
+import { GroundingSource, SalesContext, SalesScript } from '../types';
 import { POSTPAID_PLANS, SPECIALIZED_PLANS } from './plans';
 import { PHONES, TABLETS, WATCHES, HOTSPOTS, CONNECTED_DEVICE_INFO } from './devices';
 import { HOME_INTERNET_PLANS, HOME_INTERNET_BUNDLE_DISCOUNT, OTHER_HOME_PRODUCTS } from './homeInternet';
 import { COMPETITORS } from './competitors';
 import { DIFFERENTIATORS } from './differentiators';
 import { PROTECTION_360_TIERS, P360_VS_APPLECARE, buildAccessoryRecommendations } from './accessories';
+import { buildLiveRecommendationGate, sanitizeP360CopyForContext } from '../services/liveRecommendationGate';
+import { getCoreKnowledgeRecords } from './knowledge';
 import {
   WELCOME_MESSAGES,
   DISCOVERY_QUESTIONS,
@@ -30,6 +32,7 @@ export * from './accessories';
 export * from './salesMethodology';
 export * from './objectionPlaybook';
 export * from './recommendationRules';
+export * from './knowledge';
 
 /**
  * Assemble a complete script instantly from templates — no API call needed.
@@ -95,7 +98,7 @@ export function getTemplateScript(context: SalesContext): Partial<SalesScript> {
     coachsCorner,
     smallTalk: [], // AI will fill this
     nearbyStores: [], // AI will fill this
-    groundingSources: [],
+    groundingSources: getPromptContextGroundingSources(context),
   };
 }
 
@@ -103,15 +106,19 @@ function buildValueProps(context: SalesContext): string[] {
   const props: string[] = [];
   const carrier = context.currentCarrier;
   const isSupport = ['order support', 'tech support', 'account support'].includes(context.purchaseIntent);
+  const liveGate = buildLiveRecommendationGate(context);
 
-  // For SUPPORT calls: lead with BTS/IOT add-on opportunities — that's the commission play
   if (isSupport) {
-    props.push(`🎯 WATCH DEAL: Galaxy Watch8 is FREE with new wearable line ($5/mo on Experience Beyond/Better Value; $10–$15/mo on other plans). Leave your phone behind and still get calls, texts, payments.`);
-    props.push(`🎯 TABLET DEAL: iPad up to $400 off with new tablet line ($5/mo on Experience Beyond/Better Value; $20/mo on other plans). Galaxy Tab A11+ FREE with S26 purchase.`);
-    props.push(`🎯 TRACKER: SyncUP Tracker — real GPS on T-Mobile's network, not Bluetooth like AirTag. Great for kids, pets, cars, luggage.`);
-    props.push(`🎯 PROTECTION: P360 covers drops, theft, screen at $0 — includes AppleCare Services + JUMP! upgrades. Better than AppleCare+ alone.`);
-    props.push(`🎯 HOME INTERNET: Check availability first, then verify current bundle pricing, no annual contract, and any Month On Us or rebate eligibility.`);
-    // Also add any product-specific props below
+    const supportFocus = getSupportFocusOption(context.supportFocus);
+    props.push(supportFocus?.planCue.value ?? 'Resolve the caller’s request first, then ask one clean qualifying question if a sales lane opens.');
+
+    if (liveGate.allowedCategories.includes('p360')) {
+      props.push(sanitizeP360CopyForContext('Protection 360: position it only after the device need is clear. Drops, theft/loss, $0 front screen repair, JUMP! upgrades, security support, and in-store screen protector replacements.', context));
+    }
+
+    if (liveGate.allowedCategories.some((category) => ['watch', 'kids-watch', 'tracker'].includes(category))) {
+      props.push('Connected device pivot: only mention watches or trackers when the caller gave a line, family, kid-safety, travel, car, pet, or luggage signal.');
+    }
   }
 
   // Plan-specific value props
@@ -175,6 +182,77 @@ function buildObjectionHandling(): { concern: string; reassurance: string }[] {
   });
 }
 
+function summarizeKnowledgeBenefits(
+  benefits: Array<{ benefit: string }> | undefined,
+  limit = 2
+): string {
+  if (!benefits?.length) return ''
+  return [...new Set(
+    benefits
+      .map((entry) => entry.benefit.trim())
+      .filter(Boolean)
+  )]
+    .slice(0, limit)
+    .join(' | ')
+}
+
+function buildSourceSuffix(sourceUrl?: string): string {
+  return sourceUrl ? ` Source: ${sourceUrl}` : ''
+}
+
+function normalizePlanName(value?: string): string {
+  return (value || '').trim().toLowerCase()
+}
+
+function toGroundingSource(title: string, uri?: string): GroundingSource | null {
+  if (!uri) return null
+  return { title, uri }
+}
+
+function getHomeInternetKnowledgeReferences() {
+  return getCoreKnowledgeRecords(['home-internet-detail'])
+    .filter((record) => Boolean(record.sourceUrl))
+    .slice(0, 2)
+}
+
+export function getPromptContextGroundingSources(context: SalesContext): GroundingSource[] {
+  const sources: GroundingSource[] = []
+  const selectedPlan = context.plan
+    ? POSTPAID_PLANS.find((plan) => normalizePlanName(plan.name) === normalizePlanName(context.plan))
+    : null
+  const isSupport = ['order support', 'tech support', 'account support'].includes(context.purchaseIntent)
+
+  if (selectedPlan?.sourceUrl) {
+    sources.push({ title: selectedPlan.name, uri: selectedPlan.sourceUrl })
+  }
+
+  if (context.product.includes('Phone')) {
+    PHONES.filter((device) => Boolean(device.sourceUrl)).slice(0, 4).forEach((device) => {
+      const source = toGroundingSource(device.name, device.sourceUrl)
+      if (source) sources.push(source)
+    })
+  }
+
+  if (context.product.includes('Home Internet')) {
+    getHomeInternetKnowledgeReferences().forEach((record) => {
+      const source = toGroundingSource(record.name, record.sourceUrl)
+      if (source) sources.push(source)
+    })
+  }
+
+  if (context.product.includes('BTS') || context.product.includes('IOT') || isSupport) {
+    [...WATCHES, ...TABLETS, ...HOTSPOTS]
+      .filter((device) => Boolean(device.sourceUrl))
+      .slice(0, 3)
+      .forEach((device) => {
+        const source = toGroundingSource(device.name, device.sourceUrl)
+        if (source) sources.push(source)
+      })
+  }
+
+  return [...new Map(sources.map((source) => [source.uri, source])).values()].slice(0, 8)
+}
+
 /**
  * Build a prompt context string with relevant product data for the AI to personalize.
  * This is the "injected context" part of the hybrid flow.
@@ -182,13 +260,22 @@ function buildObjectionHandling(): { concern: string; reassurance: string }[] {
  */
 export function buildPromptContext(context: SalesContext): string {
   const sections: string[] = [];
+  const selectedPlan = context.plan
+    ? POSTPAID_PLANS.find((plan) => normalizePlanName(plan.name) === normalizePlanName(context.plan))
+    : null
 
   // Relevant plans
   sections.push('=== T-MOBILE PLANS (April 2026) ===');
   sections.push('CRITICAL: Experience plans do NOT include taxes/fees in price (changed from Magenta era). Without AutoPay, add $5/line.');
   for (const plan of POSTPAID_PLANS.slice(0, 3)) { // Top 3 plans
     const priceStr = plan.pricing.map(p => `${p.lines}L: $${p.monthlyTotal}`).join(', ');
-    sections.push(`${plan.name}: ${priceStr}. Key: ${plan.features.slice(0, 3).join('; ')}`);
+    const benefitSummary = summarizeKnowledgeBenefits(plan.knowledgeBenefits, 2);
+    sections.push(`${plan.name}: ${priceStr}. Key: ${plan.features.slice(0, 3).join('; ')}${benefitSummary ? ` Benefit proof: ${benefitSummary}` : ''}${buildSourceSuffix(plan.sourceUrl)}`);
+  }
+
+  if (selectedPlan) {
+    sections.push('\n=== SELECTED PLAN REFERENCE ===');
+    sections.push(`${selectedPlan.name}: ${summarizeKnowledgeBenefits(selectedPlan.knowledgeBenefits, 3) || selectedPlan.features.slice(0, 3).join('; ')}${buildSourceSuffix(selectedPlan.sourceUrl)}`);
   }
 
   // Family-specific
@@ -219,7 +306,8 @@ export function buildPromptContext(context: SalesContext): string {
     // Device specs only — promos come from weekly-update.json
     const topDevices = PHONES.filter(d => typeof d.startingPrice === 'number').slice(0, 4);
     for (const d of topDevices) {
-      sections.push(`${d.name} ($${d.startingPrice}): ${d.keySpecs}`);
+      const benefitSummary = summarizeKnowledgeBenefits(d.knowledgeBenefits, 1);
+      sections.push(`${d.name} ($${d.startingPrice}): ${d.keySpecs}${benefitSummary ? ` Benefit proof: ${benefitSummary}` : ''}${buildSourceSuffix(d.sourceUrl)}`);
     }
   }
 
@@ -231,11 +319,16 @@ export function buildPromptContext(context: SalesContext): string {
     }
     sections.push(HOME_INTERNET_BUNDLE_DISCOUNT);
     sections.push(`Test drive: ${OTHER_HOME_PRODUCTS.testDrive.description}`);
+    getHomeInternetKnowledgeReferences().forEach((record) => {
+      const benefitSummary = summarizeKnowledgeBenefits(record.benefits, 2);
+      sections.push(`Reference: ${record.name}. ${benefitSummary || record.priceLabel || 'Verify current terms.'}${buildSourceSuffix(record.sourceUrl)}`);
+    });
   }
 
-  // BTS/IOT — always include for support calls (service-to-sales pivot)
+  // BTS/IOT — include only when the product is in play or the live gate earned a connected-device lane.
   const isSupport = ['order support', 'tech support', 'account support'].includes(context.purchaseIntent);
-  if (context.product.includes('BTS') || context.product.includes('IOT') || isSupport) {
+  const liveGate = buildLiveRecommendationGate(context);
+  if (context.product.includes('BTS') || context.product.includes('IOT') || liveGate.allowedCategories.some((category) => ['watch', 'kids-watch', 'tracker'].includes(category))) {
     sections.push(`\n=== CONNECTED DEVICES & IOT (ADD-ON OPPORTUNITIES) ===`);
     sections.push(`Connected device lines: Wearable $${CONNECTED_DEVICE_INFO.plans.wearableLine.price}/mo, Tablet $${CONNECTED_DEVICE_INFO.plans.tabletLine.price}/mo, Tracker $${CONNECTED_DEVICE_INFO.plans.syncUpTracker.price}/mo. ${CONNECTED_DEVICE_INFO.installmentTerms}. $${CONNECTED_DEVICE_INFO.deviceConnectionCharge} connection charge.`);
     sections.push(`WATCHES: Galaxy Watch8 FREE with wearable line. Apple Watch SE 3 $200 off. Apple Watch Series 11 BOGO $300 off.`);
@@ -272,7 +365,7 @@ export function buildPromptContext(context: SalesContext): string {
   sections.push('Streaming: ~$30/mo included. AT&T: $0 perks. Verizon: $10/perk add-on');
 
   // Protection
-  sections.push(`\n=== PROTECTION 360 === ${P360_VS_APPLECARE.slice(0, 200)}`);
+  sections.push(`\n=== PROTECTION 360 === ${sanitizeP360CopyForContext(P360_VS_APPLECARE.slice(0, 200), context)}`);
 
   // CPNI
   sections.push('\n=== COMPLIANCE === CPNI compliant. No PII. Un-carrier voice. All prices before taxes/fees.');

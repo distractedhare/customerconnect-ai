@@ -83,7 +83,15 @@ function getOptionalAttach(input: LiveKipRecommendationInput): string | undefine
 
   if (!hasPrimaryProductFit || !firstAttach) return undefined;
 
-  return conciseLine(`${firstAttach.name}: ${firstAttach.why}`);
+  const eligibilityGuard = firstAttach.eligibilityStatus === 'quote-safe'
+    ? 'Eligibility locked.'
+    : firstAttach.eligibilityStatus === 'review-required'
+      ? 'Verify eligibility before quoting.'
+      : firstAttach.eligibilityStatus === 'not-eligible'
+        ? 'Not bundle eligible.'
+        : '';
+
+  return conciseLine(`${firstAttach.name}: ${eligibilityGuard} ${firstAttach.why}`);
 }
 
 export function buildLiveKipRecommendation(input: LiveKipRecommendationInput): KipRecommendation {

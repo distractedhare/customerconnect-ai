@@ -37,6 +37,34 @@ async function getFileBytesSafe(filePath) {
   }
 }
 
+function getImageSignatureError(bytes, assetPath) {
+  if (!bytes || bytes.byteLength === 0) return 'empty file';
+
+  const ext = path.extname(assetPath).toLowerCase();
+  const startsWith = (signature) => bytes.subarray(0, signature.length).equals(Buffer.from(signature));
+  const asciiStart = bytes.subarray(0, 256).toString('utf8').trimStart().toLowerCase();
+
+  if (ext === '.png') {
+    return startsWith([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]) ? null : 'invalid PNG signature';
+  }
+
+  if (ext === '.jpg' || ext === '.jpeg') {
+    return startsWith([0xff, 0xd8, 0xff]) ? null : 'invalid JPEG signature';
+  }
+
+  if (ext === '.webp') {
+    return bytes.subarray(0, 4).toString('ascii') === 'RIFF' && bytes.subarray(8, 12).toString('ascii') === 'WEBP'
+      ? null
+      : 'invalid WebP signature';
+  }
+
+  if (ext === '.svg') {
+    return asciiStart.startsWith('<svg') || asciiStart.startsWith('<?xml') ? null : 'invalid SVG signature';
+  }
+
+  return null;
+}
+
 async function main() {
   const manifest = await getProductImageManifest();
   const args = new Set(process.argv.slice(2));
@@ -45,6 +73,7 @@ async function main() {
   const empty = [];
   const duplicates = [];
   const fallbackHits = [];
+  const corrupt = [];
   const missingBrandAssets = [];
   const emptyBrandAssets = [];
   const actualCounts = {
@@ -77,6 +106,11 @@ async function main() {
       empty.push(item.path);
     }
 
+    const signatureError = getImageSignatureError(localBytes, item.path);
+    if (signatureError) {
+      corrupt.push(`${item.path} (${signatureError})`);
+    }
+
     if (item.path !== '/images/ui/product-card-fallback.svg' && fallbackBytes && Buffer.compare(localBytes, fallbackBytes) === 0) {
       fallbackHits.push(item.path);
     }
@@ -92,6 +126,11 @@ async function main() {
 
     if (localBytes.byteLength === 0) {
       emptyBrandAssets.push(assetPath);
+    }
+
+    const signatureError = getImageSignatureError(localBytes, assetPath);
+    if (signatureError) {
+      corrupt.push(`${assetPath} (${signatureError})`);
     }
   }
 
@@ -122,6 +161,13 @@ async function main() {
     method(`Fallback-only image files (${fallbackHits.length}):`);
     for (const item of fallbackHits) {
       method(`- ${item}`);
+    }
+  }
+
+  if (corrupt.length > 0) {
+    console.error(`Corrupt image files (${corrupt.length}):`);
+    for (const item of corrupt) {
+      console.error(`- ${item}`);
     }
   }
 
@@ -156,6 +202,7 @@ async function main() {
   let hasFailure = missing.length > 0
     || empty.length > 0
     || duplicates.length > 0
+    || corrupt.length > 0
     || mismatch.length > 0
     || missingBrandAssets.length > 0
     || emptyBrandAssets.length > 0;

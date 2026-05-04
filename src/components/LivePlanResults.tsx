@@ -1,8 +1,8 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import {
-  CheckCircle2,
   Headphones,
   Lightbulb,
+  Loader2,
   MessageSquare,
   Search,
   ShoppingBag,
@@ -10,10 +10,13 @@ import {
   Wifi,
   WifiOff,
 } from 'lucide-react';
-import { SalesContext, SalesScript } from '../types';
+import { AccessoryRecommendation, SalesContext, SalesScript } from '../types';
 import { getSupportFocusLabel } from '../constants/supportFocus';
-import { KipPanel, KipAvatar } from './kip';
+import { KipPanel } from './kip';
 import { buildLiveKipRecommendation } from '../services/kip/kipRules';
+import { gemmaFreshTake } from '../services/gemmaService';
+import { buildLiveRecommendationGate, getPrimaryLiveAttach } from '../services/liveRecommendationGate';
+import { trackLiveEvent } from '../services/sessionTracker';
 
 interface LivePlanResultsProps {
   script: SalesScript;
@@ -52,12 +55,47 @@ export default function LivePlanResults({ script, context }: LivePlanResultsProp
   const HintIcon = hintStatus.icon;
   const supportFocusLabel = getSupportFocusLabel(context.supportFocus);
   const kipRecommendation = buildLiveKipRecommendation({ context, script });
+  const liveGate = buildLiveRecommendationGate(context);
+  const primaryAttach = getPrimaryLiveAttach(script.accessoryRecommendations, context);
+  const [freshTakeCount, setFreshTakeCount] = useState(0);
+  const [freshTakeCache, setFreshTakeCache] = useState<Record<string, string>>({});
   const homeInternetInPlay = context.product.includes('Home Internet');
   const locationLabel = context.region !== 'Not Specified'
-    ? `${context.region}${context.state ? ` · ${context.state}` : ''}${context.zipCode ? ` · ${context.zipCode}` : ''}`
-    : context.zipCode
+    ? `${context.region}${context.state ? ` - ${context.state}` : ''}${context.zipCode ? ` - ${context.zipCode}` : ''}`
+      : context.zipCode
       ? `ZIP ${context.zipCode}`
       : 'Location not set';
+
+  const handleFreshTake = async (text: string): Promise<string | null> => {
+    const cacheKey = `${context.purchaseIntent}:${context.product.join('|')}:${text}`;
+    if (freshTakeCache[cacheKey]) return freshTakeCache[cacheKey];
+    if (freshTakeCount >= 3) return null;
+
+    try {
+      const next = await gemmaFreshTake({
+        text,
+        context,
+        lastKipRecommendation: kipRecommendation.sayThis || kipRecommendation.action,
+      });
+      setFreshTakeCache((current) => ({ ...current, [cacheKey]: next }));
+      setFreshTakeCount((current) => current + 1);
+      try {
+        trackLiveEvent('fresh-take');
+      } catch {
+        // Local-only tracking should never interrupt the call.
+      }
+      return next;
+    } catch {
+      const fallback = text
+        .replace(/^I can /i, "Let's ")
+        .replace(/^Let me /i, "I'll ")
+        .replace(/\s+/g, ' ')
+        .trim();
+      setFreshTakeCache((current) => ({ ...current, [cacheKey]: fallback }));
+      setFreshTakeCount((current) => current + 1);
+      return fallback;
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -68,11 +106,11 @@ export default function LivePlanResults({ script, context }: LivePlanResultsProp
           <div>
             <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-white/90">
               <Sparkles className="h-3.5 w-3.5 text-white" />
-              Live plan ready
+              30-second plan
             </div>
-            <h3 className="mt-3 text-2xl font-black uppercase tracking-tight">Use this as the call spine, not a script wall.</h3>
+            <h3 className="mt-3 text-2xl font-black uppercase tracking-tight">Say less. Land the next move.</h3>
             <p className="mt-2 max-w-2xl text-sm font-medium leading-relaxed text-white/80">
-              Start with the opener, ask one or two discovery questions, land one proof point, then move cleanly into the close.
+              One opener, one question, one proof point, one close. Add-on appears only when the call earns it.
             </p>
           </div>
 
@@ -134,6 +172,8 @@ export default function LivePlanResults({ script, context }: LivePlanResultsProp
           items={script.welcomeMessages}
           supportingItems={script.oneLiners}
           supportingLabel="Quick lines"
+          onFreshTake={handleFreshTake}
+          freshTakeLimitReached={freshTakeCount >= 3}
         />
 
         <PlanSection
@@ -142,6 +182,8 @@ export default function LivePlanResults({ script, context }: LivePlanResultsProp
           title="Questions Worth Asking"
           tone="info"
           items={script.discoveryQuestions}
+          onFreshTake={handleFreshTake}
+          freshTakeLimitReached={freshTakeCount >= 3}
         />
 
         <PlanSection
@@ -150,6 +192,8 @@ export default function LivePlanResults({ script, context }: LivePlanResultsProp
           title="Proof Points to Use"
           tone="warning"
           items={script.valuePropositions}
+          onFreshTake={handleFreshTake}
+          freshTakeLimitReached={freshTakeCount >= 3}
         />
 
         <PlanSection
@@ -158,63 +202,74 @@ export default function LivePlanResults({ script, context }: LivePlanResultsProp
           title="Next Moves"
           tone="success"
           items={script.purchaseSteps}
+          onFreshTake={handleFreshTake}
+          freshTakeLimitReached={freshTakeCount >= 3}
         />
       </div>
 
-      {script.accessoryRecommendations.length > 0 ? (
+      {primaryAttach ? (
         <section className="glass-stage-quiet rounded-3xl p-5">
           <div className="flex items-start gap-3">
             <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-t-magenta/10">
               <Headphones className="h-5 w-5 text-t-magenta" />
             </div>
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-t-magenta">Attach ideas</p>
-              <p className="mt-1 text-sm font-black text-foreground">Only mention the add-on that fits the call you just had.</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-t-magenta">Earned add-on</p>
+              <p className="mt-1 text-sm font-black text-foreground">Only bring this up if the caller signal matches.</p>
             </div>
           </div>
 
-          <div className="mt-4 grid gap-3 md:grid-cols-2">
-            {script.accessoryRecommendations.slice(0, 4).map((item) => (
-              <div key={item.name} className="glass-reading rounded-2xl px-4 py-3">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-xs font-black text-foreground">{item.name}</p>
-                    <p className="mt-1 text-[10px] font-medium leading-relaxed text-t-dark-gray">{item.why}</p>
-                  </div>
-                  <span className="shrink-0 rounded-full bg-t-magenta/10 px-2 py-1 text-[8px] font-black uppercase tracking-widest text-t-magenta">
-                    {item.priceRange}
-                  </span>
-                </div>
+          <div className="glass-reading mt-4 rounded-2xl px-4 py-3">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-sm font-black text-foreground">{primaryAttach.name}</p>
+                <p className="mt-1 text-[11px] font-medium leading-relaxed text-t-dark-gray">{primaryAttach.why}</p>
+                {primaryAttach.proofText ? (
+                  <p className="mt-2 text-[10px] font-semibold leading-relaxed text-t-dark-gray/70">
+                    Proof: {primaryAttach.proofText}
+                  </p>
+                ) : null}
+                <p className="mt-2 text-[8px] font-black uppercase tracking-[0.16em] text-t-dark-gray/50">
+                  {getAccessoryEvidenceLabel(primaryAttach)}
+                </p>
               </div>
-            ))}
+              <span className="shrink-0 rounded-full bg-t-magenta/10 px-2 py-1 text-[8px] font-black uppercase tracking-widest text-t-magenta">
+                {primaryAttach.priceRange}
+              </span>
+            </div>
           </div>
         </section>
-      ) : null}
-
-      <section className="glass-stage-quiet rounded-3xl p-5 relative pl-[5.5rem]">
-        <div className="absolute left-5 top-6">
-          <KipAvatar size="medium" state="idle" />
-        </div>
-        <div className="flex items-start gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-t-light-gray/40">
-            <CheckCircle2 className="h-5 w-5 text-t-magenta" />
+      ) : (
+        <section className="glass-stage-quiet rounded-3xl p-5">
+          <div className="flex items-start gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-t-magenta/10">
+              <Headphones className="h-5 w-5 text-t-magenta" />
+            </div>
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-t-magenta">No add-on yet</p>
+              <p className="mt-1 text-sm font-black text-foreground">
+                {liveGate.emptyReason || 'No strong add-on fit right now. Focus on the relationship.'}
+              </p>
+            </div>
           </div>
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-t-magenta">Coach note</p>
-            <p className="mt-1 text-sm font-black text-foreground">Keep the rep grounded while the call is moving.</p>
-            <p className="mt-3 text-[12px] font-medium leading-relaxed text-t-dark-gray">{script.coachsCorner}</p>
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
     </div>
   );
 }
 
+function getAccessoryEvidenceLabel(item: AccessoryRecommendation): string {
+  if (item.eligibilityStatus === 'quote-safe') return 'Source-backed - eligibility locked';
+  if (item.eligibilityStatus === 'review-required') return 'Source-backed - verify eligibility';
+  if (item.eligibilityStatus === 'not-eligible') return 'Source-backed - not bundle eligible';
+  return item.sourceUrl ? 'Source-backed' : 'Local catalog';
+}
+
 function StatusPill({ label, value }: { label: string; value: string }) {
   return (
-    <div className="glass-utility rounded-2xl px-3 py-3">
+    <div className="glass-utility flex min-h-[4.5rem] flex-col justify-center rounded-2xl px-3 py-3 text-center">
       <p className="text-[9px] font-black uppercase tracking-[0.18em] text-white/75">{label}</p>
-      <p className="mt-1 text-[11px] font-bold leading-relaxed text-white">{value}</p>
+      <p className="mt-1 line-clamp-1 text-[11px] font-bold leading-tight text-white">{value}</p>
     </div>
   );
 }
@@ -227,6 +282,8 @@ function PlanSection({
   tone,
   supportingItems,
   supportingLabel,
+  onFreshTake,
+  freshTakeLimitReached,
 }: {
   icon: ReactNode;
   eyebrow: string;
@@ -235,7 +292,11 @@ function PlanSection({
   tone: 'magenta' | 'info' | 'warning' | 'success';
   supportingItems?: string[];
   supportingLabel?: string;
+  onFreshTake: (text: string) => Promise<string | null>;
+  freshTakeLimitReached: boolean;
 }) {
+  const [freshTextByItem, setFreshTextByItem] = useState<Record<string, string>>({});
+  const [loadingItem, setLoadingItem] = useState<string | null>(null);
   const toneClass = {
     magenta: 'glass-feature',
     info: 'glass-stage-quiet',
@@ -256,9 +317,31 @@ function PlanSection({
       </div>
 
       <div className="mt-4 space-y-2">
-        {items.slice(0, 4).map((item) => (
+        {items.slice(0, 1).map((item) => (
           <div key={item} className="glass-reading rounded-2xl px-4 py-3">
-            <p className="text-[11px] font-medium leading-relaxed text-t-dark-gray">{item}</p>
+            <p className="text-[11px] font-medium leading-relaxed text-t-dark-gray">{freshTextByItem[item] || item}</p>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={async () => {
+                  if (loadingItem || freshTextByItem[item] || freshTakeLimitReached) return;
+                  setLoadingItem(item);
+                  const next = await onFreshTake(item);
+                  if (next) {
+                    setFreshTextByItem((current) => ({ ...current, [item]: next }));
+                  }
+                  setLoadingItem(null);
+                }}
+                disabled={Boolean(loadingItem) || Boolean(freshTextByItem[item]) || freshTakeLimitReached}
+                className="focus-ring inline-flex min-h-[34px] items-center gap-1.5 rounded-full bg-t-magenta/10 px-3 text-[9px] font-black uppercase tracking-[0.14em] text-t-magenta transition-colors hover:bg-t-magenta/15 disabled:cursor-not-allowed disabled:opacity-45"
+              >
+                {loadingItem === item ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+                {freshTextByItem[item] ? 'Fresh take ready' : 'Fresh take'}
+              </button>
+              {freshTakeLimitReached && !freshTextByItem[item] ? (
+                <span className="text-[9px] font-semibold text-t-muted">3 per call</span>
+              ) : null}
+            </div>
           </div>
         ))}
       </div>
@@ -269,7 +352,7 @@ function PlanSection({
             {supportingLabel || 'Extra lines'}
           </p>
           <div className="mt-2 flex flex-wrap gap-2">
-            {supportingItems.slice(0, 4).map((item) => (
+            {supportingItems.slice(0, 2).map((item) => (
               <span
                 key={item}
                 className="rounded-full bg-t-light-gray/40 px-2.5 py-1 text-[9px] font-bold text-t-dark-gray"
